@@ -3,11 +3,20 @@ const LATITUDE = 42.9849;
 const LONGITUDE = 47.5046;
 const METHOD = 16; // ДУМ РФ
 
-// Хранилище времен намазов
-let prayerTimes = {};
-let azanTimers = [];
+// Запасные данные (примерное время для Махачкалы, если API недоступен)
+const FALLBACK_TIMINGS = {
+    Fajr: "02:00",
+    Sunrise: "04:15",
+    Dhuhr: "11:50",
+    Asr: "15:50",
+    Maghrib: "19:25",
+    Isha: "21:35"
+};
 
-// Функция получения текущей даты в формате YYYY-MM-DD (реальная, не из API)
+let prayerTimes = {};
+let fallbackUsed = false;
+
+// Получение текущей даты
 function getCurrentDate() {
     const now = new Date();
     const year = now.getFullYear();
@@ -16,66 +25,151 @@ function getCurrentDate() {
     return `${year}-${month}-${day}`;
 }
 
-// Функция для получения времени намаза
+// Функция запроса с повторными попытками (для iPhone)
+async function fetchWithRetry(url, maxAttempts = 3) {
+    let lastError;
+    
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+            // Таймаут 10 секунд для мобильных устройств
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
+            
+            const response = await fetch(url, { signal: controller.signal });
+            clearTimeout(timeoutId);
+            
+            if (response.ok) {
+                return await response.json();
+            }
+            throw new Error(`HTTP ${response.status}`);
+        } catch (error) {
+            lastError = error;
+            console.log(`Попытка ${attempt} не удалась:`, error.message);
+            
+            if (attempt === maxAttempts) break;
+            
+            // Задержка между попытками
+            const delay = attempt * 1000;
+            await new Promise(resolve => setTimeout(resolve, delay));
+        }
+    }
+    throw lastError;
+}
+
+// Основная функция получения времени
 async function fetchPrayerTimes() {
     const dateString = getCurrentDate();
-    
-    // Используем параметр adjustment, чтобы принудительно взять сегодняшний день
     const url = `https://api.aladhan.com/v1/timings/${dateString}?latitude=${LATITUDE}&longitude=${LONGITUDE}&method=${METHOD}&timezone=Europe/Moscow`;
     
     try {
-        const response = await fetch(url);
-        const data = await response.json();
+        console.log("Загружаем время намаза...");
+        const data = await fetchWithRetry(url, 3);
         
-        if (data.code === 200) {
+        if (data && data.code === 200) {
             const timings = data.data.timings;
             prayerTimes = timings;
+            fallbackUsed = false;
             
-            // Показываем реальную дату с компьютера пользователя
-            const today = new Date();
-            const formattedDate = today.toLocaleDateString('ru-RU', { 
-                day: 'numeric', 
-                month: 'long', 
-                year: 'numeric' 
-            });
-            
-            // Хиджра дата из API (она обычно правильная)
-            const hijriDate = data.data.date.hijri.date;
-            
-            document.getElementById('fajr').innerText = timings.Fajr;
-            document.getElementById('sunrise').innerText = timings.Sunrise;
-            document.getElementById('dhuhr').innerText = timings.Dhuhr;
-            document.getElementById('asr').innerText = timings.Asr;
-            document.getElementById('maghrib').innerText = timings.Maghrib;
-            document.getElementById('isha').innerText = timings.Isha;
-            
-            // Отображаем ПРАВИЛЬНУЮ дату (2026, а не 2030)
-            document.getElementById('currentDate').innerHTML = `📆 ${formattedDate}`;
-            document.getElementById('gregorianDate').innerHTML = `${hijriDate} г.х.`;
-            
-            const updateTime = new Date();
-            document.getElementById('updateTime').innerText = `${updateTime.getHours().toString().padStart(2, '0')}:${updateTime.getMinutes().toString().padStart(2, '0')}`;
-            
-            // Очищаем старые таймеры азана
-            azanTimers.forEach(timer => clearTimeout(timer));
-            azanTimers = [];
-            
-            // Устанавливаем таймеры на азан за 5 минут до каждого намаза
-            setupAzanTimers(timings);
-            
-            // Вычисляем ближайший намаз
-            calculateNearestPrayer(timings);
+            // Обновляем UI
+            updateUIWithTimings(timings, data.data);
+            console.log("Данные успешно загружены из API");
         } else {
-            showError();
+            throw new Error("Неверный ответ от API");
         }
     } catch (error) {
-        console.error('Ошибка загрузки:', error);
-        showError();
+        console.error("Ошибка загрузки из API, используем запасные данные:", error);
+        
+        // Используем запасные данные
+        prayerTimes = FALLBACK_TIMINGS;
+        fallbackUsed = true;
+        
+        // Обновляем UI с запасными данными
+        updateUIWithFallback();
+        
+        // Показываем уведомление, что используются запасные данные
+        showNetworkWarning();
+    }
+    
+    // Устанавливаем таймеры на азан
+    if (Object.keys(prayerTimes).length > 0) {
+        setupAzanTimers(prayerTimes);
+        calculateNearestPrayer(prayerTimes);
     }
 }
 
-// Функция для установки таймеров азана за 5 минут до намаза
+// Обновление интерфейса с данными из API
+function updateUIWithTimings(timings, fullData) {
+    document.getElementById('fajr').innerText = timings.Fajr;
+    document.getElementById('sunrise').innerText = timings.Sunrise;
+    document.getElementById('dhuhr').innerText = timings.Dhuhr;
+    document.getElementById('asr').innerText = timings.Asr;
+    document.getElementById('maghrib').innerText = timings.Maghrib;
+    document.getElementById('isha').innerText = timings.Isha;
+    
+    // Даты
+    const today = new Date();
+    const formattedDate = today.toLocaleDateString('ru-RU', { 
+        day: 'numeric', 
+        month: 'long', 
+        year: 'numeric' 
+    });
+    
+    document.getElementById('currentDate').innerHTML = `📆 ${formattedDate}`;
+    
+    if (fullData && fullData.date && fullData.date.hijri) {
+        document.getElementById('gregorianDate').innerHTML = `${fullData.date.hijri.date} г.х.`;
+    }
+    
+    const updateTime = new Date();
+    document.getElementById('updateTime').innerText = `${updateTime.getHours().toString().padStart(2, '0')}:${updateTime.getMinutes().toString().padStart(2, '0')}`;
+}
+
+// Обновление интерфейса с запасными данными
+function updateUIWithFallback() {
+    document.getElementById('fajr').innerText = FALLBACK_TIMINGS.Fajr;
+    document.getElementById('sunrise').innerText = FALLBACK_TIMINGS.Sunrise;
+    document.getElementById('dhuhr').innerText = FALLBACK_TIMINGS.Dhuhr;
+    document.getElementById('asr').innerText = FALLBACK_TIMINGS.Asr;
+    document.getElementById('maghrib').innerText = FALLBACK_TIMINGS.Maghrib;
+    document.getElementById('isha').innerText = FALLBACK_TIMINGS.Isha;
+    
+    const today = new Date();
+    const formattedDate = today.toLocaleDateString('ru-RU', { 
+        day: 'numeric', 
+        month: 'long', 
+        year: 'numeric' 
+    });
+    document.getElementById('currentDate').innerHTML = `📆 ${formattedDate} (приблизительно)`;
+    document.getElementById('gregorianDate').innerHTML = `данные загружены из кеша`;
+}
+
+// Показываем предупреждение о сети
+function showNetworkWarning() {
+    const footer = document.querySelector('.footer-note');
+    if (footer && !document.querySelector('.network-warning')) {
+        const warning = document.createElement('p');
+        warning.className = 'network-warning';
+        warning.style.color = '#B67B4A';
+        warning.style.fontSize = '11px';
+        warning.style.marginTop = '8px';
+        warning.innerHTML = '⚠️ Используются примерные данные. Проверьте интернет-соединение.';
+        footer.appendChild(warning);
+        
+        // Скрыть через 5 секунд
+        setTimeout(() => {
+            warning.style.opacity = '0';
+            setTimeout(() => warning.remove(), 1000);
+        }, 5000);
+    }
+}
+
+// Таймеры азана
+let azanTimers = [];
+
 function setupAzanTimers(timings) {
+    azanTimers.forEach(timer => clearTimeout(timer));
+    azanTimers = [];
+    
     const prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
     const now = new Date();
     const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
@@ -86,20 +180,15 @@ function setupAzanTimers(timings) {
         
         const [hours, minutes] = timeStr.split(':').map(Number);
         let prayerTotalMinutes = hours * 60 + minutes;
-        
-        // Время азана за 5 минут до намаза
         let azanTimeMinutes = prayerTotalMinutes - 5;
         
-        // Если время азана уже прошло сегодня, пропускаем
         if (azanTimeMinutes <= currentTotalMinutes) return;
         
-        const nowMs = now.getTime();
         const targetDate = new Date(now);
         targetDate.setHours(Math.floor(azanTimeMinutes / 60), azanTimeMinutes % 60, 0, 0);
+        const delay = targetDate.getTime() - now.getTime();
         
-        const delay = targetDate.getTime() - nowMs;
-        
-        if (delay > 0) {
+        if (delay > 0 && delay < 86400000) {
             const timer = setTimeout(() => {
                 playAzan(prayerName);
             }, delay);
@@ -108,54 +197,33 @@ function setupAzanTimers(timings) {
     });
 }
 
-// Функция воспроизведения азана
 function playAzan(prayerName) {
-    // Перевод названия на русский
-    const prayerNames = {
-        'Fajr': 'Фаджр',
-        'Dhuhr': 'Зухр',
-        'Asr': 'Аср',
-        'Maghrib': 'Магриб',
-        'Isha': 'Иша'
-    };
-    
+    const prayerNames = { 'Fajr': 'Фаджр', 'Dhuhr': 'Зухр', 'Asr': 'Аср', 'Maghrib': 'Магриб', 'Isha': 'Иша' };
     const russianName = prayerNames[prayerName] || prayerName;
     
-    // Показываем уведомление
     if (Notification.permission === 'granted') {
         new Notification(`🕌 Время намаза ${russianName} через 5 минут!`, {
             body: 'Приготовьтесь к намазу',
-            icon: 'https://cdn-icons-png.flaticon.com/512/3069/3069175.png',
-            silent: false
+            icon: 'https://cdn-icons-png.flaticon.com/512/3069/3069175.png'
         });
     } else if (Notification.permission !== 'denied') {
         Notification.requestPermission();
     }
     
-    // Воспроизводим азан (реальный файл азана)
     const audio = document.getElementById('azanAudio');
     if (audio) {
-        // Реальная ссылка на азан (можно заменить на любую другую)
-        audio.src = 'https://www.islamcan.com/audio/adhan/fajr-adhan.shtml'; // Замени на реальный MP3
-        
-        // ВАЖНО: Вставь реальную ссылку на MP3 файл азана, например:
-        // audio.src = 'https://example.com/azan.mp3';
-        
-        audio.play().catch(e => console.log('Автовоспроизведение заблокировано браузером', e));
+        audio.play().catch(e => console.log('Автовоспроизведение заблокировано'));
     }
     
-    // Также показываем alert (на случай, если уведомления выключены)
     if (document.hidden) {
         alert(`🕌 Внимание! Через 5 минут намаз ${russianName}`);
     }
 }
 
-// Функция для определения ближайшего намаза
+// Ближайший намаз
 function calculateNearestPrayer(timings) {
     const now = new Date();
-    const currentHours = now.getHours();
-    const currentMinutes = now.getMinutes();
-    const currentTotalMinutes = currentHours * 60 + currentMinutes;
+    const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
     
     const prayers = [
         { name: 'Фаджр', time: timings.Fajr, id: 'fajr' },
@@ -217,30 +285,15 @@ function updateCountdown(minutesLeft) {
 
 function highlightPrayer(activeId) {
     const allPrayerItems = document.querySelectorAll('.prayer-item');
-    allPrayerItems.forEach(item => {
-        item.classList.remove('active');
-    });
+    allPrayerItems.forEach(item => item.classList.remove('active'));
     
     if (activeId) {
         const activeElement = document.getElementById(activeId)?.closest('.prayer-item');
-        if (activeElement) {
-            activeElement.classList.add('active');
-        }
+        if (activeElement) activeElement.classList.add('active');
     }
 }
 
-function showError() {
-    const times = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'];
-    times.forEach(id => {
-        document.getElementById(id).innerText = '--:--';
-    });
-    document.getElementById('updateTime').innerText = 'ошибка';
-    document.getElementById('nextPrayerName').innerText = '--';
-    document.getElementById('nextPrayerTime').innerText = '--:--';
-    document.getElementById('countdownText').innerText = 'Не удалось загрузить';
-}
-
-// Запрашиваем разрешение на уведомления при загрузке
+// Запрос разрешения на уведомления
 if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
     Notification.requestPermission();
 }
@@ -257,7 +310,7 @@ setInterval(() => {
     }
 }, 60000);
 
-// Обновляем данные каждый час (на случай смены дня)
+// Обновляем данные каждый час
 setInterval(() => {
     fetchPrayerTimes();
 }, 3600000);

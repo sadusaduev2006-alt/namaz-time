@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Время намаза — Махачкала | Ислам</title>
+    <title>Время намаза — Махачкала</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
@@ -21,43 +21,43 @@
                 <p class="gregorian" id="gregorianDate">--</p>
             </div>
 
-            <div class="prayer-grid" id="prayerGrid">
-                <div class="prayer-item" data-prayer="Fajr">
+            <div class="prayer-grid">
+                <div class="prayer-item">
                     <div class="prayer-info">
                         <i class="fas fa-cloud-moon"></i>
                         <span class="prayer-name">Фаджр</span>
                     </div>
                     <span class="prayer-time" id="fajr">--:--</span>
                 </div>
-                <div class="prayer-item" data-prayer="Sunrise">
+                <div class="prayer-item">
                     <div class="prayer-info">
                         <i class="fas fa-sun"></i>
-                        <span class="prayer-name">Шурук (Восход)</span>
+                        <span class="prayer-name">Шурук</span>
                     </div>
                     <span class="prayer-time" id="sunrise">--:--</span>
                 </div>
-                <div class="prayer-item" data-prayer="Dhuhr">
+                <div class="prayer-item">
                     <div class="prayer-info">
                         <i class="fas fa-sun"></i>
                         <span class="prayer-name">Зухр</span>
                     </div>
                     <span class="prayer-time" id="dhuhr">--:--</span>
                 </div>
-                <div class="prayer-item" data-prayer="Asr">
+                <div class="prayer-item">
                     <div class="prayer-info">
                         <i class="fas fa-clock"></i>
                         <span class="prayer-name">Аср</span>
                     </div>
                     <span class="prayer-time" id="asr">--:--</span>
                 </div>
-                <div class="prayer-item" data-prayer="Maghrib">
+                <div class="prayer-item">
                     <div class="prayer-info">
                         <i class="fas fa-moon"></i>
                         <span class="prayer-name">Магриб</span>
                     </div>
                     <span class="prayer-time" id="maghrib">--:--</span>
                 </div>
-                <div class="prayer-item" data-prayer="Isha">
+                <div class="prayer-item">
                     <div class="prayer-info">
                         <i class="fas fa-star-of-life"></i>
                         <span class="prayer-name">Иша</span>
@@ -83,14 +83,10 @@
 
             <div class="footer-note">
                 <p><i class="far fa-clock"></i> Обновлено: <span id="updateTime">сегодня</span></p>
-                <p class="method"><i class="fas fa-calculator"></i> Метод: ДУМ РФ (Москва)</p>
+                <p class="method"><i class="fas fa-calculator"></i> Метод: ДУМ РФ</p>
             </div>
         </div>
     </div>
     <script src="script.js"></script>
-    <audio id="azanAudio" preload="auto">
-    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-</audio>
 </body>
-
 </html>

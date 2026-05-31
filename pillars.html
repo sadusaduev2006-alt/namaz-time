@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>5 столпов ислама — Намаз Дагестан</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #F4EFE6;
+            --card-bg: #FFFFFF;
+            --text: #2C2A29;
+            --text-light: #5E4B3A;
+            --accent: #B67B4A;
+            --accent-light: #F7EFE4;
+            --border: rgba(210, 180, 140, 0.2);
+            --shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.08);
+        }
+
+        body[data-theme="dark"] {
+            --bg: #1a1a1a;
+            --card-bg: #2C2C2C;
+            --text: #E0E0E0;
+            --text-light: #C0A080;
+            --accent: #D4A373;
+            --accent-light: #3D3D3D;
+            --border: rgba(200, 180, 140, 0.2);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            transition: background 0.3s;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 750px;
+            margin: 0 auto;
+        }
+
+        /* Хедер */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+
+        .back-btn {
+            background: var(--accent-light);
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 44px;
+            cursor: pointer;
+            color: var(--accent);
+            font-size: 20px;
+            transition: transform 0.2s;
+        }
+
+        .back-btn:hover {
+            transform: scale(1.05);
+        }
+
+        h1 {
+            font-size: 26px;
+            font-weight: 600;
+            color: var(--accent);
+            text-align: center;
+        }
+
+        .theme-btn {
+            background: var(--accent-light);
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 44px;
+            cursor: pointer;
+            color: var(--accent);
+            font-size: 20px;
+        }
+
+        /* Введение */
+        .intro-card {
+            background: var(--card-bg);
+            border-radius: 32px;
+            padding: 28px 24px;
+            margin-bottom: 24px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .intro-card p {
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--text-light);
+        }
+
+        .hadith {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+            font-style: italic;
+            font-size: 14px;
+        }
+
+        /* Карточки столпов */
+        .pillar-card {
+            background: var(--card-bg);
+            border-radius: 28px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .pillar-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px -12px rgba(0, 0, 0, 0.12);
+        }
+
+        .pillar-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .pillar-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--accent-light);
+            border-radius: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: var(--accent);
+        }
+
+        .pillar-title {
+            flex: 1;
+        }
+
+        .pillar-title h2 {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 4px;
+        }
+
+        .pillar-title .arabic {
+            font-family: 'Amiri', serif;
+            font-size: 18px;
+            color: var(--text-light);
+        }
+
+        .pillar-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--border);
+        }
+
+        .pillar-content {
+            color: var(--text-light);
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .pillar-subsection {
+            margin-top: 16px;
+            padding: 14px;
+            background: var(--accent-light);
+            border-radius: 20px;
+        }
+
+        .pillar-subsection h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pillar-subsection p {
+            font-size: 14px;
+        }
+
+        .quote {
+            margin-top: 16px;
+            padding: 14px;
+            background: var(--accent-light);
+            border-radius: 20px;
+            font-style: italic;
+            font-size: 14px;
+            border-right: 3px solid var(--accent);
+        }
+
+        .verse {
+            font-family: 'Amiri', serif;
+            font-size: 18px;
+            text-align: right;
+            margin-bottom: 8px;
+        }
+
+        .surah-info {
+            font-size: 12px;
+            text-align: right;
+            color: var(--accent);
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 16px 0;
+        }
+
+        @media (max-width: 560px) {
+            body {
+                padding: 16px;
+            }
+            .pillar-card {
+                padding: 18px;
+            }
+            .pillar-header {
+                flex-wrap: wrap;
+            }
+            .pillar-number {
+                display: none;
+            }
+            h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <div class="container">
+        <div class="header">
+            <button onclick="window.location.href='index.html'" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1>🕌 5 столпов ислама</h1>
+            <button id="themeTogglePillars" class="theme-btn">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+
+        <!-- Введение -->
+        <div class="intro-card">
+            <p><strong>«Ислам построен на пяти столпах»</strong> — так сказал пророк Мухаммад (мир ему).</p>
+            <div class="hadith">
+                «Свидетельство, что нет божества, кроме Аллаха, и что Мухаммад — Его раб и посланник, совершение намаза, выплата закята, пост в Рамадане и паломничество к Дому (Каабе)».
+            </div>
+        </div>
+
+        <!-- 1. Шахада -->
+        <div class="pillar-card">
+            <div class="pillar-header">
+                <div class="pillar-icon"><i class="fas fa-star-and-crescent"></i></div>
+                <div class="pillar-title">
+                    <h2>Шахада</h2>
+                    <div class="arabic">الشهادة</div>
+                </div>
+                <div class="pillar-number">01</div>
+            </div>
+            <div class="pillar-content">
+                <p>Шахада — это свидетельство веры, формула единобожия. Произнеся её осознанно один раз в жизни, человек становится мусульманином.</p>
+                <div class="pillar-subsection">
+                    <h4><i class="fas fa-comment-dots"></i> Текст</h4>
+                    <p><strong>أشهد أن لا إله إلا الله وأشهد أن محمداً رسول الله</strong><br>
+                    «Ашхаду алля иляха илля-Ллах, ва ашхаду анна Мухаммадан расулу-Ллах»<br>
+                    <em>«Свидетельствую, что нет божества, кроме Аллаха, и свидетельствую, что Мухаммад — посланник Аллаха»</em></p>
+                </div>
+                <div class="quote">
+                    <i class="fas fa-quote-left"></i> Первая часть отрицает ложные божества, вторая утверждает пророческую миссию Мухаммада (мир ему).
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Намаз -->
+        <div class="pillar-card">
+            <div class="pillar-header">
+                <div class="pillar-icon"><i class="fas fa-praying-hands"></i></div>
+                <div class="pillar-title">
+                    <h2>Намаз</h2>
+                    <div class="arabic">الصلاة</div>
+                </div>
+                <div class="pillar-number">02</div>
+            </div>
+            <div class="pillar-content">
+                <p>Пять обязательных ежедневных молитв — связь между рабом и его Творцом.</p>
+                <div class="pillar-subsection">
+                    <h4><i class="fas fa-clock"></i> Пять намазов</h4>
+                    <p><strong>Фаджр</strong> (утренний) — 2 ракаата<br>
+                    <strong>Зухр</strong> (полуденный) — 4 ракаата<br>
+                    <strong>Аср</strong> (послеполуденный) — 4 ракаата<br>
+                    <strong>Магриб</strong> (вечерний) — 3 ракаата<br>
+                    <strong>Иша</strong> (ночной) — 4 ракаата</p>
+                </div>
+                <div class="quote">
+                    <i class="fas fa-quote-left"></i> «Первое, за что будет спрошен раб в Судный день — это намаз. И если он будет в порядке, то успешными будут и остальные дела» (хадис).
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Закят -->
+        <div class="pillar-card">
+            <div class="pillar-header">
+                <div class="pillar-icon"><i class="fas fa-hand-holding-heart"></i></div>
+                <div class="pillar-title">
+                    <h2>Закят</h2>
+                    <div class="arabic">الزكاة</div>
+                </div>
+                <div class="pillar-number">03</div>
+            </div>
+            <div class="pillar-content">
+                <p>Обязательная милостыня — очищение имущества и души от скупости.</p>
+                <div class="pillar-subsection">
+                    <h4><i class="fas fa-calculator"></i> Размер</h4>
+                    <p>2,5% от сбережений (золото, серебро, деньги, товары), если их стоимость достигла минимального порога (нисаб).</p>
+                </div>
+                <div class="verse">
+                    وَآتُوا الزَّكَاةَ
+                </div>
+                <div class="surah-info">Сура «Аль-Бакара», 43</div>
+                <div class="quote">
+                    <i class="fas fa-quote-left"></i> Закят выплачивается раз в год и распределяется среди 8 категорий нуждающихся.
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Пост в Рамадане -->
+        <div class="pillar-card">
+            <div class="pillar-header">
+                <div class="pillar-icon"><i class="fas fa-moon"></i></div>
+                <div class="pillar-title">
+                    <h2>Саум</h2>
+                    <div class="arabic">الصوم</div>
+                </div>
+                <div class="pillar-number">04</div>
+            </div>
+            <div class="pillar-content">
+                <p>Воздержание от еды, питья и супружеской близости от рассвета до заката в течение месяца Рамадан.</p>
+                <div class="pillar-subsection">
+                    <h4><i class="fas fa-calendar-alt"></i> Рамадан</h4>
+                    <p>9-й месяц лунного календаря. В нём был ниспослан Коран. Ночь Предопределения (Ляйлятуль-Кадр) лучше тысячи месяцев.</p>
+                </div>
+                <div class="verse">
+                    يَا أَيُّهَا الَّذِينَ آمَنُوا كُتِبَ عَلَيْكُمُ الصِّيَامُ
+                </div>
+                <div class="surah-info">Сура «Аль-Бакара», 183</div>
+            </div>
+        </div>
+
+        <!-- 5. Хадж -->
+        <div class="pillar-card">
+            <div class="pillar-header">
+                <div class="pillar-icon"><i class="fas fa-kaaba"></i></div>
+                <div class="pillar-title">
+                    <h2>Хадж</h2>
+                    <div class="arabic">الحج</div>
+                </div>
+                <div class="pillar-number">05</div>
+            </div>
+            <div class="pillar-content">
+                <p>Паломничество в Мекку к Заповедной мечети — один раз в жизни для тех, у кого есть физическая и материальная возможность.</p>
+                <div class="pillar-subsection">
+                    <h4><i class="fas fa-map-marked-alt"></i> Главные обряды</h4>
+                    <p>• Вхождение в ихрам (состояние освящённости)<br>
+                    • Обход вокруг Каабы (таваф)<br>
+                    • Стояние на Арафате (главный обряд)<br>
+                    • Побивание камнями дьявола в Мине</p>
+                </div>
+                <div class="quote">
+                    <i class="fas fa-quote-left"></i> «Кто совершил хадж и не сквернословил и не грешил, тот вернётся подобным новорождённому» (хадис).
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Тёмная тема
+        function initTheme() {
+            const saved = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', saved);
+            const icon = document.querySelector('#themeTogglePillars i');
+            if (saved === 'dark') icon.classList.replace('fa-moon', 'fa-sun');
+            else icon.classList.replace('fa-sun', 'fa-moon');
+        }
+        
+        function toggleTheme() {
+            const cur = document.body.getAttribute('data-theme');
+            const neu = cur === 'light' ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', neu);
+            localStorage.setItem('theme', neu);
+            const icon = document.querySelector('#themeTogglePillars i');
+            if (neu === 'dark') icon.classList.replace('fa-moon', 'fa-sun');
+            else icon.classList.replace('fa-sun', 'fa-moon');
+        }
+        
+        initTheme();
+        document.getElementById('themeTogglePillars')?.addEventListener('click', toggleTheme);
+    </script>
+</body>
+</html>

@@ -379,3 +379,81 @@ document.addEventListener('DOMContentLoaded', () => {
         fetchPrayerTimes();
     }, 3600000);
 });
+// ------------------------------------------------------------
+// 9. ВЫДВИЖНОЕ МЕНЮ
+// ------------------------------------------------------------
+function initDrawerMenu() {
+    const menuToggle = document.getElementById('menuToggle');
+    const closeDrawer = document.getElementById('closeDrawer');
+    const drawer = document.getElementById('drawerMenu');
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContent = document.getElementById('tabContent');
+    
+    function openDrawer() {
+        drawer.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeDrawerFunc() {
+        drawer.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+    
+    if (menuToggle) menuToggle.onclick = openDrawer;
+    if (closeDrawer) closeDrawer.onclick = closeDrawerFunc;
+    
+    // Закрытие по клику на оверлей (фон)
+    drawer.addEventListener('click', (e) => {
+        if (e.target === drawer) closeDrawerFunc();
+    });
+    
+    // Переключение вкладок
+    const tabContents = {
+        fatiha: `<div class="surah-content">
+                    <h3>Сура Аль-Фатиха</h3>
+                    <p class="arabic-text">
+                        بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ<br>
+                        الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ<br>
+                        الرَّحْمَٰنِ الرَّحِيمِ<br>
+                        مَالِكِ يَوْمِ الدِّينِ<br>
+                        إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ<br>
+                        اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ<br>
+                        صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ
+                    </p>
+                    <div class="transliteration">
+                        <h4>Транскрипция:</h4>
+                        <p>Бисмилляхир-рахманир-рахим.<br>
+                        Альхамдулилляхи раббиль-алямин.<br>
+                        Ар-рахманир-рахим.<br>
+                        Малики яумид-дин.<br>
+                        Ийякя на’буду ва ийякя наста’ин.<br>
+                        Ихдинас-сыраталь-мустакым.<br>
+                        Сыраталь-лязина ан’амта ‘алейхим гайриль-магдуби ‘алейхим ва ляд-даллин.</p>
+                    </div>
+                    <div class="translation">
+                        <h4>Перевод смыслов:</h4>
+                        <p>Во имя Аллаха, Милостивого, Милосердного.<br>
+                        Хвала Аллаху, Господу миров,<br>
+                        Милостивому, Милосердному,<br>
+                        Властелину Дня воздаяния!<br>
+                        Тебе одному мы поклоняемся и Тебя одного молим о помощи.<br>
+                        Веди нас прямым путём,<br>
+                        путём тех, кого Ты облагодетельствовал, не тех, на кого пал гнев, и не заблудших.</p>
+                    </div>
+                </div>`
+    };
+    
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            tabBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const tabId = btn.getAttribute('data-tab');
+            if (tabContents[tabId]) {
+                tabContent.innerHTML = tabContents[tabId];
+            }
+        });
+    });
+}
+
+// Добавь вызов в DOMContentLoaded:
+// initDrawerMenu();  // раскомментируй внутри функции DOMContentLoaded

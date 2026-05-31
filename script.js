@@ -5,11 +5,15 @@ let currentCity = { lat: 42.9849, lng: 47.5046, name: "Махачкала" };
 let prayerTimes = {};
 let lastNotifiedPrayers = new Set();
 
-// Метод MWL (угол 18° для Фаджра, 17° для Иша)
+// Метод MWL (угол 18° для Фаджра)
 const API_METHOD = 3; // Muslim World League
 
 // Координаты Мекки для Киблы
 const MECCA = { lat: 21.4225, lng: 39.8262 };
+
+let currentHeading = 0;
+let qiblaDirection = 0;
+let compassInitialized = false;
 
 // ------------------------------------------------------------
 // 1. ЗАГРУЗКА ВРЕМЕНИ НАМАЗА
@@ -31,7 +35,6 @@ async function fetchPrayerTimes() {
             const timings = data.data.timings;
             prayerTimes = timings;
             
-            // Обновляем UI
             document.getElementById('fajr').innerText = timings.Fajr;
             document.getElementById('sunrise').innerText = timings.Sunrise;
             document.getElementById('dhuhr').innerText = timings.Dhuhr;
@@ -39,7 +42,6 @@ async function fetchPrayerTimes() {
             document.getElementById('maghrib').innerText = timings.Maghrib;
             document.getElementById('isha').innerText = timings.Isha;
             
-            // Даты
             const formattedDate = today.toLocaleDateString('ru-RU', { 
                 day: 'numeric', 
                 month: 'long', 
@@ -52,13 +54,8 @@ async function fetchPrayerTimes() {
             
             document.getElementById('updateTime').innerText = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
             
-            // Проверяем наступление намазов (для эффекта)
             checkPrayerTimesAndNotify();
-            
-            // Пересчитываем ближайший намаз
             calculateNearestPrayer();
-            
-            // Сохраняем в localStorage для виджета
             saveToLocalStorage();
         }
     } catch (error) {
@@ -67,7 +64,7 @@ async function fetchPrayerTimes() {
 }
 
 // ------------------------------------------------------------
-// 2. ПРОВЕРКА НАСТУПЛЕНИЯ НАМАЗА (ЭФФЕКТ + ЗВУК)
+// 2. ПРОВЕРКА НАСТУПЛЕНИЯ НАМАЗА
 // ------------------------------------------------------------
 function checkPrayerTimesAndNotify() {
     const now = new Date();
@@ -82,9 +79,7 @@ function checkPrayerTimesAndNotify() {
         const [hours, minutes] = timeStr.split(':').map(Number);
         const prayerMinutes = hours * 60 + minutes;
         
-        // Если намаз наступил в течение последних 2 минут и ещё не уведомляли
         if (Math.abs(currentMinutes - prayerMinutes) <= 2 && !lastNotifiedPrayers.has(prayerName)) {
-            // Добавляем эффект на карточку
             const prayerId = getPrayerId(prayerName);
             const prayerElement = document.getElementById(prayerId)?.closest('.prayer-item');
             if (prayerElement) {
@@ -94,7 +89,6 @@ function checkPrayerTimesAndNotify() {
                 }, 1000);
             }
             
-            // Воспроизводим звук уведомления
             const sound = document.getElementById('notificationSound');
             if (sound) {
                 sound.play().catch(e => console.log('Звук заблокирован'));
@@ -106,18 +100,12 @@ function checkPrayerTimesAndNotify() {
 }
 
 function getPrayerId(prayerName) {
-    const map = {
-        'Fajr': 'fajr',
-        'Dhuhr': 'dhuhr',
-        'Asr': 'asr',
-        'Maghrib': 'maghrib',
-        'Isha': 'isha'
-    };
+    const map = { 'Fajr': 'fajr', 'Dhuhr': 'dhuhr', 'Asr': 'asr', 'Maghrib': 'maghrib', 'Isha': 'isha' };
     return map[prayerName];
 }
 
 // ------------------------------------------------------------
-// 3. БЛИЖАЙШИЙ НАМАЗ И ТАЙМЕР
+// 3. БЛИЖАЙШИЙ НАМАЗ
 // ------------------------------------------------------------
 function calculateNearestPrayer() {
     const now = new Date();
@@ -190,7 +178,7 @@ function highlightPrayer(activeId) {
 }
 
 // ------------------------------------------------------------
-// 4. ТЁМНАЯ / СВЕТЛАЯ ТЕМА
+// 4. ТЁМНАЯ ТЕМА
 // ------------------------------------------------------------
 function initTheme() {
     const savedTheme = localStorage.getItem('theme') || 'light';
@@ -235,72 +223,106 @@ function initCitySelect() {
             name: e.target.options[e.target.selectedIndex].text
         };
         fetchPrayerTimes();
+        calculateQiblaAngleForCity();
     });
 }
 
 // ------------------------------------------------------------
-// 6. КОМПАС КИБЛЫ
+// 6. КОМПАС КИБЛЫ (ИСПРАВЛЕННЫЙ - РАБОТАЕТ НА IPHONE)
 // ------------------------------------------------------------
-let currentOrientation = 0;
-let qiblaAngle = 0;
-
-function calculateQiblaAngle(lat, lng) {
-    const φ1 = lat * Math.PI / 180;
+function calculateQiblaAngleForCity() {
+    const φ1 = currentCity.lat * Math.PI / 180;
     const φ2 = MECCA.lat * Math.PI / 180;
-    const Δλ = (MECCA.lng - lng) * Math.PI / 180;
+    const Δλ = (MECCA.lng - currentCity.lng) * Math.PI / 180;
     
     const y = Math.sin(Δλ) * Math.cos(φ2);
     const x = Math.cos(φ1) * Math.sin(φ2) - Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
     let θ = Math.atan2(y, x);
-    return (θ * 180 / Math.PI + 360) % 360;
+    qiblaDirection = (θ * 180 / Math.PI + 360) % 360;
+    
+    // Обновляем отображаемое направление
+    document.getElementById('qiblaDegree').innerHTML = `${Math.round(qiblaDirection)}° от севера`;
+    
+    // Обновляем стрелку, если уже есть текущее направление
+    if (currentHeading !== 0) {
+        updateCompassNeedle();
+    }
 }
 
-function updateCompass(heading) {
-    const angle = (qiblaAngle - heading + 360) % 360;
+function updateCompassNeedle() {
     const needle = document.getElementById('needle');
-    if (needle) {
-        needle.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
-    }
-    const degreeSpan = document.getElementById('qiblaDegree');
-    if (degreeSpan) {
-        degreeSpan.innerHTML = `${Math.round(angle)}° от севера`;
+    if (!needle) return;
+    
+    // Угол, на который нужно повернуть стрелку, чтобы указать на Киблу
+    // Если пользователь повернул телефон на currentHeading градусов,
+    // то стрелка должна повернуться на (qiblaDirection - currentHeading)
+    const rotationAngle = qiblaDirection - currentHeading;
+    needle.style.transform = `translate(-50%, -50%) rotate(${rotationAngle}deg)`;
+    
+    // Обновляем текстовую подсказку
+    const diff = Math.abs(rotationAngle % 360);
+    const compassText = document.getElementById('compassText');
+    if (compassText) {
+        if (diff < 10) {
+            compassText.innerHTML = "✅ Вы смотрите в сторону Киблы!";
+            compassText.style.color = "#4CAF50";
+        } else if (diff < 45) {
+            compassText.innerHTML = "🔄 Почти правильно, доверните немного";
+            compassText.style.color = "#FF9800";
+        } else {
+            compassText.innerHTML = `🧭 Повернитесь на ${Math.round(diff)}° ${rotationAngle > 0 ? 'влево' : 'вправо'}`;
+            compassText.style.color = "#f44336";
+        }
     }
 }
 
 function initCompass() {
-    qiblaAngle = calculateQiblaAngle(currentCity.lat, currentCity.lng);
+    // Сначала вычисляем Киблу для выбранного города
+    calculateQiblaAngleForCity();
     
-    const locationBtn = document.getElementById('requestLocation');
-    locationBtn.addEventListener('click', () => {
-        if ('geolocation' in navigator) {
-            navigator.geolocation.getCurrentPosition((position) => {
-                const userLat = position.coords.latitude;
-                const userLng = position.coords.longitude;
-                qiblaAngle = calculateQiblaAngle(userLat, userLng);
-                document.getElementById('qiblaDegree').innerHTML = `${Math.round(qiblaAngle)}° от севера`;
+    // Проверяем, поддерживается ли DeviceOrientation
+    if (window.DeviceOrientationEvent) {
+        // Для iOS 13+ нужно запросить разрешение
+        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+            const locationBtn = document.getElementById('requestLocation');
+            locationBtn.addEventListener('click', async () => {
+                try {
+                    const permission = await DeviceOrientationEvent.requestPermission();
+                    if (permission === 'granted') {
+                        window.addEventListener('deviceorientation', handleOrientation);
+                        alert('Компас включён! Поворачивайте телефон — стрелка будет двигаться');
+                    }
+                } catch (error) {
+                    alert('Пожалуйста, разрешите доступ к движению телефона в настройках Safari');
+                }
             });
+        } else {
+            // Android и старые iOS
+            window.addEventListener('deviceorientation', handleOrientation);
+            document.getElementById('requestLocation').style.display = 'none';
         }
-    });
+    } else {
+        alert('Ваш браузер не поддерживает компас');
+    }
+}
+
+function handleOrientation(event) {
+    // Для iOS используем webkitCompassHeading
+    let heading = event.webkitCompassHeading;
     
-    if ('DeviceOrientationEvent' in window) {
-        DeviceOrientationEvent.requestPermission?.().then(permissionState => {
-            if (permissionState === 'granted') {
-                window.addEventListener('deviceorientation', (e) => {
-                    currentOrientation = e.webkitCompassHeading || 0;
-                    updateCompass(currentOrientation);
-                });
-            }
-        }).catch(() => {
-            window.addEventListener('deviceorientation', (e) => {
-                currentOrientation = e.webkitCompassHeading || 0;
-                updateCompass(currentOrientation);
-            });
-        });
+    // Для Android используем alpha
+    if (heading === undefined && event.alpha !== undefined) {
+        heading = 360 - event.alpha;
+    }
+    
+    if (heading !== undefined) {
+        currentHeading = heading;
+        updateCompassNeedle();
     }
 }
 
 // ------------------------------------------------------------
-// 7. СОХРАНЕНИЕ ДЛЯ ВИДЖЕТА (LocalStorage)
+// 7. СОХРАНЕНИЕ ДЛЯ ВИДЖЕТА
 // ------------------------------------------------------------
 function saveToLocalStorage() {
     const widgetData = {
@@ -327,7 +349,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     document.getElementById('themeToggle').addEventListener('click', toggleTheme);
     
-    // Обновляем таймер каждую минуту
     setInterval(() => {
         if (Object.keys(prayerTimes).length > 0) {
             calculateNearestPrayer();
@@ -335,7 +356,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, 60000);
     
-    // Обновляем данные каждый час
     setInterval(() => {
         fetchPrayerTimes();
     }, 3600000);

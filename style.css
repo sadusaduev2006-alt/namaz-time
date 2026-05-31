@@ -5,7 +5,6 @@
 }
 
 :root {
-    /* Светлая тема */
     --bg-gradient-start: #F4EFE6;
     --bg-gradient-end: #EDE5DB;
     --card-bg: #FFFFFF;
@@ -83,6 +82,11 @@ body {
     margin-bottom: 20px;
 }
 
+.right-buttons {
+    display: flex;
+    gap: 10px;
+}
+
 .location-badge select {
     background: var(--accent-light);
     border: none;
@@ -95,7 +99,7 @@ body {
     cursor: pointer;
 }
 
-.theme-toggle {
+.menu-toggle, .theme-toggle {
     background: var(--accent-light);
     border: none;
     width: 44px;
@@ -107,7 +111,7 @@ body {
     transition: transform 0.2s;
 }
 
-.theme-toggle:hover {
+.menu-toggle:hover, .theme-toggle:hover {
     transform: scale(1.05);
 }
 
@@ -138,6 +142,111 @@ h1 {
     opacity: 0.7;
 }
 
+/* ВЫДВИЖНОЕ МЕНЮ */
+.drawer-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--card-bg);
+    z-index: 1000;
+    transform: translateX(100%);
+    transition: transform 0.3s ease-out;
+    overflow-y: auto;
+    padding: 24px;
+    box-shadow: var(--shadow);
+}
+
+.drawer-menu.open {
+    transform: translateX(0);
+}
+
+.drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 20px;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--accent);
+}
+
+.close-drawer {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+
+.drawer-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+}
+
+.tab-btn {
+    background: var(--accent-light);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 40px;
+    font-family: inherit;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.tab-btn.active {
+    background: var(--accent);
+    color: white;
+}
+
+.tab-content {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.surah-content h3 {
+    font-size: 24px;
+    text-align: center;
+    margin-bottom: 20px;
+    color: var(--accent);
+}
+
+.arabic-text {
+    font-size: 24px;
+    line-height: 1.8;
+    text-align: right;
+    font-family: 'Amiri', 'Times New Roman', serif;
+    margin-bottom: 20px;
+    color: var(--text-primary);
+}
+
+.transliteration h4, .translation h4 {
+    font-size: 16px;
+    margin: 15px 0 8px 0;
+    color: var(--accent);
+}
+
+.transliteration p, .translation p {
+    line-height: 1.6;
+    color: var(--text-secondary);
+    background: var(--accent-light);
+    padding: 12px;
+    border-radius: 20px;
+}
+
 .prayer-grid {
     display: flex;
     flex-direction: column;
@@ -161,7 +270,6 @@ h1 {
     transform: scale(1.01);
 }
 
-/* Подсветка активного намаза */
 .prayer-item.active {
     background: var(--active-bg);
     border: 1px solid var(--active-border);
@@ -169,28 +277,17 @@ h1 {
 }
 
 @keyframes pulse-glow {
-    0%, 100% {
-        box-shadow: 0 0 0 0 rgba(129, 199, 132, 0.4);
-    }
-    50% {
-        box-shadow: 0 0 0 8px rgba(129, 199, 132, 0);
-    }
+    0%, 100% { box-shadow: 0 0 0 0 rgba(129, 199, 132, 0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(129, 199, 132, 0); }
 }
 
-/* Эффект при наступлении намаза */
 .prayer-item.just-happened {
     animation: flash 0.5s ease-out;
 }
 
 @keyframes flash {
-    0% {
-        background: #ffd700;
-        transform: scale(1.02);
-    }
-    100% {
-        background: var(--prayer-bg);
-        transform: scale(1);
-    }
+    0% { background: #ffd700; transform: scale(1.02); }
+    100% { background: var(--prayer-bg); transform: scale(1); }
 }
 
 .prayer-info {
@@ -226,7 +323,6 @@ h1 {
     color: white;
 }
 
-/* Следующий намаз */
 .next-prayer-card {
     background: var(--accent-light);
     border-radius: 32px;
@@ -282,7 +378,6 @@ h1 {
     color: var(--accent);
 }
 
-/* Компас */
 .qibla-card {
     background: var(--prayer-bg);
     border-radius: 32px;
@@ -395,7 +490,6 @@ h1 {
     margin-top: 8px;
 }
 
-/* Адаптивность */
 @media (max-width: 560px) {
     .prayer-card {
         padding: 24px 18px 32px 18px;
@@ -423,131 +517,4 @@ h1 {
     .needle-top, .needle-bottom {
         height: 50px;
     }
-}
-/* ===== ВЫДВИЖНОЕ МЕНЮ ===== */
-.right-buttons {
-    display: flex;
-    gap: 10px;
-}
-
-.menu-toggle {
-    background: var(--accent-light);
-    border: none;
-    width: 44px;
-    height: 44px;
-    border-radius: 44px;
-    cursor: pointer;
-    color: var(--accent);
-    font-size: 20px;
-    transition: transform 0.2s;
-}
-
-.menu-toggle:hover {
-    transform: scale(1.05);
-}
-
-.drawer-menu {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: var(--card-bg);
-    z-index: 1000;
-    transform: translateY(-100%);
-    transition: transform 0.3s ease-out;
-    border-radius: 0 0 32px 32px;
-    box-shadow: var(--shadow);
-    overflow-y: auto;
-    padding: 20px;
-}
-
-.drawer-menu.open {
-    transform: translateY(0);
-}
-
-.drawer-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--border-color);
-    margin-bottom: 20px;
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--accent);
-}
-
-.close-drawer {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: var(--text-secondary);
-}
-
-.drawer-tabs {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    overflow-x: auto;
-    padding-bottom: 8px;
-}
-
-.tab-btn {
-    background: var(--accent-light);
-    border: none;
-    padding: 10px 20px;
-    border-radius: 40px;
-    font-family: inherit;
-    font-weight: 500;
-    color: var(--text-secondary);
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.2s;
-}
-
-.tab-btn.active {
-    background: var(--accent);
-    color: white;
-}
-
-.tab-content {
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-/* Сура Фатиха */
-.surah-content h3 {
-    font-size: 24px;
-    text-align: center;
-    margin-bottom: 20px;
-    color: var(--accent);
-}
-
-.arabic-text {
-    font-size: 24px;
-    line-height: 1.8;
-    text-align: right;
-    font-family: 'Amiri', 'Times New Roman', serif;
-    margin-bottom: 20px;
-    color: var(--text-primary);
-}
-
-.transliteration h4, .translation h4 {
-    font-size: 16px;
-    margin: 15px 0 8px 0;
-    color: var(--accent);
-}
-
-.transliteration p, .translation p {
-    line-height: 1.6;
-    color: var(--text-secondary);
-    background: var(--accent-light);
-    padding: 12px;
-    border-radius: 20px;
 }

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Сура Аль-Фатиха — Намаз Дагестан</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .surah-page {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--accent-light);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 40px;
+            font-family: inherit;
+            font-weight: 500;
+            color: var(--accent);
+            cursor: pointer;
+            margin-bottom: 24px;
+            transition: transform 0.2s;
+        }
+        .back-btn:hover {
+            transform: scale(1.02);
+        }
+        .surah-card {
+            background: var(--card-bg);
+            border-radius: 48px;
+            padding: 32px;
+            box-shadow: var(--shadow);
+        }
+        .surah-title {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 30px;
+        }
+        .arabic-text-large {
+            font-size: 28px;
+            line-height: 2;
+            text-align: right;
+            font-family: 'Amiri', 'Times New Roman', serif;
+            margin-bottom: 30px;
+            color: var(--text-primary);
+        }
+        .transliteration-block, .translation-block {
+            background: var(--accent-light);
+            padding: 20px;
+            border-radius: 28px;
+            margin-bottom: 20px;
+        }
+        .transliteration-block h4, .translation-block h4 {
+            color: var(--accent);
+            margin-bottom: 12px;
+            font-size: 18px;
+        }
+        .transliteration-block p, .translation-block p {
+            line-height: 1.7;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <div class="surah-page">
+        <button onclick="window.location.href='index.html'" class="back-btn">
+            <i class="fas fa-arrow-left"></i> На главную
+        </button>
+        
+        <div class="surah-card">
+            <h1 class="surah-title">📖 Сура Аль-Фатиха</h1>
+            
+            <div class="arabic-text-large">
+                بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ<br>
+                الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ<br>
+                الرَّحْمَٰنِ الرَّحِيمِ<br>
+                مَالِكِ يَوْمِ الدِّينِ<br>
+                إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ<br>
+                اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ<br>
+                صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ
+            </div>
+
+            <div class="transliteration-block">
+                <h4><i class="fas fa-language"></i> Транскрипция</h4>
+                <p>
+                    Бисмилляхир-рахманир-рахим.<br>
+                    Альхамдулилляхи раббиль-алямин.<br>
+                    Ар-рахманир-рахим.<br>
+                    Малики яумид-дин.<br>
+                    Ийякя на'буду ва ийякя наста'ин.<br>
+                    Ихдинас-сыраталь-мустакым.<br>
+                    Сыраталь-лязина ан'амта 'алейхим гайриль-магдуби 'алейхим ва ляд-даллин.
+                </p>
+            </div>
+
+            <div class="translation-block">
+                <h4><i class="fas fa-book-open"></i> Перевод смыслов</h4>
+                <p>
+                    Во имя Аллаха, Милостивого, Милосердного.<br>
+                    Хвала Аллаху, Господу миров,<br>
+                    Милостивому, Милосердному,<br>
+                    Властелину Дня воздаяния!<br>
+                    Тебе одному мы поклоняемся и Тебя одного молим о помощи.<br>
+                    Веди нас прямым путём,<br>
+                    путём тех, кого Ты облагодетельствовал, не тех, на кого пал гнев, и не заблудших.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+    </script>
+</body>
+</html>

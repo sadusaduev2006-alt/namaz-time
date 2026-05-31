@@ -13,7 +13,7 @@ const MECCA = { lat: 21.4225, lng: 39.8262 };
 
 let currentHeading = 0;
 let qiblaDirection = 0;
-let compassInitialized = false;
+let compassActive = false;
 
 // ------------------------------------------------------------
 // 1. ЗАГРУЗКА ВРЕМЕНИ НАМАЗА
@@ -223,14 +223,14 @@ function initCitySelect() {
             name: e.target.options[e.target.selectedIndex].text
         };
         fetchPrayerTimes();
-        calculateQiblaAngleForCity();
+        calculateQiblaAngle();
     });
 }
 
 // ------------------------------------------------------------
-// 6. КОМПАС КИБЛЫ (ИСПРАВЛЕННЫЙ - РАБОТАЕТ НА IPHONE)
+// 6. КОМПАС КИБЛЫ (ПОЛНОСТЬЮ ПЕРЕРАБОТАН)
 // ------------------------------------------------------------
-function calculateQiblaAngleForCity() {
+function calculateQiblaAngle() {
     const φ1 = currentCity.lat * Math.PI / 180;
     const φ2 = MECCA.lat * Math.PI / 180;
     const Δλ = (MECCA.lng - currentCity.lng) * Math.PI / 180;
@@ -240,84 +240,103 @@ function calculateQiblaAngleForCity() {
     let θ = Math.atan2(y, x);
     qiblaDirection = (θ * 180 / Math.PI + 360) % 360;
     
-    // Обновляем отображаемое направление
     document.getElementById('qiblaDegree').innerHTML = `${Math.round(qiblaDirection)}° от севера`;
     
-    // Обновляем стрелку, если уже есть текущее направление
-    if (currentHeading !== 0) {
-        updateCompassNeedle();
-    }
+    // Обновляем стрелку
+    updateNeedle();
 }
 
-function updateCompassNeedle() {
+function updateNeedle() {
     const needle = document.getElementById('needle');
     if (!needle) return;
     
-    // Угол, на который нужно повернуть стрелку, чтобы указать на Киблу
-    // Если пользователь повернул телефон на currentHeading градусов,
-    // то стрелка должна повернуться на (qiblaDirection - currentHeading)
-    const rotationAngle = qiblaDirection - currentHeading;
-    needle.style.transform = `translate(-50%, -50%) rotate(${rotationAngle}deg)`;
-    
-    // Обновляем текстовую подсказку
-    const diff = Math.abs(rotationAngle % 360);
-    const compassText = document.getElementById('compassText');
-    if (compassText) {
-        if (diff < 10) {
-            compassText.innerHTML = "✅ Вы смотрите в сторону Киблы!";
-            compassText.style.color = "#4CAF50";
-        } else if (diff < 45) {
-            compassText.innerHTML = "🔄 Почти правильно, доверните немного";
-            compassText.style.color = "#FF9800";
-        } else {
-            compassText.innerHTML = `🧭 Повернитесь на ${Math.round(diff)}° ${rotationAngle > 0 ? 'влево' : 'вправо'}`;
-            compassText.style.color = "#f44336";
+    // Если компас активен, используем текущее направление телефона
+    if (compassActive && currentHeading !== 0) {
+        const rotationAngle = qiblaDirection - currentHeading;
+        needle.style.transform = `translate(-50%, -50%) rotate(${rotationAngle}deg)`;
+        
+        // Подсказка
+        let diff = Math.abs(rotationAngle % 360);
+        if (diff > 180) diff = 360 - diff;
+        
+        const hint = document.getElementById('compassHint');
+        if (hint) {
+            if (diff < 10) {
+                hint.innerHTML = "✅ Вы смотрите в сторону Киблы!";
+                hint.style.color = "#4CAF50";
+            } else if (diff < 45) {
+                hint.innerHTML = `🔄 Повернитесь ${rotationAngle > 0 ? 'налево' : 'направо'} на ${Math.round(diff)}°`;
+                hint.style.color = "#FF9800";
+            } else {
+                hint.innerHTML = `🧭 Повернитесь ${rotationAngle > 0 ? 'налево' : 'направо'} на ${Math.round(diff)}°`;
+                hint.style.color = "#f44336";
+            }
+        }
+    } else {
+        // Если компас не активен, просто показываем статическую стрелку на Киблу
+        needle.style.transform = `translate(-50%, -50%) rotate(${qiblaDirection}deg)`;
+        const hint = document.getElementById('compassHint');
+        if (hint) {
+            hint.innerHTML = "📍 Нажмите 'Определить направление' и поверните телефон";
+            hint.style.color = "#B67B4A";
         }
     }
 }
 
 function initCompass() {
-    // Сначала вычисляем Киблу для выбранного города
-    calculateQiblaAngleForCity();
+    calculateQiblaAngle();
     
-    // Проверяем, поддерживается ли DeviceOrientation
-    if (window.DeviceOrientationEvent) {
-        // Для iOS 13+ нужно запросить разрешение
+    const locationBtn = document.getElementById('requestLocation');
+    
+    // Функция запуска компаса
+    function startCompass() {
+        if (!window.DeviceOrientationEvent) {
+            alert('Ваш браузер не поддерживает компас');
+            return;
+        }
+        
+        // Для iOS 13+
         if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-            const locationBtn = document.getElementById('requestLocation');
-            locationBtn.addEventListener('click', async () => {
-                try {
-                    const permission = await DeviceOrientationEvent.requestPermission();
-                    if (permission === 'granted') {
+            DeviceOrientationEvent.requestPermission()
+                .then(permissionState => {
+                    if (permissionState === 'granted') {
                         window.addEventListener('deviceorientation', handleOrientation);
-                        alert('Компас включён! Поворачивайте телефон — стрелка будет двигаться');
+                        compassActive = true;
+                        alert('✅ Компас включён! Поворачивайте телефон — стрелка будет двигаться');
+                    } else {
+                        alert('❌ Доступ к компасу не разрешён');
                     }
-                } catch (error) {
-                    alert('Пожалуйста, разрешите доступ к движению телефона в настройках Safari');
-                }
-            });
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('Ошибка: не удалось получить доступ к компасу');
+                });
         } else {
             // Android и старые iOS
             window.addEventListener('deviceorientation', handleOrientation);
-            document.getElementById('requestLocation').style.display = 'none';
+            compassActive = true;
+            alert('✅ Компас включён! Поворачивайте телефон');
         }
-    } else {
-        alert('Ваш браузер не поддерживает компас');
     }
+    
+    // Привязываем к кнопке
+    locationBtn.onclick = startCompass;
 }
 
 function handleOrientation(event) {
-    // Для iOS используем webkitCompassHeading
+    // iOS: webkitCompassHeading (0-360)
     let heading = event.webkitCompassHeading;
     
-    // Для Android используем alpha
+    // Android: alpha (0-360, но нужно калибровать)
     if (heading === undefined && event.alpha !== undefined) {
         heading = 360 - event.alpha;
     }
     
-    if (heading !== undefined) {
+    if (heading !== undefined && heading !== null) {
         currentHeading = heading;
-        updateCompassNeedle();
+        updateNeedle();
+    } else {
+        console.log('Нет данных компаса');
     }
 }
 

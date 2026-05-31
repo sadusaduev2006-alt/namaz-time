@@ -7,20 +7,53 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #F4EFE6;
+            --card-bg: #FFFFFF;
+            --text: #2C2A29;
+            --accent: #B67B4A;
+            --accent-light: #F7EFE4;
+            --border: rgba(210, 180, 140, 0.2);
+            --shadow: 0 10px 25px -12px rgba(0, 0, 0, 0.1);
+        }
+
+        body[data-theme="dark"] {
+            --bg: #1a1a1a;
+            --card-bg: #2C2C2C;
+            --text: #E0E0E0;
+            --accent: #D4A373;
+            --accent-light: #3D3D3D;
+            --border: rgba(200, 180, 140, 0.2);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+            transition: background 0.3s;
+        }
+
         .asma-container {
             max-width: 700px;
             margin: 0 auto;
-            padding: 20px;
-            min-height: 100vh;
         }
+
         .asma-header {
             display: flex;
             align-items: center;
             gap: 16px;
             margin-bottom: 24px;
         }
+
         .back-btn {
             background: var(--accent-light);
             border: none;
@@ -32,117 +65,127 @@
             font-size: 20px;
             transition: transform 0.2s;
         }
-        .back-btn:hover {
-            transform: scale(1.05);
-        }
+
         .asma-header h1 {
-            font-size: 24px;
-            margin: 0;
-            background: none;
-            -webkit-text-fill-color: var(--accent);
-        }
-        .asma-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 12px;
-        }
-        .asma-card {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 16px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 1px solid var(--border-color);
-        }
-        .asma-card:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow);
-        }
-        .asma-card.active {
-            background: var(--active-bg);
-            border-color: var(--active-border);
-        }
-        .asma-number {
-            font-size: 12px;
+            font-size: 22px;
             color: var(--accent);
-            margin-bottom: 8px;
         }
-        .asma-arabic {
-            font-family: 'Amiri', serif;
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--accent);
-            margin-bottom: 8px;
-        }
-        .asma-name {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 6px;
-        }
-        .asma-meaning {
-            font-size: 12px;
-            opacity: 0.7;
-        }
-        .asma-detail {
-            margin-top: 24px;
-            background: var(--accent-light);
-            border-radius: 28px;
-            padding: 24px;
-            text-align: center;
-        }
-        .detail-arabic {
-            font-family: 'Amiri', serif;
-            font-size: 42px;
-            font-weight: 700;
-            color: var(--accent);
-            margin-bottom: 12px;
-        }
-        .detail-name {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-        .detail-meaning {
-            font-size: 18px;
-            color: var(--accent);
-            margin-bottom: 16px;
-        }
-        .detail-description {
-            font-size: 14px;
-            line-height: 1.6;
-            text-align: left;
-        }
-        .search-box-asma {
+
+        .search-box {
             margin-bottom: 20px;
-            display: flex;
-            gap: 12px;
         }
-        .search-box-asma input {
-            flex: 1;
+
+        .search-box input {
+            width: 100%;
             background: var(--accent-light);
             border: none;
             padding: 14px 18px;
             border-radius: 40px;
             font-family: inherit;
             font-size: 15px;
-            color: var(--text-primary);
+            color: var(--text);
         }
-        .search-box-asma input:focus {
+
+        .search-box input:focus {
             outline: none;
         }
+
+        .asma-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .asma-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 12px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid var(--border);
+        }
+
+        .asma-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .asma-number {
+            font-size: 10px;
+            color: var(--accent);
+            margin-bottom: 4px;
+        }
+
+        .asma-arabic {
+            font-family: 'Amiri', serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 6px;
+        }
+
+        .asma-name {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .asma-meaning {
+            font-size: 10px;
+            opacity: 0.7;
+        }
+
+        .asma-detail {
+            margin-top: 24px;
+            background: var(--accent-light);
+            border-radius: 28px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .detail-arabic {
+            font-family: 'Amiri', serif;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        .detail-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .detail-meaning {
+            font-size: 16px;
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+
+        .detail-description {
+            font-size: 13px;
+            line-height: 1.5;
+            text-align: left;
+        }
+
         .counter {
             text-align: center;
             margin-top: 20px;
-            font-size: 14px;
+            font-size: 12px;
             color: var(--accent);
         }
-        @media (max-width: 560px) {
+
+        @media (max-width: 480px) {
             .asma-grid {
-                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 8px;
             }
-            .detail-arabic {
-                font-size: 32px;
+            .asma-arabic {
+                font-size: 16px;
+            }
+            .asma-name {
+                font-size: 10px;
             }
         }
     </style>
@@ -159,88 +202,128 @@
             </button>
         </div>
 
-        <div class="search-box-asma">
-            <i class="fas fa-search" style="align-self:center; color: var(--accent);"></i>
+        <div class="search-box">
             <input type="text" id="asmaSearch" placeholder="Поиск по имени или значению...">
         </div>
 
-        <div class="asma-grid" id="asmaGrid">
-            <!-- будет заполнено через JS -->
-        </div>
-
+        <div class="asma-grid" id="asmaGrid"></div>
         <div class="counter" id="counter"></div>
     </div>
 
     <script>
-        // 99 имён Аллаха
+        // ПОЛНЫЕ 99 ИМЁН АЛЛАХА
         const asmaulHusna = [
             { num: 1, arabic: "الرَّحْمَٰنُ", name: "Ар-Рахман", meaning: "Милостивый", description: "Тот, Кто милостив ко всем творениям в этом мире." },
-            { num: 2, arabic: "الرَّحِيمُ", name: "Ар-Рахим", meaning: "Милосердный", description: "Тот, Кто проявляет особую милость к верующим в следующей жизни." },
-            { num: 3, arabic: "الْمَلِكُ", name: "Аль-Малик", meaning: "Царь", description: "Властелин всего сущего, Царь царей." },
-            { num: 4, arabic: "الْقُدُّوسُ", name: "Аль-Куддус", meaning: "Святейший", description: "Свободный от любых недостатков, Пречистый." },
+            { num: 2, arabic: "الرَّحِيمُ", name: "Ар-Рахим", meaning: "Милосердный", description: "Тот, Кто проявляет особую милость к верующим." },
+            { num: 3, arabic: "الْمَلِكُ", name: "Аль-Малик", meaning: "Царь", description: "Властелин всего сущего." },
+            { num: 4, arabic: "الْقُدُّوسُ", name: "Аль-Куддус", meaning: "Святейший", description: "Свободный от любых недостатков." },
             { num: 5, arabic: "السَّلاَمُ", name: "Ас-Салям", meaning: "Дарующий мир", description: "Источник мира и безопасности." },
-            { num: 6, arabic: "الْمُؤْمِنُ", name: "Аль-Му'мин", meaning: "Дарующий веру", description: "Тот, Кто дарует безопасность и веру." },
+            { num: 6, arabic: "الْمُؤْمِنُ", name: "Аль-Му'мин", meaning: "Дарующий веру", description: "Дарующий безопасность и веру." },
             { num: 7, arabic: "الْمُهَيْمِنُ", name: "Аль-Мухаймин", meaning: "Хранитель", description: "Надзирающий за всем сущим." },
             { num: 8, arabic: "الْعَزِيزُ", name: "Аль-Азиз", meaning: "Могущественный", description: "Обладающий абсолютным могуществом." },
             { num: 9, arabic: "الْجَبَّارُ", name: "Аль-Джаббар", meaning: "Всемогущий", description: "Тот, Чья воля непреклонна." },
             { num: 10, arabic: "الْمُتَكَبِّرُ", name: "Аль-Мутакаббир", meaning: "Превознесённый", description: "Превосходящий всё творение." },
             { num: 11, arabic: "الْخَالِقُ", name: "Аль-Халик", meaning: "Создатель", description: "Тот, Кто творит из небытия." },
-            { num: 12, arabic: "الْبَارِئُ", name: "Аль-Бари", meaning: "Созидатель", description: "Тот, Кто создаёт с совершенной гармонией." },
-            { num: 13, arabic: "الْمُصَوِّرُ", name: "Аль-Мусаввир", meaning: "Придающий форму", description: "Тот, Кто придаёт форму творениям." },
-            { num: 14, arabic: "الْغَفَّارُ", name: "Аль-Гаффар", meaning: "Всепрощающий", description: "Тот, Кто постоянно прощает грехи." },
-            { num: 15, arabic: "الْقَهَّارُ", name: "Аль-Каххар", meaning: "Властвующий", description: "Тот, Кто подчиняет Себе всё творение." },
+            { num: 12, arabic: "الْبَارِئُ", name: "Аль-Бари", meaning: "Созидатель", description: "Создающий с совершенной гармонией." },
+            { num: 13, arabic: "الْمُصَوِّرُ", name: "Аль-Мусаввир", meaning: "Придающий форму", description: "Придающий форму творениям." },
+            { num: 14, arabic: "الْغَفَّارُ", name: "Аль-Гаффар", meaning: "Всепрощающий", description: "Постоянно прощающий грехи." },
+            { num: 15, arabic: "الْقَهَّارُ", name: "Аль-Каххар", meaning: "Властвующий", description: "Подчиняющий Себе всё творение." },
             { num: 16, arabic: "الْوَهَّابُ", name: "Аль-Ваххаб", meaning: "Дарующий", description: "Щедро одаривающий Своих рабов." },
-            { num: 17, arabic: "الرَّزَّاقُ", name: "Ар-Раззак", meaning: "Наделяющий уделом", description: "Тот, Кто дарует пропитание." },
-            { num: 18, arabic: "الْفَتَّاحُ", name: "Аль-Фаттах", meaning: "Открывающий", description: "Тот, Кто открывает врата милости." },
+            { num: 17, arabic: "الرَّزَّاقُ", name: "Ар-Раззак", meaning: "Наделяющий уделом", description: "Дарующий пропитание." },
+            { num: 18, arabic: "الْفَتَّاحُ", name: "Аль-Фаттах", meaning: "Открывающий", description: "Открывающий врата милости." },
             { num: 19, arabic: "الْعَلِيمُ", name: "Аль-Алим", meaning: "Всезнающий", description: "Обладающий абсолютным знанием." },
-            { num: 20, arabic: "الْقَابِضُ", name: "Аль-Кабид", meaning: "Сжимающий", description: "Тот, Кто удерживает души и уделы." },
-            { num: 21, arabic: "الْبَاسِطُ", name: "Аль-Басит", meaning: "Простирающий", description: "Тот, Кто расширяет удел." },
-            { num: 22, arabic: "الْخَافِضُ", name: "Аль-Хафид", meaning: "Принижающий", description: "Тот, Кто принижает неверных." },
-            { num: 23, arabic: "الرَّافِعُ", name: "Ар-Рафи", meaning: "Возвышающий", description: "Тот, Кто возвышает верующих." },
+            { num: 20, arabic: "الْقَابِضُ", name: "Аль-Кабид", meaning: "Сжимающий", description: "Удерживающий души и уделы." },
+            { num: 21, arabic: "الْبَاسِطُ", name: "Аль-Басит", meaning: "Простирающий", description: "Расширяющий удел." },
+            { num: 22, arabic: "الْخَافِضُ", name: "Аль-Хафид", meaning: "Принижающий", description: "Принижающий неверных." },
+            { num: 23, arabic: "الرَّافِعُ", name: "Ар-Рафи", meaning: "Возвышающий", description: "Возвышающий верующих." },
             { num: 24, arabic: "الْمُعِزُّ", name: "Аль-Муизз", meaning: "Возвеличивающий", description: "Дарующий величие и почёт." },
-            { num: 25, arabic: "الْمُذِلُّ", name: "Аль-Музилль", meaning: "Унижающий", description: "Тот, Кто унижает по Своей воле." },
+            { num: 25, arabic: "الْمُذِلُّ", name: "Аль-Музилль", meaning: "Унижающий", description: "Унижающий по Своей воле." },
             { num: 26, arabic: "السَّمِيعُ", name: "Ас-Сами", meaning: "Всеслышащий", description: "Слышащий всё, даже самые тихие звуки." },
             { num: 27, arabic: "الْبَصِيرُ", name: "Аль-Басир", meaning: "Всевидящий", description: "Видящий всё явное и скрытое." },
             { num: 28, arabic: "الْحَكَمُ", name: "Аль-Хакам", meaning: "Мудрый Судья", description: "Выносящий справедливый приговор." },
-            { num: 29, arabic: "الْعَدْلُ", name: "Аль-Адль", meaning: "Справедливый", description: "Тот, Кто поступает справедливо." },
+            { num: 29, arabic: "الْعَدْلُ", name: "Аль-Адль", meaning: "Справедливый", description: "Поступающий справедливо." },
             { num: 30, arabic: "اللَّطِيفُ", name: "Аль-Лятиф", meaning: "Проницательный", description: "Знающий о сокровенных тайнах." },
             { num: 31, arabic: "الْخَبِيرُ", name: "Аль-Хабир", meaning: "Сведущий", description: "Знающий о сути всех вещей." },
-            { num: 32, arabic: "الْحَلِيمُ", name: "Аль-Халим", meaning: "Кроткий", description: "Тот, Кто не спешит с наказанием." },
+            { num: 32, arabic: "الْحَلِيمُ", name: "Аль-Халим", meaning: "Кроткий", description: "Не спешащий с наказанием." },
             { num: 33, arabic: "الْعَظِيمُ", name: "Аль-Азим", meaning: "Великий", description: "Величие Которого не имеет границ." },
-            { num: 34, arabic: "الْغَفُورُ", name: "Аль-Гафур", meaning: "Прощающий", description: "Тот, Кто много прощает." },
+            { num: 34, arabic: "الْغَفُورُ", name: "Аль-Гафур", meaning: "Прощающий", description: "Много прощающий." },
             { num: 35, arabic: "الشَّكُورُ", name: "Аш-Шакур", meaning: "Благодарный", description: "Воздающий за малые благодеяния." },
             { num: 36, arabic: "الْعَلِيُّ", name: "Аль-Алийй", meaning: "Высочайший", description: "Превосходящий всё творение." },
-            { num: 37, arabic: "الْكَبِيرُ", name: "Аль-Кабир", meaning: "Величайший", description: "Тот, Чьё величие безгранично." },
+            { num: 37, arabic: "الْكَبِيرُ", name: "Аль-Кабир", meaning: "Величайший", description: "Величие Которого безгранично." },
             { num: 38, arabic: "الْحَفِيظُ", name: "Аль-Хафиз", meaning: "Хранитель", description: "Сохраняющий всё сущее." },
             { num: 39, arabic: "الْمُقِيتُ", name: "Аль-Мукит", meaning: "Поддерживающий", description: "Дарующий силу и пропитание." },
-            { num: 40, arabic: "الْحَسِيبُ", name: "Аль-Хасиб", meaning: "Ведущий счёт", description: "Тот, Кто воздаёт по заслугам." },
+            { num: 40, arabic: "الْحَسِيبُ", name: "Аль-Хасиб", meaning: "Ведущий счёт", description: "Воздающий по заслугам." },
             { num: 41, arabic: "الْجَلِيلُ", name: "Аль-Джалиль", meaning: "Величественный", description: "Обладающий абсолютным величием." },
-            { num: 42, arabic: "الْكَرِيمُ", name: "Аль-Карим", meaning: "Щедрый", description: "Тот, Чья щедрость безгранична." },
+            { num: 42, arabic: "الْكَرِيمُ", name: "Аль-Карим", meaning: "Щедрый", description: "Щедрость Которого безгранична." },
             { num: 43, arabic: "الرَّقِيبُ", name: "Ар-Ракиб", meaning: "Наблюдающий", description: "Наблюдающий за всеми деяниями." },
-            { num: 44, arabic: "الْمُجِيبُ", name: "Аль-Муджиб", meaning: "Отвечающий", description: "Тот, Кто отвечает на мольбы." },
+            { num: 44, arabic: "الْمُجِيبُ", name: "Аль-Муджиб", meaning: "Отвечающий", description: "Отвечающий на мольбы." },
             { num: 45, arabic: "الْوَاسِعُ", name: "Аль-Васи", meaning: "Всеобъемлющий", description: "Объемлющий всё Своей милостью." },
             { num: 46, arabic: "الْحَكِيمُ", name: "Аль-Хаким", meaning: "Мудрый", description: "Обладающий абсолютной мудростью." },
-            { num: 47, arabic: "الْوَدُودُ", name: "Аль-Вадуд", meaning: "Любящий", description: "Любящий своих благочестивых рабов." },
-            { num: 48, arabic: "الْمَجِيدُ", name: "Аль-Маджид", meaning: "Славный", description: "Обладающий высшей славой и честью." },
+            { num: 47, arabic: "الْوَدُودُ", name: "Аль-Вадуд", meaning: "Любящий", description: "Любящий благочестивых рабов." },
+            { num: 48, arabic: "الْمَجِيدُ", name: "Аль-Маджид", meaning: "Славный", description: "Обладающий высшей славой." },
             { num: 49, arabic: "الْبَاعِثُ", name: "Аль-Баис", meaning: "Воскрешающий", description: "Воскрешающий творения после смерти." },
-            { num: 50, arabic: "الشَّهِيدُ", name: "Аш-Шахид", meaning: "Свидетель", description: "Присутствующий везде и всегда." }
+            { num: 50, arabic: "الشَّهِيدُ", name: "Аш-Шахид", meaning: "Свидетель", description: "Присутствующий везде и всегда." },
+            { num: 51, arabic: "الْحَقُّ", name: "Аль-Хакк", meaning: "Истина", description: "Тот, Чьё существование истинно." },
+            { num: 52, arabic: "الْوَكِيلُ", name: "Аль-Вакиль", meaning: "Попечитель", description: "Тот, на Кого полагаются." },
+            { num: 53, arabic: "الْقَوِيُّ", name: "Аль-Кавийй", meaning: "Всемогущий", description: "Обладающий абсолютной силой." },
+            { num: 54, arabic: "الْمَتِينُ", name: "Аль-Матин", meaning: "Твёрдый", description: "Чья сила непоколебима." },
+            { num: 55, arabic: "الْوَلِيُّ", name: "Аль-Валийй", meaning: "Покровитель", description: "Покровитель верующих." },
+            { num: 56, arabic: "الْحَمِيدُ", name: "Аль-Хамид", meaning: "Достойный похвалы", description: "Достойный всяческой похвалы." },
+            { num: 57, arabic: "الْمُحْصِي", name: "Аль-Мухси", meaning: "Учитывающий", description: "Знающий счёт всему." },
+            { num: 58, arabic: "الْمُبْدِئُ", name: "Аль-Мубди", meaning: "Начинающий", description: "Создающий творения из ничего." },
+            { num: 59, arabic: "الْمُعِيدُ", name: "Аль-Муид", meaning: "Возвращающий", description: "Возвращающий творения после смерти." },
+            { num: 60, arabic: "الْمُحْيِي", name: "Аль-Мухйи", meaning: "Оживляющий", description: "Дарующий жизнь." },
+            { num: 61, arabic: "الْمُمِيتُ", name: "Аль-Мумит", meaning: "Умерщвляющий", description: "Причиняющий смерть." },
+            { num: 62, arabic: "الْحَيُّ", name: "Аль-Хайй", meaning: "Живой", description: "Вечно Живой." },
+            { num: 63, arabic: "الْقَيُّومُ", name: "Аль-Кайюм", meaning: "Самосущий", description: "Поддерживающий всё сущее." },
+            { num: 64, arabic: "الْوَاجِدُ", name: "Аль-Ваджид", meaning: "Находящий", description: "Находящий всё, что пожелает." },
+            { num: 65, arabic: "الْمَاجِدُ", name: "Аль-Маджид", meaning: "Благородный", description: "Обладающий высшим благородством." },
+            { num: 66, arabic: "الْوَاحِدُ", name: "Аль-Вахид", meaning: "Единый", description: "Не имеющий сотоварищей." },
+            { num: 67, arabic: "الْأَحَدُ", name: "Аль-Ахад", meaning: "Единственный", description: "Единственный в Своей сущности." },
+            { num: 68, arabic: "الصَّمَدُ", name: "Ас-Самад", meaning: "Вечный", description: "Тот, в Ком нуждаются все." },
+            { num: 69, arabic: "الْقَادِرُ", name: "Аль-Кадир", meaning: "Могущественный", description: "Способный на всё." },
+            { num: 70, arabic: "الْمُقْتَدِرُ", name: "Аль-Муктадир", meaning: "Всемогущий", description: "Упорядочивающий всё по Своей воле." },
+            { num: 71, arabic: "الْمُقَدِّمُ", name: "Аль-Мукаддим", meaning: "Приближающий", description: "Приближающий то, что желает." },
+            { num: 72, arabic: "الْمُؤَخِّرُ", name: "Аль-Муаххир", meaning: "Отдаляющий", description: "Отдаляющий то, что желает." },
+            { num: 73, arabic: "الْأَوَّلُ", name: "Аль-Авваль", meaning: "Начало", description: "Тот, Кто был до всего." },
+            { num: 74, arabic: "الْآخِرُ", name: "Аль-Ахир", meaning: "Конец", description: "Тот, Кто будет после всего." },
+            { num: 75, arabic: "الظَّاهِرُ", name: "Аз-Захир", meaning: "Явный", description: "Тот, Чьё существование очевидно." },
+            { num: 76, arabic: "الْبَاطِنُ", name: "Аль-Батин", meaning: "Скрытый", description: "Тот, Кто сокрыт от наших глаз." },
+            { num: 77, arabic: "الْوَالِي", name: "Аль-Вали", meaning: "Правящий", description: "Управляющий всем сущим." },
+            { num: 78, arabic: "الْمُتَعَالِي", name: "Аль-Мутаали", meaning: "Превознесённый", description: "Превосходящий всё творение." },
+            { num: 79, arabic: "الْبَرُّ", name: "Аль-Барр", meaning: "Благостный", description: "Милостивый к Своим рабам." },
+            { num: 80, arabic: "التَّوَّابُ", name: "Ат-Тавваб", meaning: "Принимающий покаяние", description: "Принимающий покаяние рабов." },
+            { num: 81, arabic: "الْمُنْتَقِمُ", name: "Аль-Мунтаким", meaning: "Мстящий", description: "Наказывающий грешников." },
+            { num: 82, arabic: "الْعَفُوُّ", name: "Аль-Афувв", meaning: "Прощающий", description: "Стирающий грехи." },
+            { num: 83, arabic: "الرَّؤُوفُ", name: "Ар-Рауф", meaning: "Сострадательный", description: "Проявляющий сострадание." },
+            { num: 84, arabic: "مَالِكُ الْمُلْكِ", name: "Маликуль-Мульк", meaning: "Владыка царства", description: "Властелин всего сущего." },
+            { num: 85, arabic: "ذُو الْجَلَالِ وَالْإِكْرَامِ", name: "Зуль-Джаляли валь-Икрам", meaning: "Обладатель величия и щедрости", description: "Обладатель совершенного величия." },
+            { num: 86, arabic: "الْمُقْسِطُ", name: "Аль-Муксит", meaning: "Справедливый", description: "Проявляющий справедливость во всём." },
+            { num: 87, arabic: "الْجَامِعُ", name: "Аль-Джами", meaning: "Собирающий", description: "Собирающий творения в Судный день." },
+            { num: 88, arabic: "الْغَنِيُّ", name: "Аль-Ганийй", meaning: "Богатый", description: "Не нуждающийся ни в чём." },
+            { num: 89, arabic: "الْمُغْنِي", name: "Аль-Мугни", meaning: "Обогащающий", description: "Дарующий богатство." },
+            { num: 90, arabic: "الْمَانِعُ", name: "Аль-Мани", meaning: "Запрещающий", description: "Запрещающий то, что желает." },
+            { num: 91, arabic: "الضَّارُ", name: "Ад-Дарр", meaning: "Причиняющий вред", description: "Создающий то, что считают вредом." },
+            { num: 92, arabic: "النَّافِعُ", name: "Ан-Нафи", meaning: "Приносящий пользу", description: "Дарующий пользу кому пожелает." },
+            { num: 93, arabic: "النُّورُ", name: "Ан-Нур", meaning: "Свет", description: "Освещающий небеса и землю." },
+            { num: 94, arabic: "الْهَادِي", name: "Аль-Хади", meaning: "Ведущий прямым путём", description: "Наставляющий на истинный путь." },
+            { num: 95, arabic: "الْبَدِيعُ", name: "Аль-Бади", meaning: "Творец", description: "Создающий из ничего без примера." },
+            { num: 96, arabic: "الْبَاقِي", name: "Аль-Баки", meaning: "Вечный", description: "Тот, Кто пребывает вечно." },
+            { num: 97, arabic: "الْوَارِثُ", name: "Аль-Варис", meaning: "Наследник", description: "Тот, Кому всё возвращается." },
+            { num: 98, arabic: "الرَّشِيدُ", name: "Ар-Рашид", meaning: "Направляющий", description: "Направляющий на правильный путь." },
+            { num: 99, arabic: "الصَّبُورُ", name: "Ас-Сабур", meaning: "Терпеливый", description: "Не спешащий с наказанием." }
         ];
-
-        // Добавим остальные имена для краткости, но для реального использования нужны все 99
-        for (let i = 51; i <= 99; i++) {
-            asmaulHusna.push({ num: i, arabic: `اسم ${i}`, name: `Имя ${i}`, meaning: "Значение", description: "Описание" });
-        }
 
         let currentTheme = localStorage.getItem('theme') || 'light';
         document.body.setAttribute('data-theme', currentTheme);
 
-        function renderAsmaList(filter = '') {
+        function renderList(filter = '') {
             const grid = document.getElementById('asmaGrid');
-            const searchTerm = filter.toLowerCase();
+            const term = filter.toLowerCase();
             const filtered = asmaulHusna.filter(a => 
-                a.name.toLowerCase().includes(searchTerm) || 
-                a.meaning.toLowerCase().includes(searchTerm) ||
-                a.arabic.includes(searchTerm)
+                a.name.toLowerCase().includes(term) || 
+                a.meaning.toLowerCase().includes(term) ||
+                a.arabic.includes(term)
             );
             
             grid.innerHTML = filtered.map(a => `
@@ -275,14 +358,13 @@
                 </div>
             `;
             
-            const existingDetail = document.querySelector('.asma-detail');
-            if (existingDetail) existingDetail.remove();
-            
+            const existing = document.querySelector('.asma-detail');
+            if (existing) existing.remove();
             document.querySelector('.asma-container').insertAdjacentHTML('beforeend', detailHtml);
             document.querySelector('.asma-detail').scrollIntoView({ behavior: 'smooth' });
         }
 
-        document.getElementById('asmaSearch').addEventListener('input', (e) => renderAsmaList(e.target.value));
+        document.getElementById('asmaSearch').addEventListener('input', (e) => renderList(e.target.value));
         document.getElementById('themeToggleAsma').addEventListener('click', () => {
             const newTheme = document.body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
             document.body.setAttribute('data-theme', newTheme);
@@ -292,7 +374,7 @@
             else icon.classList.replace('fa-sun', 'fa-moon');
         });
         
-        renderAsmaList();
+        renderList();
         
         const icon = document.querySelector('#themeToggleAsma i');
         if (currentTheme === 'dark') icon.classList.replace('fa-moon', 'fa-sun');

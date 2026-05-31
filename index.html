@@ -14,10 +14,6 @@
     <meta name="apple-mobile-web-app-title" content="Намаз Дагестан">
 </head>
 <body data-theme="light">
-
-    <!-- ТЁМНЫЙ ФОН ДЛЯ МЕНЮ (оверлей) -->
-    <div id="overlay" class="overlay"></div>
-
     <div class="container">
         <div class="prayer-card">
             <div class="header">
@@ -35,9 +31,16 @@
                         </select>
                     </div>
                     <div class="right-buttons">
-                        <button id="menuToggle" class="menu-toggle">
-                            <i class="fas fa-ellipsis-h"></i>
-                        </button>
+                        <div class="dropdown">
+                            <button id="menuToggle" class="menu-toggle">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <div id="dropdownMenu" class="dropdown-content">
+                                <a href="surah-fatiha.html">
+                                    <i class="fas fa-star-and-crescent"></i> Сура Аль-Фатиха
+                                </a>
+                            </div>
+                        </div>
                         <button id="themeToggle" class="theme-toggle">
                             <i class="fas fa-moon"></i>
                         </button>
@@ -48,57 +51,6 @@
                 <p class="gregorian" id="gregorianDate">--</p>
             </div>
 
-            <!-- ВЫДВИЖНОЕ МЕНЮ -->
-            <div id="drawerMenu" class="drawer-menu">
-                <div class="drawer-header">
-                    <i class="fas fa-book-quran"></i>
-                    <span>Меню</span>
-                    <button id="closeDrawer" class="close-drawer">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="drawer-tabs">
-                    <button class="tab-btn active" data-tab="fatiha">
-                        <i class="fas fa-star-and-crescent"></i> Сура Фатиха
-                    </button>
-                </div>
-                <div class="tab-content" id="tabContent">
-                    <div class="surah-content">
-                        <h3>Сура Аль-Фатиха</h3>
-                        <p class="arabic-text">
-                            بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ<br>
-                            الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ<br>
-                            الرَّحْمَٰنِ الرَّحِيمِ<br>
-                            مَالِكِ يَوْمِ الدِّينِ<br>
-                            إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ<br>
-                            اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ<br>
-                            صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ
-                        </p>
-                        <div class="transliteration">
-                            <h4>Транскрипция:</h4>
-                            <p>Бисмилляхир-рахманир-рахим.<br>
-                            Альхамдулилляхи раббиль-алямин.<br>
-                            Ар-рахманир-рахим.<br>
-                            Малики яумид-дин.<br>
-                            Ийякя на'буду ва ийякя наста'ин.<br>
-                            Ихдинас-сыраталь-мустакым.<br>
-                            Сыраталь-лязина ан'амта 'алейхим гайриль-магдуби 'алейхим ва ляд-даллин.</p>
-                        </div>
-                        <div class="translation">
-                            <h4>Перевод смыслов:</h4>
-                            <p>Во имя Аллаха, Милостивого, Милосердного.<br>
-                            Хвала Аллаху, Господу миров,<br>
-                            Милостивому, Милосердному,<br>
-                            Властелину Дня воздаяния!<br>
-                            Тебе одному мы поклоняемся и Тебя одного молим о помощи.<br>
-                            Веди нас прямым путём,<br>
-                            путём тех, кого Ты облагодетельствовал, не тех, на кого пал гнев, и не заблудших.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- СЕТКА НАМАЗОВ -->
             <div class="prayer-grid">
                 <div class="prayer-item"><div class="prayer-info"><i class="fas fa-cloud-moon"></i><span class="prayer-name">Фаджр</span></div><span class="prayer-time" id="fajr">--:--</span></div>
                 <div class="prayer-item"><div class="prayer-info"><i class="fas fa-sun"></i><span class="prayer-name">Шурук</span></div><span class="prayer-time" id="sunrise">--:--</span></div>

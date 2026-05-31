@@ -4,11 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Время намаза — Дагестан</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    
-    <!-- PWA мета-теги -->
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3069/3069175.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -46,7 +44,7 @@
                 <p class="gregorian" id="gregorianDate">--</p>
             </div>
 
-            <!-- ВЫДВИЖНОЕ МЕНЮ (спрятано по умолчанию) -->
+            <!-- ВЫДВИЖНОЕ МЕНЮ -->
             <div id="drawerMenu" class="drawer-menu">
                 <div class="drawer-header">
                     <i class="fas fa-book-quran"></i>
@@ -59,10 +57,8 @@
                     <button class="tab-btn active" data-tab="fatiha">
                         <i class="fas fa-star-and-crescent"></i> Сура Фатиха
                     </button>
-                    <!-- Здесь позже добавятся другие вкладки -->
                 </div>
                 <div class="tab-content" id="tabContent">
-                    <!-- Содержимое вкладки "Сура Фатиха" -->
                     <div class="surah-content">
                         <h3>Сура Аль-Фатиха</h3>
                         <p class="arabic-text">
@@ -80,9 +76,9 @@
                             Альхамдулилляхи раббиль-алямин.<br>
                             Ар-рахманир-рахим.<br>
                             Малики яумид-дин.<br>
-                            Ийякя на’буду ва ийякя наста’ин.<br>
+                            Ийякя на'буду ва ийякя наста'ин.<br>
                             Ихдинас-сыраталь-мустакым.<br>
-                            Сыраталь-лязина ан’амта ‘алейхим гайриль-магдуби ‘алейхим ва ляд-даллин.</p>
+                            Сыраталь-лязина ан'амта 'алейхим гайриль-магдуби 'алейхим ва ляд-даллин.</p>
                         </div>
                         <div class="translation">
                             <h4>Перевод смыслов:</h4>
@@ -98,43 +94,43 @@
                 </div>
             </div>
 
-            <div class="prayer-grid" id="prayerGrid">
-                <div class="prayer-item" data-prayer="Fajr">
+            <div class="prayer-grid">
+                <div class="prayer-item">
                     <div class="prayer-info">
                         <i class="fas fa-cloud-moon"></i>
                         <span class="prayer-name">Фаджр</span>
                     </div>
                     <span class="prayer-time" id="fajr">--:--</span>
                 </div>
-                <div class="prayer-item" data-prayer="Sunrise">
+                <div class="prayer-item">
                     <div class="prayer-info">
                         <i class="fas fa-sun"></i>
                         <span class="prayer-name">Шурук</span>
                     </div>
                     <span class="prayer-time" id="sunrise">--:--</span>
                 </div>
-                <div class="prayer-item" data-prayer="Dhuhr">
+                <div class="prayer-item">
                     <div class="prayer-info">
                         <i class="fas fa-sun"></i>
                         <span class="prayer-name">Зухр</span>
                     </div>
                     <span class="prayer-time" id="dhuhr">--:--</span>
                 </div>
-                <div class="prayer-item" data-prayer="Asr">
+                <div class="prayer-item">
                     <div class="prayer-info">
                         <i class="fas fa-clock"></i>
                         <span class="prayer-name">Аср</span>
                     </div>
                     <span class="prayer-time" id="asr">--:--</span>
                 </div>
-                <div class="prayer-item" data-prayer="Maghrib">
+                <div class="prayer-item">
                     <div class="prayer-info">
                         <i class="fas fa-moon"></i>
                         <span class="prayer-name">Магриб</span>
                     </div>
                     <span class="prayer-time" id="maghrib">--:--</span>
                 </div>
-                <div class="prayer-item" data-prayer="Isha">
+                <div class="prayer-item">
                     <div class="prayer-info">
                         <i class="fas fa-star-of-life"></i>
                         <span class="prayer-name">Иша</span>
@@ -143,8 +139,7 @@
                 </div>
             </div>
 
-            <!-- Карточка следующего намаза -->
-            <div class="next-prayer-card" id="nextPrayerCard">
+            <div class="next-prayer-card">
                 <div class="next-prayer-label">
                     <i class="fas fa-bell"></i>
                     <span>Следующий намаз</span>
@@ -153,13 +148,12 @@
                     <span class="next-prayer-name" id="nextPrayerName">--</span>
                     <span class="next-prayer-time" id="nextPrayerTime">--:--</span>
                 </div>
-                <div class="countdown" id="countdown">
+                <div class="countdown">
                     <i class="fas fa-hourglass-half"></i>
                     <span id="countdownText">--</span>
                 </div>
             </div>
 
-            <!-- Компас Киблы -->
             <div class="qibla-card">
                 <div class="qibla-header">
                     <i class="fas fa-kaaba"></i>

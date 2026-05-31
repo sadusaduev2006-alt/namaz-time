@@ -181,4 +181,35 @@ function initDrawerMenu() {
     let menuBtn = document.getElementById('menuToggle');
     let drawer = document.getElementById('drawerMenu');
     let closeBtn = document.getElementById('closeDrawer');
-    if(menuBtn) menuBtn.onclick = () => { if(drawer) drawer.classList.add('open'); document.body.style.overflow
+    if(menuBtn) menuBtn.onclick = () => { if(drawer) drawer.classList.add('open'); document.body.style.overflow='hidden'; };
+    if(closeBtn) closeBtn.onclick = () => { if(drawer) drawer.classList.remove('open'); document.body.style.overflow=''; };
+    if(drawer) drawer.onclick = (e) => { if(e.target===drawer) { drawer.classList.remove('open'); document.body.style.overflow=''; } };
+    let tabBtns = document.querySelectorAll('.tab-btn');
+    let tabContent = document.getElementById('tabContent');
+    let contents = {
+        fatiha: `<div class="surah-content"><h3>Сура Аль-Фатиха</h3>
+            <p class="arabic-text">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ<br>الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ<br>الرَّحْمَٰنِ الرَّحِيمِ<br>مَالِكِ يَوْمِ الدِّينِ<br>إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ<br>اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ<br>صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ</p>
+            <div class="transliteration"><h4>Транскрипция:</h4><p>Бисмилляхир-рахманир-рахим.<br>Альхамдулилляхи раббиль-алямин.<br>Ар-рахманир-рахим.<br>Малики яумид-дин.<br>Ийякя на'буду ва ийякя наста'ин.<br>Ихдинас-сыраталь-мустакым.<br>Сыраталь-лязина ан'амта 'алейхим гайриль-магдуби 'алейхим ва ляд-даллин.</p></div>
+            <div class="translation"><h4>Перевод смыслов:</h4><p>Во имя Аллаха, Милостивого, Милосердного.<br>Хвала Аллаху, Господу миров,<br>Милостивому, Милосердному,<br>Властелину Дня воздаяния!<br>Тебе одному мы поклоняемся и Тебя одного молим о помощи.<br>Веди нас прямым путём,<br>путём тех, кого Ты облагодетельствовал, не тех, на кого пал гнев, и не заблудших.</p></div></div>`
+    };
+    tabBtns.forEach(btn => {
+        btn.onclick = () => {
+            tabBtns.forEach(b=>b.classList.remove('active'));
+            btn.classList.add('active');
+            let tab = btn.getAttribute('data-tab');
+            if(tabContent && contents[tab]) tabContent.innerHTML = contents[tab];
+        };
+    });
+}
+
+// ЗАПУСК
+document.addEventListener('DOMContentLoaded', () => {
+    initTheme();
+    initCitySelect();
+    initCompass();
+    initDrawerMenu();
+    fetchPrayerTimes();
+    document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+    setInterval(() => { if(Object.keys(prayerTimes).length) calculateNearestPrayer(); }, 60000);
+    setInterval(fetchPrayerTimes, 3600000);
+});

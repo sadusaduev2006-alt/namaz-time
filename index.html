@@ -14,6 +14,10 @@
     <meta name="apple-mobile-web-app-title" content="Намаз Дагестан">
 </head>
 <body data-theme="light">
+
+    <!-- ТЁМНЫЙ ФОН ДЛЯ МЕНЮ (оверлей) -->
+    <div id="overlay" class="overlay"></div>
+
     <div class="container">
         <div class="prayer-card">
             <div class="header">
@@ -94,101 +98,41 @@
                 </div>
             </div>
 
+            <!-- СЕТКА НАМАЗОВ -->
             <div class="prayer-grid">
-                <div class="prayer-item">
-                    <div class="prayer-info">
-                        <i class="fas fa-cloud-moon"></i>
-                        <span class="prayer-name">Фаджр</span>
-                    </div>
-                    <span class="prayer-time" id="fajr">--:--</span>
-                </div>
-                <div class="prayer-item">
-                    <div class="prayer-info">
-                        <i class="fas fa-sun"></i>
-                        <span class="prayer-name">Шурук</span>
-                    </div>
-                    <span class="prayer-time" id="sunrise">--:--</span>
-                </div>
-                <div class="prayer-item">
-                    <div class="prayer-info">
-                        <i class="fas fa-sun"></i>
-                        <span class="prayer-name">Зухр</span>
-                    </div>
-                    <span class="prayer-time" id="dhuhr">--:--</span>
-                </div>
-                <div class="prayer-item">
-                    <div class="prayer-info">
-                        <i class="fas fa-clock"></i>
-                        <span class="prayer-name">Аср</span>
-                    </div>
-                    <span class="prayer-time" id="asr">--:--</span>
-                </div>
-                <div class="prayer-item">
-                    <div class="prayer-info">
-                        <i class="fas fa-moon"></i>
-                        <span class="prayer-name">Магриб</span>
-                    </div>
-                    <span class="prayer-time" id="maghrib">--:--</span>
-                </div>
-                <div class="prayer-item">
-                    <div class="prayer-info">
-                        <i class="fas fa-star-of-life"></i>
-                        <span class="prayer-name">Иша</span>
-                    </div>
-                    <span class="prayer-time" id="isha">--:--</span>
-                </div>
+                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-cloud-moon"></i><span class="prayer-name">Фаджр</span></div><span class="prayer-time" id="fajr">--:--</span></div>
+                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-sun"></i><span class="prayer-name">Шурук</span></div><span class="prayer-time" id="sunrise">--:--</span></div>
+                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-sun"></i><span class="prayer-name">Зухр</span></div><span class="prayer-time" id="dhuhr">--:--</span></div>
+                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-clock"></i><span class="prayer-name">Аср</span></div><span class="prayer-time" id="asr">--:--</span></div>
+                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-moon"></i><span class="prayer-name">Магриб</span></div><span class="prayer-time" id="maghrib">--:--</span></div>
+                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-star-of-life"></i><span class="prayer-name">Иша</span></div><span class="prayer-time" id="isha">--:--</span></div>
             </div>
 
             <div class="next-prayer-card">
-                <div class="next-prayer-label">
-                    <i class="fas fa-bell"></i>
-                    <span>Следующий намаз</span>
-                </div>
-                <div class="next-prayer-info">
-                    <span class="next-prayer-name" id="nextPrayerName">--</span>
-                    <span class="next-prayer-time" id="nextPrayerTime">--:--</span>
-                </div>
-                <div class="countdown">
-                    <i class="fas fa-hourglass-half"></i>
-                    <span id="countdownText">--</span>
-                </div>
+                <div class="next-prayer-label"><i class="fas fa-bell"></i><span>Следующий намаз</span></div>
+                <div class="next-prayer-info"><span class="next-prayer-name" id="nextPrayerName">--</span><span class="next-prayer-time" id="nextPrayerTime">--:--</span></div>
+                <div class="countdown"><i class="fas fa-hourglass-half"></i><span id="countdownText">--</span></div>
             </div>
 
             <div class="qibla-card">
-                <div class="qibla-header">
-                    <i class="fas fa-kaaba"></i>
-                    <span>Направление на Киблу (Мекка)</span>
-                </div>
+                <div class="qibla-header"><i class="fas fa-kaaba"></i><span>Направление на Киблу</span></div>
                 <div class="compass-container">
-                    <div class="compass" id="compass">
-                        <div class="needle" id="needle">
-                            <div class="needle-top"></div>
-                            <div class="needle-bottom"></div>
-                        </div>
-                        <div class="compass-mark">N</div>
-                    </div>
+                    <div class="compass"><div class="needle" id="needle"><div class="needle-top"></div><div class="needle-bottom"></div></div><div class="compass-mark">N</div></div>
                     <div class="qibla-degree" id="qiblaDegree">--°</div>
-                    <div id="compassHint" style="font-size: 14px; margin-top: 10px; text-align: center;">📍 Нажмите "Определить направление"</div>
-                    <button id="requestLocation" class="location-btn">
-                        <i class="fas fa-location-arrow"></i> Определить моё направление
-                    </button>
+                    <div id="compassHint" style="font-size:14px;margin-top:10px;">📍 Нажмите кнопку ниже</div>
+                    <button id="requestLocation" class="location-btn"><i class="fas fa-location-arrow"></i> Определить направление</button>
                 </div>
             </div>
 
             <div class="footer-note">
                 <p><i class="far fa-clock"></i> Обновлено: <span id="updateTime">сегодня</span></p>
-                <p class="method"><i class="fas fa-calculator"></i> Метод: MWL (угол 18°) для Дагестана</p>
+                <p class="method"><i class="fas fa-calculator"></i> Метод: MWL (угол 18°)</p>
             </div>
         </div>
     </div>
-    
-    <audio id="azanAudio" preload="auto">
-        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-    </audio>
-    
-    <audio id="notificationSound" preload="auto">
-        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg">
-    </audio>
+
+    <audio id="azanAudio" preload="auto"><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg"></audio>
+    <audio id="notificationSound" preload="auto"><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg"></audio>
     
     <script src="script.js"></script>
 </body>

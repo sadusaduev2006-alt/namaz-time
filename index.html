@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Время намаза — Дагестан</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
@@ -12,6 +12,12 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Намаз Дагестан">
+    <meta name="description" content="Точное время намаза в Махачкале и Дагестане. Коран, 99 имён Аллаха, Кибла, азан.">
+    <meta name="keywords" content="намаз, Махачкала, Дагестан, Коран, Кибла, азан, время намаза">
+    <!-- Предзагрузка критических ресурсов -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://api.aladhan.com">
 </head>
 <body data-theme="light">
     <div class="container">
@@ -39,12 +45,11 @@
                                 <a href="surah-fatiha.html">
                                     <i class="fas fa-star-and-crescent"></i> Сура Аль-Фатиха
                                 </a>
-                                </a>
                                 <a href="quran.html">
-                                <i class="fas fa-book-quran"></i> Священый коран
+                                    <i class="fas fa-book-quran"></i> Священный Коран
                                 </a>
-                                 <a href="asmaul-husna.html">
-                                <i class="fas fa-heart"></i> 99 имён Аллаха
+                                <a href="asmaul-husna.html">
+                                    <i class="fas fa-heart"></i> 99 имён Аллаха
                                 </a>
                             </div>
                         </div>
@@ -90,9 +95,9 @@
         </div>
     </div>
 
-    <audio id="azanAudio" preload="auto"><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg"></audio>
-    <audio id="notificationSound" preload="auto"><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg"></audio>
+    <audio id="azanAudio" preload="none"><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg"></audio>
+    <audio id="notificationSound" preload="none"><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg"></audio>
     
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
 </body>
 </html>

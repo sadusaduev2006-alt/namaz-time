@@ -4,9 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Коран — Намаз Дагестан</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://api.alquran.cloud">
     <style>
         * {
             margin: 0;
@@ -50,7 +53,6 @@
             flex-direction: column;
         }
 
-        /* Хедер */
         .quran-header {
             display: flex;
             justify-content: space-between;
@@ -76,6 +78,11 @@
             cursor: pointer;
             color: var(--accent);
             font-size: 20px;
+            transition: transform 0.2s;
+        }
+
+        .header-btn:hover {
+            transform: scale(1.05);
         }
 
         .quran-header h2 {
@@ -88,7 +95,6 @@
             gap: 12px;
         }
 
-        /* Карточка суры */
         .surah-card {
             background: var(--card-bg);
             border-radius: 32px;
@@ -115,7 +121,6 @@
             border-bottom: 1px solid var(--border);
         }
 
-        /* Текст Корана */
         .quran-text {
             font-family: 'Amiri', serif;
             font-size: 22px;
@@ -142,7 +147,6 @@
             font-size: 22px;
         }
 
-        /* Навигация */
         .nav-buttons {
             display: flex;
             justify-content: space-between;
@@ -163,9 +167,13 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            transition: transform 0.2s;
         }
 
-        /* Кнопка меню */
+        .nav-btn:hover {
+            transform: scale(1.02);
+        }
+
         .menu-btn {
             position: fixed;
             bottom: 20px;
@@ -180,9 +188,13 @@
             cursor: pointer;
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             z-index: 100;
+            transition: transform 0.2s;
         }
 
-        /* Выезжающее меню */
+        .menu-btn:hover {
+            transform: scale(1.05);
+        }
+
         .surah-drawer {
             position: fixed;
             top: 0;
@@ -235,6 +247,11 @@
             border: none;
             background: var(--accent-light);
             font-family: inherit;
+            font-size: 14px;
+        }
+
+        .search-box input:focus {
+            outline: none;
         }
 
         .surah-list {
@@ -250,6 +267,7 @@
             padding: 14px 20px;
             cursor: pointer;
             border-bottom: 1px solid var(--border);
+            transition: background 0.2s;
         }
 
         .surah-item:hover {
@@ -302,7 +320,6 @@
 </head>
 <body data-theme="light">
     <div class="quran-container">
-        <!-- Хедер -->
         <div class="quran-header">
             <div class="header-left">
                 <button id="backToMain" class="header-btn">
@@ -317,7 +334,6 @@
             </div>
         </div>
 
-        <!-- Карточка с сурой -->
         <div class="surah-card">
             <div class="surah-title" id="surahName">سورة الفاتحة</div>
             <div class="surah-info" id="surahInfo">مكية • 7 آيات</div>
@@ -326,19 +342,16 @@
             </div>
         </div>
 
-        <!-- Навигация -->
         <div class="nav-buttons">
             <button id="prevSurah" class="nav-btn"><i class="fas fa-chevron-right"></i> السابقة</button>
             <button id="nextSurah" class="nav-btn">التالية <i class="fas fa-chevron-left"></i></button>
         </div>
     </div>
 
-    <!-- Плавающая кнопка меню -->
     <button id="menuBtn" class="menu-btn">
         <i class="fas fa-bars"></i>
     </button>
 
-    <!-- Выезжающее меню со списком сур -->
     <div id="surahDrawer" class="surah-drawer">
         <div class="drawer-header">
             <h3><i class="fas fa-list"></i> فهرس السور</h3>
@@ -473,23 +486,42 @@
         let currentSurahId = 1;
         let isLoading = false;
 
-        // Кеш
+        // ==================== ВЕЧНЫЙ КЕШ (БЕЗ ОГРАНИЧЕНИЯ ПО ВРЕМЕНИ) ====================
         function getCached(surahId) {
             const cached = localStorage.getItem(`surah_${surahId}`);
             if (cached) {
                 try {
                     const data = JSON.parse(cached);
-                    if (Date.now() - data.timestamp < 30 * 24 * 60 * 60 * 1000) return data.verses;
+                    // Убрано ограничение по времени — храним вечно
+                    return data.verses;
                 } catch(e) {}
             }
             return null;
         }
 
         function setCached(surahId, verses) {
-            localStorage.setItem(`surah_${surahId}`, JSON.stringify({ timestamp: Date.now(), verses }));
+            localStorage.setItem(`surah_${surahId}`, JSON.stringify({ 
+                timestamp: Date.now(), 
+                verses: verses 
+            }));
         }
 
-        // Загрузка суры
+        // ==================== ПРЕДЗАГРУЗКА СОСЕДНИХ СУР ====================
+        function preloadAdjacent(surahId) {
+            const ids = [surahId - 1, surahId + 1];
+            ids.forEach(id => {
+                if (id >= 1 && id <= 114 && !getCached(id)) {
+                    fetch(`https://api.alquran.cloud/v1/surah/${id}/ar.alafasy`)
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.code === 200) setCached(id, data.data.ayahs);
+                        })
+                        .catch(e => console.log('Preload failed', e));
+                }
+            });
+        }
+
+        // ==================== ЗАГРУЗКА СУРЫ ====================
         async function loadSurah(surahId) {
             if (isLoading) return;
             isLoading = true;
@@ -506,6 +538,7 @@
             if (cached) {
                 renderVerses(cached);
                 isLoading = false;
+                preloadAdjacent(surahId);
                 return;
             }
             
@@ -518,6 +551,7 @@
                     const verses = data.data.ayahs;
                     setCached(surahId, verses);
                     renderVerses(verses);
+                    preloadAdjacent(surahId);
                 } else throw new Error();
             } catch (error) {
                 container.innerHTML = '<div class="loading">خطأ في التحميل</div>';
@@ -535,6 +569,7 @@
             `).join('');
         }
 
+        // ==================== НАВИГАЦИЯ ====================
         function nextSurah() {
             if (currentSurahId < 114) {
                 currentSurahId++;
@@ -562,9 +597,10 @@
             updateActiveInList();
         }
 
-        // Построение списка
+        // ==================== ПОСТРОЕНИЕ СПИСКА ====================
         function buildSurahList() {
             const container = document.getElementById('surahList');
+            if (!container) return;
             container.innerHTML = surahs.map(s => `
                 <div class="surah-item" data-id="${s.id}">
                     <div>
@@ -588,9 +624,11 @@
             });
         }
 
-        // Поиск
+        // ==================== ПОИСК ====================
         function initSearch() {
-            document.getElementById('surahSearch').addEventListener('input', (e) => {
+            const searchInput = document.getElementById('surahSearch');
+            if (!searchInput) return;
+            searchInput.addEventListener('input', (e) => {
                 const query = e.target.value.toLowerCase();
                 document.querySelectorAll('.surah-item').forEach(el => {
                     const text = el.innerText.toLowerCase();
@@ -599,49 +637,64 @@
             });
         }
 
-        // Меню
+        // ==================== МЕНЮ ====================
         function openDrawer() {
             document.getElementById('surahDrawer').classList.add('open');
             document.getElementById('drawerOverlay').classList.add('active');
         }
+        
         function closeDrawer() {
             document.getElementById('surahDrawer').classList.remove('open');
             document.getElementById('drawerOverlay').classList.remove('active');
         }
 
-        // Тёмная тема
+        // ==================== ТЁМНАЯ ТЕМА ====================
         function initTheme() {
             const saved = localStorage.getItem('theme') || 'light';
             document.body.setAttribute('data-theme', saved);
             const icon = document.querySelector('#themeToggleQuran i');
-            if (saved === 'dark') icon.classList.replace('fa-moon', 'fa-sun');
-            else icon.classList.replace('fa-sun', 'fa-moon');
+            if (icon) {
+                if (saved === 'dark') icon.classList.replace('fa-moon', 'fa-sun');
+                else icon.classList.replace('fa-sun', 'fa-moon');
+            }
         }
+        
         function toggleTheme() {
             const cur = document.body.getAttribute('data-theme');
             const neu = cur === 'light' ? 'dark' : 'light';
             document.body.setAttribute('data-theme', neu);
             localStorage.setItem('theme', neu);
             const icon = document.querySelector('#themeToggleQuran i');
-            if (neu === 'dark') icon.classList.replace('fa-moon', 'fa-sun');
-            else icon.classList.replace('fa-sun', 'fa-moon');
+            if (icon) {
+                if (neu === 'dark') icon.classList.replace('fa-moon', 'fa-sun');
+                else icon.classList.replace('fa-sun', 'fa-moon');
+            }
         }
 
-        // Назад на главную
-        document.getElementById('backToMain').onclick = () => window.location.href = 'index.html';
+        // ==================== НАЗАД НА ГЛАВНУЮ ====================
+        const backBtn = document.getElementById('backToMain');
+        if (backBtn) backBtn.onclick = () => window.location.href = 'index.html';
 
-        // Запуск
+        // ==================== ЗАПУСК ====================
         document.addEventListener('DOMContentLoaded', () => {
             buildSurahList();
             initSearch();
             initTheme();
             loadSurah(1);
-            document.getElementById('nextSurah').onclick = nextSurah;
-            document.getElementById('prevSurah').onclick = prevSurah;
-            document.getElementById('menuBtn').onclick = openDrawer;
-            document.getElementById('closeDrawerBtn').onclick = closeDrawer;
-            document.getElementById('drawerOverlay').onclick = closeDrawer;
-            document.getElementById('themeToggleQuran').onclick = toggleTheme;
+            
+            const nextBtn = document.getElementById('nextSurah');
+            const prevBtn = document.getElementById('prevSurah');
+            const menuBtn = document.getElementById('menuBtn');
+            const closeBtn = document.getElementById('closeDrawerBtn');
+            const overlay = document.getElementById('drawerOverlay');
+            const themeBtn = document.getElementById('themeToggleQuran');
+            
+            if (nextBtn) nextBtn.onclick = nextSurah;
+            if (prevBtn) prevBtn.onclick = prevSurah;
+            if (menuBtn) menuBtn.onclick = openDrawer;
+            if (closeBtn) closeBtn.onclick = closeDrawer;
+            if (overlay) overlay.onclick = closeDrawer;
+            if (themeBtn) themeBtn.onclick = toggleTheme;
         });
     </script>
 </body>

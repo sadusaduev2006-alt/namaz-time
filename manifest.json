@@ -1,7 +1,7 @@
 {
-  "name": "Время намаза Махачкала",
+  "name": "Намаз Дагестан",
   "short_name": "Намаз",
-  "description": "Точное время намазов для Махачкалы с азаном",
+  "description": "Точное время намазов для Дагестана с киблой и азаном",
   "start_url": "/namaz-time/",
   "display": "standalone",
   "theme_color": "#F4EFE6",

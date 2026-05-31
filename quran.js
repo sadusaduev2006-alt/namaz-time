@@ -173,4 +173,180 @@ async function loadSurah(surahId) {
 function nextSurah() {
     if (currentSurahId < 114) {
         const page = document.getElementById('quranPage');
-       
+        page.classList.add('page-flip-right');
+        setTimeout(() => {
+            currentSurahId++;
+            loadSurah(currentSurahId);
+            setTimeout(() => {
+                page.classList.remove('page-flip-right');
+            }, 100);
+        }, 150);
+    }
+}
+
+function prevSurah() {
+    if (currentSurahId > 1) {
+        const page = document.getElementById('quranPage');
+        page.classList.add('page-flip-left');
+        setTimeout(() => {
+            currentSurahId--;
+            loadSurah(currentSurahId);
+            setTimeout(() => {
+                page.classList.remove('page-flip-left');
+            }, 100);
+        }, 150);
+    }
+}
+
+function goToSurah(surahId) {
+    if (surahId === currentSurahId) {
+        closeDrawer();
+        return;
+    }
+    
+    const page = document.getElementById('quranPage');
+    const direction = surahId > currentSurahId ? 'page-flip-right' : 'page-flip-left';
+    page.classList.add(direction);
+    
+    setTimeout(() => {
+        currentSurahId = surahId;
+        loadSurah(currentSurahId);
+        closeDrawer();
+        setTimeout(() => {
+            page.classList.remove(direction);
+        }, 100);
+    }, 150);
+}
+
+// ==================== МЕНЮ СО СПИСКОМ СУР ====================
+function buildSurahList() {
+    const container = document.getElementById('surahList');
+    if (!container) return;
+    
+    let html = '';
+    surahs.forEach(surah => {
+        html += `
+            <div class="surah-item" data-id="${surah.id}">
+                <div class="surah-info">
+                    <div class="surah-name">${surah.id}. ${surah.nameRu}</div>
+                    <div class="surah-name-ar">${surah.name}</div>
+                    <div class="surah-meta">${surah.place} • ${surah.verses} آيات</div>
+                </div>
+                <div class="surah-number">${surah.id}</div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+    
+    document.querySelectorAll('.surah-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const id = parseInt(item.dataset.id);
+            goToSurah(id);
+        });
+    });
+    
+    updateActiveSurahInList();
+}
+
+function updateActiveSurahInList() {
+    document.querySelectorAll('.surah-item').forEach(item => {
+        const id = parseInt(item.dataset.id);
+        if (id === currentSurahId) {
+            item.classList.add('active');
+        } else {
+            item.classList.remove('active');
+        }
+    });
+}
+
+function openDrawer() {
+    document.getElementById('surahDrawer').classList.add('open');
+    document.getElementById('drawerOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeDrawer() {
+    document.getElementById('surahDrawer').classList.remove('open');
+    document.getElementById('drawerOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+// ==================== ПОИСК СУР ====================
+function initSearch() {
+    const searchInput = document.getElementById('surahSearch');
+    if (!searchInput) return;
+    
+    searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        const items = document.querySelectorAll('.surah-item');
+        
+        items.forEach(item => {
+            const nameRu = item.querySelector('.surah-name').innerText.toLowerCase();
+            const nameAr = item.querySelector('.surah-name-ar').innerText.toLowerCase();
+            const id = item.dataset.id;
+            
+            if (nameRu.includes(query) || nameAr.includes(query) || id === query) {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+}
+
+// ==================== ТЁМНАЯ ТЕМА ====================
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.body.setAttribute('data-theme', savedTheme);
+    const icon = document.querySelector('#themeToggleQuran i');
+    if (savedTheme === 'dark') {
+        icon.classList.remove('fa-moon');
+        icon.classList.add('fa-sun');
+    } else {
+        icon.classList.remove('fa-sun');
+        icon.classList.add('fa-moon');
+    }
+}
+
+function toggleTheme() {
+    const currentTheme = document.body.getAttribute('data-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    document.body.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    
+    const icon = document.querySelector('#themeToggleQuran i');
+    if (newTheme === 'dark') {
+        icon.classList.remove('fa-moon');
+        icon.classList.add('fa-sun');
+    } else {
+        icon.classList.remove('fa-sun');
+        icon.classList.add('fa-moon');
+    }
+}
+
+// ==================== НАВИГАЦИЯ НА ГЛАВНУЮ ====================
+function initBackButton() {
+    const backBtn = document.getElementById('backToMain');
+    if (backBtn) {
+        backBtn.addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+    }
+}
+
+// ==================== ЗАПУСК ====================
+document.addEventListener('DOMContentLoaded', () => {
+    buildSurahList();
+    initSearch();
+    initTheme();
+    initBackButton();
+    loadSurah(1);
+    
+    document.getElementById('nextSurah').addEventListener('click', nextSurah);
+    document.getElementById('prevSurah').addEventListener('click', prevSurah);
+    document.getElementById('menuToggleBtn').addEventListener('click', openDrawer);
+    document.getElementById('closeDrawerBtn').addEventListener('click', closeDrawer);
+    document.getElementById('drawerOverlay').addEventListener('click', closeDrawer);
+    document.getElementById('themeToggleQuran').addEventListener('click', toggleTheme);
+});

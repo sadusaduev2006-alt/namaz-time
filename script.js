@@ -1,50 +1,24 @@
-// ==================== МЕНЮ (САМОЕ ВАЖНОЕ) ====================
+// ==================== ВЫПАДАЮЩЕЕ МЕНЮ (три точки) ====================
 document.addEventListener('DOMContentLoaded', function() {
     const menuBtn = document.getElementById('menuToggle');
-    const drawer = document.getElementById('drawerMenu');
-    const closeBtn = document.getElementById('closeDrawer');
-    const overlay = document.getElementById('overlay');
+    const dropdownMenu = document.getElementById('dropdownMenu');
 
-    function openMenu() {
-        drawer.classList.add('open');
-        overlay.classList.add('active');
-        document.body.style.overflow = 'hidden';
+    if (menuBtn && dropdownMenu) {
+        menuBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dropdownMenu.classList.toggle('show');
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!menuBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
     }
 
-    function closeMenu() {
-        drawer.classList.remove('open');
-        overlay.classList.remove('active');
-        document.body.style.overflow = '';
-    }
-
-    if (menuBtn) menuBtn.onclick = openMenu;
-    if (closeBtn) closeBtn.onclick = closeMenu;
-    if (overlay) overlay.onclick = closeMenu;
-
-    // Переключение вкладок
-    const tabBtns = document.querySelectorAll('.tab-btn');
-    const tabContent = document.getElementById('tabContent');
-    
-    const contents = {
-        fatiha: `<div class="surah-content"><h3>Сура Аль-Фатиха</h3>
-            <p class="arabic-text">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ<br>الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ<br>الرَّحْمَٰنِ الرَّحِيمِ<br>مَالِكِ يَوْمِ الدِّينِ<br>إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ<br>اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ<br>صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ</p>
-            <div class="transliteration"><h4>Транскрипция:</h4><p>Бисмилляхир-рахманир-рахим.<br>Альхамдулилляхи раббиль-алямин.<br>Ар-рахманир-рахим.<br>Малики яумид-дин.<br>Ийякя на'буду ва ийякя наста'ин.<br>Ихдинас-сыраталь-мустакым.<br>Сыраталь-лязина ан'амта 'алейхим гайриль-магдуби 'алейхим ва ляд-даллин.</p></div>
-            <div class="translation"><h4>Перевод смыслов:</h4><p>Во имя Аллаха, Милостивого, Милосердного.<br>Хвала Аллаху, Господу миров,<br>Милостивому, Милосердному,<br>Властелину Дня воздаяния!<br>Тебе одному мы поклоняемся и Тебя одного молим о помощи.<br>Веди нас прямым путём,<br>путём тех, кого Ты облагодетельствовал, не тех, на кого пал гнев, и не заблудших.</p></div></div>`
-    };
-
-    tabBtns.forEach(btn => {
-        btn.onclick = () => {
-            tabBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            const tab = btn.getAttribute('data-tab');
-            if (tabContent && contents[tab]) tabContent.innerHTML = contents[tab];
-        };
-    });
-
-    // ==================== ОСТАЛЬНОЙ КОД (НАМАЗЫ, ТЕМА, КОМПАС) ====================
+    // ==================== НАМАЗЫ, ТЕМА, КОМПАС ====================
     let currentCity = { lat: 42.9849, lng: 47.5046 };
     let prayerTimes = {};
-    let lastNotifiedPrayers = new Set();
     let currentHeading = 0;
     let qiblaDirection = 0;
     let compassActive = false;

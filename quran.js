@@ -1,164 +1,164 @@
-// ==================== ДАННЫЕ О СУРАХ ====================
-const surahs = [ /* ТВОЙ ПОЛНЫЙ СПИСОК СУР — ОСТАВЬ КАК ЕСТЬ */ ];
-// ВНИМАНИЕ: Оставь здесь свой полный массив surahs из 114 сур!
-// В этом сообщении он сокращен для краткости, но ты должен вставить свой полный список.
+// ВСЕ 114 СУР (массив surahs оставь как есть из предыдущей версии)
 
 let currentSurahId = 1;
 let isLoading = false;
 
-// КЛЮЧЕВАЯ ФУНКЦИЯ КЕШИРОВАНИЯ
 function getCachedSurah(surahId) {
-    const cacheKey = `surah_${surahId}`;
-    const cached = localStorage.getItem(cacheKey);
-    
+    const cached = localStorage.getItem(`surah_${surahId}`);
     if (cached) {
         try {
             const data = JSON.parse(cached);
-            // Проверяем, не устарел ли кеш (например, 30 дней)
-            const isExpired = (Date.now() - data.timestamp) > 30 * 24 * 60 * 60 * 1000;
-            if (!isExpired) {
-                return data.verses;
-            }
-        } catch(e) { console.warn("Ошибка кеша", e); }
+            if (Date.now() - data.timestamp < 30 * 24 * 60 * 60 * 1000) return data.verses;
+        } catch(e) {}
     }
     return null;
 }
 
 function setCachedSurah(surahId, verses) {
-    const cacheKey = `surah_${surahId}`;
-    const cacheData = {
-        timestamp: Date.now(),
-        verses: verses
-    };
-    try {
-        localStorage.setItem(cacheKey, JSON.stringify(cacheData));
-    } catch(e) { console.warn("Не удалось сохранить в кеш", e); }
+    localStorage.setItem(`surah_${surahId}`, JSON.stringify({ timestamp: Date.now(), verses }));
 }
 
-// ПЕРЕРАБОТАННАЯ ФУНКЦИЯ ЗАГРУЗКИ (С КЕШЕМ)
-async function loadSurah(surahId) {
+async function loadSurah(surahId, animate = false) {
     if (isLoading) return;
     isLoading = true;
     
     const surah = surahs.find(s => s.id === surahId);
     if (!surah) return;
     
-    // Обновляем заголовки
+    if (animate) {
+        const page = document.getElementById('quranPage');
+        page.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
+        page.style.transform = 'scale(0.98)';
+        page.style.opacity = '0.8';
+        setTimeout(() => { page.style.transform = ''; page.style.opacity = ''; }, 200);
+    }
+    
     document.getElementById('surahName').innerText = surah.name;
     document.getElementById('surahInfo').innerText = `${surah.place} • ${surah.verses} آيات`;
     document.getElementById('currentSurahNum').innerText = surahId;
     
     const quranTextDiv = document.getElementById('quranText');
     
-    // 1. ПРОВЕРЯЕМ КЕШ
-    const cachedVerses = getCachedSurah(surahId);
-    if (cachedVerses) {
-        // Если сура есть в кеше — показываем мгновенно
-        renderVerses(cachedVerses);
+    const cached = getCachedSurah(surahId);
+    if (cached) {
+        renderVerses(cached);
         isLoading = false;
-        updateActiveSurahInList();
         return;
     }
     
-    // 2. ЕСЛИ В КЕШЕ НЕТ — ГРУЗИМ С API
     quranTextDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div>';
     
     try {
-        // Используем более быстрый альтернативный API (quran.gading.dev)
-        // Он примерно в 3 раза быстрее стандартного [citation:5][citation:9]
-        const response = await fetch(`https://api.quran.gading.dev/surah/${surahId}`);
+        const response = await fetch(`https://api.alquran.cloud/v1/surah/${surahId}/ar.alafasy`);
         const data = await response.json();
-        
         if (data.code === 200) {
-            const verses = data.data.verses;
-            // Сохраняем в кеш для следующих разов
+            const verses = data.data.ayahs;
             setCachedSurah(surahId, verses);
-            // Показываем на экране
             renderVerses(verses);
-        } else {
-            throw new Error('Не удалось загрузить суру');
-        }
+        } else throw new Error();
     } catch (error) {
-        console.error('Ошибка загрузки:', error);
-        quranTextDiv.innerHTML = `
-            <div class="loading">
-                <i class="fas fa-exclamation-triangle"></i> خطأ في التحميل<br>
-                <small>يرجى التحقق من اتصال الإنترنت</small>
-            </div>
-        `;
+        quranTextDiv.innerHTML = '<div class="loading"><i class="fas fa-exclamation-triangle"></i> خطأ في التحميل</div>';
     }
-    
     isLoading = false;
-    updateActiveSurahInList();
 }
 
-// ФУНКЦИЯ ДЛЯ ОТРИСОВКИ АЯТОВ
 function renderVerses(verses) {
-    const quranTextDiv = document.getElementById('quranText');
-    let html = '';
-    for (let i = 0; i < verses.length; i++) {
-        const verse = verses[i];
-        // Адаптация под структуру данных разных API
-        const verseNumber = verse.number?.inSurah || verse.number || (i+1);
-        const verseText = verse.text?.arab || verse.text || verse.arab;
-        
-        html += `
-            <div class="ayah">
-                <span class="ayah-number">${verseNumber}</span>
-                <span class="ayah-text">${verseText}</span>
-            </div>
-        `;
-    }
-    quranTextDiv.innerHTML = html;
+    const container = document.getElementById('quranText');
+    container.innerHTML = verses.map(v => `
+        <div class="ayah">
+            <span class="ayah-number">${v.numberInSurah}</span>
+            <span class="ayah-text">${v.text}</span>
+        </div>
+    `).join('');
 }
 
-// ФУНКЦИЯ ДЛЯ ПРЕДЗАГРУЗКИ СОСЕДНИХ СУР (ОПЦИОНАЛЬНО)
-function preloadAdjacentSurahs() {
-    if (currentSurahId > 1 && !getCachedSurah(currentSurahId - 1)) {
-        fetch(`https://api.quran.gading.dev/surah/${currentSurahId - 1}`)
-            .then(r => r.json())
-            .then(data => {
-                if (data.code === 200) setCachedSurah(currentSurahId - 1, data.data.verses);
-            })
-            .catch(e => console.log("Preload failed", e));
-    }
-    if (currentSurahId < 114 && !getCachedSurah(currentSurahId + 1)) {
-        fetch(`https://api.quran.gading.dev/surah/${currentSurahId + 1}`)
-            .then(r => r.json())
-            .then(data => {
-                if (data.code === 200) setCachedSurah(currentSurahId + 1, data.data.verses);
-            })
-            .catch(e => console.log("Preload failed", e));
-    }
-}
-
-// ==================== НАВИГАЦИЯ (С ПРЕДЗАГРУЗКОЙ) ====================
 function nextSurah() {
     if (currentSurahId < 114) {
         currentSurahId++;
-        loadSurah(currentSurahId);
-        preloadAdjacentSurahs(); // Загружаем следующую суру в фоне
+        loadSurah(currentSurahId, true);
     }
 }
 
 function prevSurah() {
     if (currentSurahId > 1) {
         currentSurahId--;
-        loadSurah(currentSurahId);
-        preloadAdjacentSurahs(); // Загружаем предыдущую суру в фоне
+        loadSurah(currentSurahId, true);
     }
 }
 
 function goToSurah(surahId) {
-    if (surahId === currentSurahId) {
-        closeDrawer();
-        return;
-    }
+    if (surahId === currentSurahId) { closeDrawer(); return; }
     currentSurahId = surahId;
-    loadSurah(currentSurahId);
-    preloadAdjacentSurahs();
+    loadSurah(currentSurahId, true);
     closeDrawer();
 }
 
-// ОСТАЛЬНОЙ КОД (buildSurahList, initSearch, initTheme, initBackButton) ОСТАВЬ БЕЗ ИЗМЕНЕНИЙ
-// ...
+// Построение списка сур
+function buildSurahList() {
+    const container = document.getElementById('surahList');
+    container.innerHTML = surahs.map(s => `
+        <div class="surah-item" data-id="${s.id}">
+            <div><span class="surah-name">${s.id}. ${s.nameRu}</span><br><span class="surah-name-ar">${s.name}</span></div>
+            <div class="surah-number">${s.id}</div>
+        </div>
+    `).join('');
+    document.querySelectorAll('.surah-item').forEach(el => {
+        el.addEventListener('click', () => goToSurah(parseInt(el.dataset.id)));
+    });
+}
+
+function updateActiveSurah() {
+    document.querySelectorAll('.surah-item').forEach(el => {
+        if (parseInt(el.dataset.id) === currentSurahId) el.classList.add('active');
+        else el.classList.remove('active');
+    });
+}
+
+// Тёмная тема для Корана
+function initThemeQuran() {
+    const saved = localStorage.getItem('theme') || 'light';
+    document.body.setAttribute('data-theme', saved);
+    const icon = document.querySelector('#themeToggleQuran i');
+    if (saved === 'dark') icon.classList.replace('fa-moon', 'fa-sun');
+    else icon.classList.replace('fa-sun', 'fa-moon');
+}
+
+function toggleThemeQuran() {
+    const cur = document.body.getAttribute('data-theme');
+    const neu = cur === 'light' ? 'dark' : 'light';
+    document.body.setAttribute('data-theme', neu);
+    localStorage.setItem('theme', neu);
+    const icon = document.querySelector('#themeToggleQuran i');
+    if (neu === 'dark') icon.classList.replace('fa-moon', 'fa-sun');
+    else icon.classList.replace('fa-sun', 'fa-moon');
+}
+
+// Меню
+function openDrawer() { document.getElementById('surahDrawer').classList.add('open'); document.getElementById('drawerOverlay').classList.add('active'); document.body.style.overflow = 'hidden'; }
+function closeDrawer() { document.getElementById('surahDrawer').classList.remove('open'); document.getElementById('drawerOverlay').classList.remove('active'); document.body.style.overflow = ''; }
+
+// Поиск
+function initSearch() {
+    document.getElementById('surahSearch').addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        document.querySelectorAll('.surah-item').forEach(el => {
+            const text = el.innerText.toLowerCase();
+            el.style.display = text.includes(query) ? 'flex' : 'none';
+        });
+    });
+}
+
+// Запуск
+document.addEventListener('DOMContentLoaded', () => {
+    buildSurahList();
+    initSearch();
+    initThemeQuran();
+    loadSurah(1);
+    document.getElementById('nextSurah').onclick = nextSurah;
+    document.getElementById('prevSurah').onclick = prevSurah;
+    document.getElementById('menuToggleBtn').onclick = openDrawer;
+    document.getElementById('closeDrawerBtn').onclick = closeDrawer;
+    document.getElementById('drawerOverlay').onclick = closeDrawer;
+    document.getElementById('themeToggleQuran').onclick = toggleThemeQuran;
+    document.getElementById('backToMain').onclick = () => window.location.href = 'index.html';
+});

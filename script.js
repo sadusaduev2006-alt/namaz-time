@@ -335,6 +335,373 @@ function openSettingsModal() {
     };
     document.getElementById('settingsModal').onclick = (e) => {
         if (e.target === document.getElementById('settingsModal')) document.getElementById('settingsModal').remove();
+    // ==================== НАСТРОЙКА ВРЕМЕНИ НАМАЗА (ПОЛНОСТЬЮ ПЕРЕРАБОТАНО) ====================
+let timeOffsets = {
+    fajr: 0,
+    sunrise: 0,
+    dhuhr: 0,
+    asr: 0,
+    maghrib: 0,
+    isha: 0
+};
+
+// Загрузка сохранённых настроек
+function loadTimeOffsets() {
+    const saved = localStorage.getItem('namazTimeOffsets');
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            timeOffsets = { ...timeOffsets, ...parsed };
+            console.log('Настройки загружены:', timeOffsets);
+        } catch(e) {}
+    }
+}
+
+// Сохранение настроек
+function saveTimeOffsets() {
+    localStorage.setItem('namazTimeOffsets', JSON.stringify(timeOffsets));
+    console.log('Настройки сохранены:', timeOffsets);
+}
+
+// Применение смещений к отображаемому времени
+function applyTimeOffsetsToDisplay() {
+    if (!window.prayerTimes || !window.prayerTimes.Fajr) {
+        console.log('Нет данных о намазах');
+        return;
+    }
+    
+    console.log('Применяем смещения:', timeOffsets);
+    
+    const mappings = [
+        { id: 'fajr', key: 'Fajr', offsetKey: 'fajr' },
+        { id: 'sunrise', key: 'Sunrise', offsetKey: 'sunrise' },
+        { id: 'dhuhr', key: 'Dhuhr', offsetKey: 'dhuhr' },
+        { id: 'asr', key: 'Asr', offsetKey: 'asr' },
+        { id: 'maghrib', key: 'Maghrib', offsetKey: 'maghrib' },
+        { id: 'isha', key: 'Isha', offsetKey: 'isha' }
+    ];
+    
+    for (const mapping of mappings) {
+        const originalTime = window.prayerTimes[mapping.key];
+        if (originalTime) {
+            const offset = timeOffsets[mapping.offsetKey];
+            const adjustedTime = adjustTimeByMinutes(originalTime, offset);
+            const element = document.getElementById(mapping.id);
+            if (element) {
+                element.innerText = adjustedTime;
+                console.log(`${mapping.key}: ${originalTime} → ${adjustedTime} (${offset} мин)`);
+            }
+        }
+    }
+    
+    // Пересчитываем ближайший намаз с учётом смещений
+    recalculateNearestPrayerWithOffsets();
+}
+
+// Функция смещения времени
+function adjustTimeByMinutes(timeStr, minutesOffset) {
+    if (!timeStr) return '--:--';
+    if (minutesOffset === 0) return timeStr;
+    
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    let totalMinutes = hours * 60 + minutes + minutesOffset;
+    
+    // Корректировка на следующий/предыдущий день
+    if (totalMinutes < 0) totalMinutes += 1440;
+    if (totalMinutes >= 1440) totalMinutes -= 1440;
+    
+    const newHours = Math.floor(totalMinutes / 60);
+    const newMinutes = totalMinutes % 60;
+    return `${String(newHours).padStart(2, '0')}:${String(newMinutes).padStart(2, '0')}`;
+}
+
+// Пересчёт ближайшего намаза с учётом смещений
+function recalculateNearestPrayerWithOffsets() {
+    if (!window.prayerTimes || !window.prayerTimes.Fajr) return;
+    
+    const now = new Date();
+    const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
+    
+    const prayers = [
+        { name: 'Фаджр', id: 'fajr', key: 'Fajr', offsetKey: 'fajr' },
+        { name: 'Зухр', id: 'dhuhr', key: 'Dhuhr', offsetKey: 'dhuhr' },
+        { name: 'Аср', id: 'asr', key: 'Asr', offsetKey: 'asr' },
+        { name: 'Магриб', id: 'maghrib', key: 'Maghrib', offsetKey: 'maghrib' },
+        { name: 'Иша', id: 'isha', key: 'Isha', offsetKey: 'isha' }
+    ];
+    
+    const prayerTimesWithOffset = prayers.map(p => {
+        const originalTime = window.prayerTimes[p.key];
+        const adjustedTime = adjustTimeByMinutes(originalTime, timeOffsets[p.offsetKey]);
+        const [hours, minutes] = adjustedTime.split(':').map(Number);
+        return { ...p, time: adjustedTime, totalMinutes: hours * 60 + minutes };
+    });
+    
+    // Ищем следующий намаз
+    let nextPrayer = null;
+    for (const p of prayerTimesWithOffset) {
+        if (p.totalMinutes > currentTotalMinutes) {
+            nextPrayer = p;
+            break;
+        }
+    }
+    
+    // Если все намазы прошли сегодня — берём первый на завтра
+    if (!nextPrayer && prayerTimesWithOffset.length > 0) {
+        nextPrayer = { ...prayerTimesWithOffset[0], totalMinutes: prayerTimesWithOffset[0].totalMinutes + 1440 };
+    }
+    
+    if (nextPrayer) {
+        const minutesLeft = nextPrayer.totalMinutes - currentTotalMinutes;
+        
+        const nextNameEl = document.getElementById('nextPrayerName');
+        const nextTimeEl = document.getElementById('nextPrayerTime');
+        const countdownEl = document.getElementById('countdownText');
+        
+        if (nextNameEl) nextNameEl.innerText = nextPrayer.name;
+        if (nextTimeEl) nextTimeEl.innerText = nextPrayer.time;
+        
+        if (countdownEl) {
+            if (minutesLeft <= 0) {
+                countdownEl.innerHTML = "🕋 Время наступило!";
+            } else {
+                const hours = Math.floor(minutesLeft / 60);
+                const minutes = minutesLeft % 60;
+                if (hours > 0) {
+                    countdownEl.innerHTML = `${hours} ч ${minutes} мин`;
+                } else {
+                    countdownEl.innerHTML = `${minutes} минут`;
+                }
+            }
+        }
+        
+        // Подсветка активного намаза
+        document.querySelectorAll('.prayer-item').forEach(item => item.classList.remove('active'));
+        const activeEl = document.getElementById(nextPrayer.id);
+        if (activeEl) {
+            const parentItem = activeEl.closest('.prayer-item');
+            if (parentItem) parentItem.classList.add('active');
+        }
+    }
+}
+
+// Открытие модального окна настроек
+function openSettingsModal() {
+    // Удаляем старое модальное окно, если есть
+    const oldModal = document.getElementById('settingsModal');
+    if (oldModal) oldModal.remove();
+    
+    const modalHtml = `
+        <div id="settingsModal" class="settings-modal-overlay">
+            <div class="settings-modal-content">
+                <div class="settings-modal-header">
+                    <h3><i class="fas fa-clock"></i> Настройка времени намаза</h3>
+                    <button id="closeSettingsModal" class="settings-close-btn">&times;</button>
+                </div>
+                <div class="settings-modal-body">
+                    <p class="settings-note">Настройте смещение времени для каждого намаза (± минуты)</p>
+                    <div class="settings-offset-list">
+                        <div class="settings-offset-item"><label>Фаджр</label><input type="number" id="set_offsetFajr" step="1" value="${timeOffsets.fajr}"><span>мин</span></div>
+                        <div class="settings-offset-item"><label>Шурук</label><input type="number" id="set_offsetSunrise" step="1" value="${timeOffsets.sunrise}"><span>мин</span></div>
+                        <div class="settings-offset-item"><label>Зухр</label><input type="number" id="set_offsetDhuhr" step="1" value="${timeOffsets.dhuhr}"><span>мин</span></div>
+                        <div class="settings-offset-item"><label>Аср</label><input type="number" id="set_offsetAsr" step="1" value="${timeOffsets.asr}"><span>мин</span></div>
+                        <div class="settings-offset-item"><label>Магриб</label><input type="number" id="set_offsetMaghrib" step="1" value="${timeOffsets.maghrib}"><span>мин</span></div>
+                        <div class="settings-offset-item"><label>Иша</label><input type="number" id="set_offsetIsha" step="1" value="${timeOffsets.isha}"><span>мин</span></div>
+                    </div>
+                    <button id="resetSettingsOffsets" class="settings-reset-btn">Сбросить все</button>
+                </div>
+                <div class="settings-modal-footer">
+                    <button id="saveSettingsOffsets" class="settings-save-btn">Сохранить настройки</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    // Закрытие
+    document.getElementById('closeSettingsModal').onclick = () => document.getElementById('settingsModal').remove();
+    document.getElementById('settingsModal').onclick = (e) => {
+        if (e.target === document.getElementById('settingsModal')) document.getElementById('settingsModal').remove();
+    };
+    
+    // Сброс
+    document.getElementById('resetSettingsOffsets').onclick = () => {
+        document.getElementById('set_offsetFajr').value = 0;
+        document.getElementById('set_offsetSunrise').value = 0;
+        document.getElementById('set_offsetDhuhr').value = 0;
+        document.getElementById('set_offsetAsr').value = 0;
+        document.getElementById('set_offsetMaghrib').value = 0;
+        document.getElementById('set_offsetIsha').value = 0;
+    };
+    
+    // Сохранение
+    document.getElementById('saveSettingsOffsets').onclick = () => {
+        timeOffsets = {
+            fajr: parseInt(document.getElementById('set_offsetFajr').value) || 0,
+            sunrise: parseInt(document.getElementById('set_offsetSunrise').value) || 0,
+            dhuhr: parseInt(document.getElementById('set_offsetDhuhr').value) || 0,
+            asr: parseInt(document.getElementById('set_offsetAsr').value) || 0,
+            maghrib: parseInt(document.getElementById('set_offsetMaghrib').value) || 0,
+            isha: parseInt(document.getElementById('set_offsetIsha').value) || 0
+        };
+        saveTimeOffsets();
+        applyTimeOffsetsToDisplay();
+        document.getElementById('settingsModal').remove();
+        
+        // Показываем уведомление об успехе
+        const toast = document.createElement('div');
+        toast.innerHTML = '✅ Настройки сохранены!';
+        toast.style.cssText = `
+            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+            background: var(--accent, #B67B4A); color: white;
+            padding: 12px 24px; border-radius: 40px; z-index: 3000;
+            font-size: 14px; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+    };
+}
+
+// Добавляем стили для модального окна
+const settingsStyles = document.createElement('style');
+settingsStyles.textContent = `
+    .settings-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 2000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .settings-modal-content {
+        background: var(--card-bg, #FFFFFF);
+        border-radius: 32px;
+        width: 90%;
+        max-width: 380px;
+        max-height: 85vh;
+        overflow-y: auto;
+        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+    }
+    .settings-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 20px;
+        border-bottom: 1px solid var(--border-color, rgba(210,180,140,0.2));
+    }
+    .settings-modal-header h3 {
+        color: var(--accent, #B67B4A);
+        margin: 0;
+        font-size: 18px;
+    }
+    .settings-close-btn {
+        background: none;
+        border: none;
+        font-size: 28px;
+        cursor: pointer;
+        color: var(--text-secondary, #5E4B3A);
+    }
+    .settings-modal-body {
+        padding: 20px;
+    }
+    .settings-note {
+        font-size: 13px;
+        margin-bottom: 16px;
+        color: var(--accent, #B67B4A);
+    }
+    .settings-offset-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+    .settings-offset-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .settings-offset-item label {
+        width: 80px;
+        font-weight: 500;
+    }
+    .settings-offset-item input {
+        width: 70px;
+        padding: 8px;
+        border-radius: 12px;
+        border: 1px solid var(--border-color, rgba(210,180,140,0.2));
+        background: var(--prayer-bg, #FCF9F5);
+        text-align: center;
+        font-family: inherit;
+    }
+    .settings-reset-btn {
+        background: var(--accent-light, #F7EFE4);
+        border: none;
+        padding: 10px 16px;
+        border-radius: 30px;
+        cursor: pointer;
+        width: 100%;
+        color: var(--text-secondary, #5E4B3A);
+    }
+    .settings-modal-footer {
+        padding: 16px 20px;
+        border-top: 1px solid var(--border-color, rgba(210,180,140,0.2));
+    }
+    .settings-save-btn {
+        background: var(--accent, #B67B4A);
+        border: none;
+        padding: 12px;
+        border-radius: 40px;
+        width: 100%;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 16px;
+    }
+    .settings-save-btn:hover {
+        opacity: 0.9;
+    }
+    body[data-theme="dark"] .settings-modal-content {
+        background: #2C2C2C;
+    }
+`;
+document.head.appendChild(settingsStyles);
+
+// Инициализация кнопки настроек в меню
+function initSettingsButton() {
+    const settingsLink = document.getElementById('settingsLink');
+    if (settingsLink) {
+        settingsLink.onclick = (e) => {
+            e.preventDefault();
+            openSettingsModal();
+        };
+        console.log('Кнопка настроек подключена');
+    } else {
+        console.log('Кнопка настроек не найдена');
+    }
+}
+
+// Перехватываем обновление времени из API и применяем смещения
+const originalFetchPrayerTimes = window.fetchPrayerTimes;
+if (originalFetchPrayerTimes) {
+    window.fetchPrayerTimes = async function() {
+        await originalFetchPrayerTimes();
+        applyTimeOffsetsToDisplay();
+    };
+}
+
+// Запускаем
+loadTimeOffsets();
+initSettingsButton();
+
+// Если данные уже загружены, применяем смещения
+if (window.prayerTimes && window.prayerTimes.Fajr) {
+    setTimeout(() => applyTimeOffsetsToDisplay(), 500);
+}
     };
 }
 

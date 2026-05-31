@@ -5,74 +5,644 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Коран — Намаз Дагестан</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="quran.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #F4EFE6;
+            --card-bg: #FFFFFF;
+            --text: #2C2A29;
+            --accent: #B67B4A;
+            --accent-light: #F7EFE4;
+            --border: rgba(210, 180, 140, 0.2);
+            --shadow: 0 10px 25px -12px rgba(0, 0, 0, 0.1);
+        }
+
+        body[data-theme="dark"] {
+            --bg: #1a1a1a;
+            --card-bg: #2C2C2C;
+            --text: #E0E0E0;
+            --accent: #D4A373;
+            --accent-light: #3D3D3D;
+            --border: rgba(200, 180, 140, 0.2);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            transition: background 0.3s;
+        }
+
+        .quran-container {
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 16px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Хедер */
+        .quran-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .header-left {
+            display: flex;
+            gap: 12px;
+        }
+
+        .header-btn {
+            background: var(--accent-light);
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 44px;
+            cursor: pointer;
+            color: var(--accent);
+            font-size: 20px;
+        }
+
+        .quran-header h2 {
+            font-size: 20px;
+            color: var(--accent);
+        }
+
+        .header-right {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* Карточка суры */
+        .surah-card {
+            background: var(--card-bg);
+            border-radius: 32px;
+            padding: 24px 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .surah-title {
+            text-align: center;
+            font-family: 'Amiri', serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        .surah-info {
+            text-align: center;
+            font-size: 13px;
+            opacity: 0.7;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* Текст Корана */
+        .quran-text {
+            font-family: 'Amiri', serif;
+            font-size: 22px;
+            line-height: 2.2;
+            text-align: right;
+            direction: rtl;
+        }
+
+        .ayah {
+            margin-bottom: 20px;
+            padding: 8px;
+            border-radius: 12px;
+        }
+
+        .ayah-number {
+            display: inline-block;
+            font-size: 13px;
+            color: var(--accent);
+            margin-left: 10px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .ayah-text {
+            font-size: 22px;
+        }
+
+        /* Навигация */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 8px;
+        }
+
+        .nav-btn {
+            background: var(--accent);
+            border: none;
+            padding: 14px 24px;
+            border-radius: 50px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        /* Кнопка меню */
+        .menu-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--accent);
+            border: none;
+            width: 56px;
+            height: 56px;
+            border-radius: 56px;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 100;
+        }
+
+        /* Выезжающее меню */
+        .surah-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 85%;
+            max-width: 350px;
+            height: 100%;
+            background: var(--card-bg);
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.15);
+        }
+
+        .surah-drawer.open {
+            transform: translateX(0);
+        }
+
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .drawer-header h3 {
+            color: var(--accent);
+        }
+
+        .close-drawer {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--text);
+        }
+
+        .search-box {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 30px;
+            border: none;
+            background: var(--accent-light);
+            font-family: inherit;
+        }
+
+        .surah-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+
+        .surah-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .surah-item:hover {
+            background: var(--accent-light);
+        }
+
+        .surah-item.active {
+            background: var(--accent-light);
+            border-right: 3px solid var(--accent);
+        }
+
+        .surah-name-ar {
+            font-family: 'Amiri', serif;
+            font-size: 16px;
+        }
+
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .drawer-overlay.active {
+            display: block;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--accent);
+        }
+
+        @media (max-width: 560px) {
+            .quran-text {
+                font-size: 18px;
+            }
+            .ayah-text {
+                font-size: 18px;
+            }
+            .surah-title {
+                font-size: 24px;
+            }
+        }
+    </style>
 </head>
 <body data-theme="light">
     <div class="quran-container">
-        <!-- Верхняя панель -->
+        <!-- Хедер -->
         <div class="quran-header">
-            <button id="backToMain" class="header-btn">
-                <i class="fas fa-arrow-left"></i>
-            </button>
+            <div class="header-left">
+                <button id="backToMain" class="header-btn">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+            </div>
             <h2>📖 القرآن الكريم</h2>
             <div class="header-right">
                 <button id="themeToggleQuran" class="header-btn">
                     <i class="fas fa-moon"></i>
                 </button>
-                <button id="menuToggleBtn" class="header-btn">
-                    <i class="fas fa-bars"></i>
-                </button>
             </div>
         </div>
 
-        <!-- Основная книга -->
-        <div class="book-container">
-            <div class="book-page" id="quranPage">
-                <div class="surah-header" id="surahHeader">
-                    <h1 id="surahName">سورة الفاتحة</h1>
-                    <p id="surahInfo">مكية • 7 آيات</p>
-                </div>
-                <div class="quran-text" id="quranText">
-                    <div class="loading">جاري التحميل...</div>
-                </div>
+        <!-- Карточка с сурой -->
+        <div class="surah-card">
+            <div class="surah-title" id="surahName">سورة الفاتحة</div>
+            <div class="surah-info" id="surahInfo">مكية • 7 آيات</div>
+            <div class="quran-text" id="quranText">
+                <div class="loading">جاري التحميل...</div>
             </div>
         </div>
 
-        <!-- Нижняя навигация -->
-        <div class="quran-nav">
-            <button id="prevSurah" class="nav-btn">
-                <i class="fas fa-chevron-right"></i> السابقة
-            </button>
-            <div class="surah-counter">
-                <span id="currentSurahNum">1</span> / <span id="totalSurahs">114</span>
-            </div>
-            <button id="nextSurah" class="nav-btn">
-                التالية <i class="fas fa-chevron-left"></i>
-            </button>
+        <!-- Навигация -->
+        <div class="nav-buttons">
+            <button id="prevSurah" class="nav-btn"><i class="fas fa-chevron-right"></i> السابقة</button>
+            <button id="nextSurah" class="nav-btn">التالية <i class="fas fa-chevron-left"></i></button>
         </div>
     </div>
+
+    <!-- Плавающая кнопка меню -->
+    <button id="menuBtn" class="menu-btn">
+        <i class="fas fa-bars"></i>
+    </button>
 
     <!-- Выезжающее меню со списком сур -->
     <div id="surahDrawer" class="surah-drawer">
         <div class="drawer-header">
             <h3><i class="fas fa-list"></i> فهرس السور</h3>
-            <button id="closeDrawerBtn" class="close-drawer-btn">
-                <i class="fas fa-times"></i>
-            </button>
+            <button id="closeDrawerBtn" class="close-drawer">&times;</button>
         </div>
         <div class="search-box">
-            <i class="fas fa-search"></i>
             <input type="text" id="surahSearch" placeholder="ابحث عن سورة...">
         </div>
-        <div class="surah-list" id="surahList">
-            <div class="loading-surahs">جاري تحميل السور...</div>
-        </div>
+        <div class="surah-list" id="surahList"></div>
     </div>
-
     <div id="drawerOverlay" class="drawer-overlay"></div>
 
-    <script src="quran.js"></script>
+    <script>
+        // ==================== ДАННЫЕ О СУРАХ (114) ====================
+        const surahs = [
+            { id: 1, name: "الفاتحة", nameRu: "Аль-Фатиха", place: "مكية", verses: 7 },
+            { id: 2, name: "البقرة", nameRu: "Аль-Бакара", place: "مدنية", verses: 286 },
+            { id: 3, name: "آل عمران", nameRu: "Аль-Имран", place: "مدنية", verses: 200 },
+            { id: 4, name: "النساء", nameRu: "Ан-Ниса", place: "مدنية", verses: 176 },
+            { id: 5, name: "المائدة", nameRu: "Аль-Маида", place: "مدنية", verses: 120 },
+            { id: 6, name: "الأنعام", nameRu: "Аль-Анам", place: "مكية", verses: 165 },
+            { id: 7, name: "الأعراف", nameRu: "Аль-Араф", place: "مكية", verses: 206 },
+            { id: 8, name: "الأنفال", nameRu: "Аль-Анфаль", place: "مدنية", verses: 75 },
+            { id: 9, name: "التوبة", nameRu: "Ат-Тавба", place: "مدنية", verses: 129 },
+            { id: 10, name: "يونس", nameRu: "Юнус", place: "مكية", verses: 109 },
+            { id: 11, name: "هود", nameRu: "Худ", place: "مكية", verses: 123 },
+            { id: 12, name: "يوسف", nameRu: "Юсуф", place: "مكية", verses: 111 },
+            { id: 13, name: "الرعد", nameRu: "Ар-Рад", place: "مدنية", verses: 43 },
+            { id: 14, name: "إبراهيم", nameRu: "Ибрахим", place: "مكية", verses: 52 },
+            { id: 15, name: "الحجر", nameRu: "Аль-Хиджр", place: "مكية", verses: 99 },
+            { id: 16, name: "النحل", nameRu: "Ан-Нахль", place: "مكية", verses: 128 },
+            { id: 17, name: "الإسراء", nameRu: "Аль-Исра", place: "مكية", verses: 111 },
+            { id: 18, name: "الكهف", nameRu: "Аль-Кахф", place: "مكية", verses: 110 },
+            { id: 19, name: "مريم", nameRu: "Марьям", place: "مكية", verses: 98 },
+            { id: 20, name: "طه", nameRu: "Та Ха", place: "مكية", verses: 135 },
+            { id: 21, name: "الأنبياء", nameRu: "Аль-Анбия", place: "مكية", verses: 112 },
+            { id: 22, name: "الحج", nameRu: "Аль-Хаджж", place: "مدنية", verses: 78 },
+            { id: 23, name: "المؤمنون", nameRu: "Аль-Муминун", place: "مكية", verses: 118 },
+            { id: 24, name: "النور", nameRu: "Ан-Нур", place: "مدنية", verses: 64 },
+            { id: 25, name: "الفرقان", nameRu: "Аль-Фуркан", place: "مكية", verses: 77 },
+            { id: 26, name: "الشعراء", nameRu: "Аш-Шуара", place: "مكية", verses: 227 },
+            { id: 27, name: "النمل", nameRu: "Ан-Намль", place: "مكية", verses: 93 },
+            { id: 28, name: "القصص", nameRu: "Аль-Касас", place: "مكية", verses: 88 },
+            { id: 29, name: "العنكبوت", nameRu: "Аль-Анкабут", place: "مكية", verses: 69 },
+            { id: 30, name: "الروم", nameRu: "Ар-Рум", place: "مكية", verses: 60 },
+            { id: 31, name: "لقمان", nameRu: "Лукман", place: "مكية", verses: 34 },
+            { id: 32, name: "السجدة", nameRu: "Ас-Саджда", place: "مكية", verses: 30 },
+            { id: 33, name: "الأحزاب", nameRu: "Аль-Ахзаб", place: "مدنية", verses: 73 },
+            { id: 34, name: "سبأ", nameRu: "Саба", place: "مكية", verses: 54 },
+            { id: 35, name: "فاطر", nameRu: "Фатир", place: "مكية", verses: 45 },
+            { id: 36, name: "يس", nameRu: "Йа Син", place: "مكية", verses: 83 },
+            { id: 37, name: "الصافات", nameRu: "Ас-Саффат", place: "مكية", verses: 182 },
+            { id: 38, name: "ص", nameRu: "Сад", place: "مكية", verses: 88 },
+            { id: 39, name: "الزمر", nameRu: "Аз-Зумар", place: "مكية", verses: 75 },
+            { id: 40, name: "غافر", nameRu: "Гафир", place: "مكية", verses: 85 },
+            { id: 41, name: "فصلت", nameRu: "Фуссилят", place: "مكية", verses: 54 },
+            { id: 42, name: "الشورى", nameRu: "Аш-Шура", place: "مكية", verses: 53 },
+            { id: 43, name: "الزخرف", nameRu: "Аз-Зухруф", place: "مكية", verses: 89 },
+            { id: 44, name: "الدخان", nameRu: "Ад-Духан", place: "مكية", verses: 59 },
+            { id: 45, name: "الجاثية", nameRu: "Аль-Джасия", place: "مكية", verses: 37 },
+            { id: 46, name: "الأحقاف", nameRu: "Аль-Ахкаф", place: "مكية", verses: 35 },
+            { id: 47, name: "محمد", nameRu: "Мухаммад", place: "مدنية", verses: 38 },
+            { id: 48, name: "الفتح", nameRu: "Аль-Фатх", place: "مدنية", verses: 29 },
+            { id: 49, name: "الحجرات", nameRu: "Аль-Худжурат", place: "مدنية", verses: 18 },
+            { id: 50, name: "ق", nameRu: "Каф", place: "مكية", verses: 45 },
+            { id: 51, name: "الذاريات", nameRu: "Аз-Зарият", place: "مكية", verses: 60 },
+            { id: 52, name: "الطور", nameRu: "Ат-Тур", place: "مكية", verses: 49 },
+            { id: 53, name: "النجم", nameRu: "Ан-Наджм", place: "مكية", verses: 62 },
+            { id: 54, name: "القمر", nameRu: "Аль-Камар", place: "مكية", verses: 55 },
+            { id: 55, name: "الرحمن", nameRu: "Ар-Рахман", place: "مدنية", verses: 78 },
+            { id: 56, name: "الواقعة", nameRu: "Аль-Вакиа", place: "مكية", verses: 96 },
+            { id: 57, name: "الحديد", nameRu: "Аль-Хадид", place: "مدنية", verses: 29 },
+            { id: 58, name: "المجادلة", nameRu: "Аль-Муджадиля", place: "مدنية", verses: 22 },
+            { id: 59, name: "الحشر", nameRu: "Аль-Хашр", place: "مدنية", verses: 24 },
+            { id: 60, name: "الممتحنة", nameRu: "Аль-Мумтахана", place: "مدنية", verses: 13 },
+            { id: 61, name: "الصف", nameRu: "Ас-Сафф", place: "مدنية", verses: 14 },
+            { id: 62, name: "الجمعة", nameRu: "Аль-Джумуа", place: "مدنية", verses: 11 },
+            { id: 63, name: "المنافقون", nameRu: "Аль-Мунафикун", place: "مدنية", verses: 11 },
+            { id: 64, name: "التغابن", nameRu: "Ат-Тагабун", place: "مدنية", verses: 18 },
+            { id: 65, name: "الطلاق", nameRu: "Ат-Талак", place: "مدنية", verses: 12 },
+            { id: 66, name: "التحريم", nameRu: "Ат-Тахрим", place: "مدنية", verses: 12 },
+            { id: 67, name: "الملك", nameRu: "Аль-Мульк", place: "مكية", verses: 30 },
+            { id: 68, name: "القلم", nameRu: "Аль-Калям", place: "مكية", verses: 52 },
+            { id: 69, name: "الحاقة", nameRu: "Аль-Хакка", place: "مكية", verses: 52 },
+            { id: 70, name: "المعارج", nameRu: "Аль-Мааридж", place: "مكية", verses: 44 },
+            { id: 71, name: "نوح", nameRu: "Нух", place: "مكية", verses: 28 },
+            { id: 72, name: "الجن", nameRu: "Аль-Джинн", place: "مكية", verses: 28 },
+            { id: 73, name: "المزمل", nameRu: "Аль-Муззаммиль", place: "مكية", verses: 20 },
+            { id: 74, name: "المدثر", nameRu: "Аль-Муддассир", place: "مكية", verses: 56 },
+            { id: 75, name: "القيامة", nameRu: "Аль-Кияма", place: "مكية", verses: 40 },
+            { id: 76, name: "الإنسان", nameRu: "Аль-Инсан", place: "مدنية", verses: 31 },
+            { id: 77, name: "المرسلات", nameRu: "Аль-Мурсалят", place: "مكية", verses: 50 },
+            { id: 78, name: "النبإ", nameRu: "Ан-Наба", place: "مكية", verses: 40 },
+            { id: 79, name: "النازعات", nameRu: "Ан-Назиат", place: "مكية", verses: 46 },
+            { id: 80, name: "عبس", nameRu: "Абаса", place: "مكية", verses: 42 },
+            { id: 81, name: "التكوير", nameRu: "Ат-Таквир", place: "مكية", verses: 29 },
+            { id: 82, name: "الإنفطار", nameRu: "Аль-Инфитар", place: "مكية", verses: 19 },
+            { id: 83, name: "المطففين", nameRu: "Аль-Мутаффифин", place: "مكية", verses: 36 },
+            { id: 84, name: "الإنشقاق", nameRu: "Аль-Иншикак", place: "مكية", verses: 25 },
+            { id: 85, name: "البروج", nameRu: "Аль-Бурудж", place: "مكية", verses: 22 },
+            { id: 86, name: "الطارق", nameRu: "Ат-Тарик", place: "مكية", verses: 17 },
+            { id: 87, name: "الأعلى", nameRu: "Аль-Аля", place: "مكية", verses: 19 },
+            { id: 88, name: "الغاشية", nameRu: "Аль-Гашия", place: "مكية", verses: 26 },
+            { id: 89, name: "الفجر", nameRu: "Аль-Фаджр", place: "مكية", verses: 30 },
+            { id: 90, name: "البلد", nameRu: "Аль-Баляд", place: "مكية", verses: 20 },
+            { id: 91, name: "الشمس", nameRu: "Аш-Шамс", place: "مكية", verses: 15 },
+            { id: 92, name: "الليل", nameRu: "Аль-Ляйль", place: "مكية", verses: 21 },
+            { id: 93, name: "الضحى", nameRu: "Ад-Духа", place: "مكية", verses: 11 },
+            { id: 94, name: "الشرح", nameRu: "Аш-Шарх", place: "مكية", verses: 8 },
+            { id: 95, name: "التين", nameRu: "Ат-Тин", place: "مكية", verses: 8 },
+            { id: 96, name: "العلق", nameRu: "Аль-Аляк", place: "مكية", verses: 19 },
+            { id: 97, name: "القدر", nameRu: "Аль-Кадр", place: "مكية", verses: 5 },
+            { id: 98, name: "البينة", nameRu: "Аль-Баййина", place: "مدنية", verses: 8 },
+            { id: 99, name: "الزلزلة", nameRu: "Аз-Зальзаля", place: "مدنية", verses: 8 },
+            { id: 100, name: "العاديات", nameRu: "Аль-Адият", place: "مكية", verses: 11 },
+            { id: 101, name: "القارعة", nameRu: "Аль-Кариа", place: "مكية", verses: 11 },
+            { id: 102, name: "التكاثر", nameRu: "Ат-Такасур", place: "مكية", verses: 8 },
+            { id: 103, name: "العصر", nameRu: "Аль-Аср", place: "مكية", verses: 3 },
+            { id: 104, name: "الهمزة", nameRu: "Аль-Хумаза", place: "مكية", verses: 9 },
+            { id: 105, name: "الفيل", nameRu: "Аль-Филь", place: "مكية", verses: 5 },
+            { id: 106, name: "قريش", nameRu: "Курайш", place: "مكية", verses: 4 },
+            { id: 107, name: "الماعون", nameRu: "Аль-Маун", place: "مكية", verses: 7 },
+            { id: 108, name: "الكوثر", nameRu: "Аль-Каусар", place: "مكية", verses: 3 },
+            { id: 109, name: "الكافرون", nameRu: "Аль-Кафирун", place: "مكية", verses: 6 },
+            { id: 110, name: "النصر", nameRu: "Ан-Наср", place: "مدنية", verses: 3 },
+            { id: 111, name: "المسد", nameRu: "Аль-Масад", place: "مكية", verses: 5 },
+            { id: 112, name: "الإخلاص", nameRu: "Аль-Ихляс", place: "مكية", verses: 4 },
+            { id: 113, name: "الفلق", nameRu: "Аль-Фалак", place: "مكية", verses: 5 },
+            { id: 114, name: "الناس", nameRu: "Ан-Нас", place: "مكية", verses: 6 }
+        ];
+
+        let currentSurahId = 1;
+        let isLoading = false;
+
+        // Кеш
+        function getCached(surahId) {
+            const cached = localStorage.getItem(`surah_${surahId}`);
+            if (cached) {
+                try {
+                    const data = JSON.parse(cached);
+                    if (Date.now() - data.timestamp < 30 * 24 * 60 * 60 * 1000) return data.verses;
+                } catch(e) {}
+            }
+            return null;
+        }
+
+        function setCached(surahId, verses) {
+            localStorage.setItem(`surah_${surahId}`, JSON.stringify({ timestamp: Date.now(), verses }));
+        }
+
+        // Загрузка суры
+        async function loadSurah(surahId) {
+            if (isLoading) return;
+            isLoading = true;
+            
+            const surah = surahs.find(s => s.id === surahId);
+            if (!surah) return;
+            
+            document.getElementById('surahName').innerText = surah.name;
+            document.getElementById('surahInfo').innerText = `${surah.place} • ${surah.verses} آيات`;
+            
+            const container = document.getElementById('quranText');
+            
+            const cached = getCached(surahId);
+            if (cached) {
+                renderVerses(cached);
+                isLoading = false;
+                return;
+            }
+            
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div>';
+            
+            try {
+                const response = await fetch(`https://api.alquran.cloud/v1/surah/${surahId}/ar.alafasy`);
+                const data = await response.json();
+                if (data.code === 200) {
+                    const verses = data.data.ayahs;
+                    setCached(surahId, verses);
+                    renderVerses(verses);
+                } else throw new Error();
+            } catch (error) {
+                container.innerHTML = '<div class="loading">خطأ في التحميل</div>';
+            }
+            isLoading = false;
+        }
+
+        function renderVerses(verses) {
+            const container = document.getElementById('quranText');
+            container.innerHTML = verses.map(v => `
+                <div class="ayah">
+                    <span class="ayah-number">${v.numberInSurah}</span>
+                    <span class="ayah-text">${v.text}</span>
+                </div>
+            `).join('');
+        }
+
+        function nextSurah() {
+            if (currentSurahId < 114) {
+                currentSurahId++;
+                loadSurah(currentSurahId);
+                updateActiveInList();
+            }
+        }
+
+        function prevSurah() {
+            if (currentSurahId > 1) {
+                currentSurahId--;
+                loadSurah(currentSurahId);
+                updateActiveInList();
+            }
+        }
+
+        function goToSurah(id) {
+            if (id === currentSurahId) {
+                closeDrawer();
+                return;
+            }
+            currentSurahId = id;
+            loadSurah(currentSurahId);
+            closeDrawer();
+            updateActiveInList();
+        }
+
+        // Построение списка
+        function buildSurahList() {
+            const container = document.getElementById('surahList');
+            container.innerHTML = surahs.map(s => `
+                <div class="surah-item" data-id="${s.id}">
+                    <div>
+                        <div>${s.id}. ${s.nameRu}</div>
+                        <div class="surah-name-ar">${s.name}</div>
+                    </div>
+                    <div>${s.id}</div>
+                </div>
+            `).join('');
+            
+            document.querySelectorAll('.surah-item').forEach(el => {
+                el.addEventListener('click', () => goToSurah(parseInt(el.dataset.id)));
+            });
+            updateActiveInList();
+        }
+
+        function updateActiveInList() {
+            document.querySelectorAll('.surah-item').forEach(el => {
+                if (parseInt(el.dataset.id) === currentSurahId) el.classList.add('active');
+                else el.classList.remove('active');
+            });
+        }
+
+        // Поиск
+        function initSearch() {
+            document.getElementById('surahSearch').addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                document.querySelectorAll('.surah-item').forEach(el => {
+                    const text = el.innerText.toLowerCase();
+                    el.style.display = text.includes(query) ? 'flex' : 'none';
+                });
+            });
+        }
+
+        // Меню
+        function openDrawer() {
+            document.getElementById('surahDrawer').classList.add('open');
+            document.getElementById('drawerOverlay').classList.add('active');
+        }
+        function closeDrawer() {
+            document.getElementById('surahDrawer').classList.remove('open');
+            document.getElementById('drawerOverlay').classList.remove('active');
+        }
+
+        // Тёмная тема
+        function initTheme() {
+            const saved = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', saved);
+            const icon = document.querySelector('#themeToggleQuran i');
+            if (saved === 'dark') icon.classList.replace('fa-moon', 'fa-sun');
+            else icon.classList.replace('fa-sun', 'fa-moon');
+        }
+        function toggleTheme() {
+            const cur = document.body.getAttribute('data-theme');
+            const neu = cur === 'light' ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', neu);
+            localStorage.setItem('theme', neu);
+            const icon = document.querySelector('#themeToggleQuran i');
+            if (neu === 'dark') icon.classList.replace('fa-moon', 'fa-sun');
+            else icon.classList.replace('fa-sun', 'fa-moon');
+        }
+
+        // Назад на главную
+        document.getElementById('backToMain').onclick = () => window.location.href = 'index.html';
+
+        // Запуск
+        document.addEventListener('DOMContentLoaded', () => {
+            buildSurahList();
+            initSearch();
+            initTheme();
+            loadSurah(1);
+            document.getElementById('nextSurah').onclick = nextSurah;
+            document.getElementById('prevSurah').onclick = prevSurah;
+            document.getElementById('menuBtn').onclick = openDrawer;
+            document.getElementById('closeDrawerBtn').onclick = closeDrawer;
+            document.getElementById('drawerOverlay').onclick = closeDrawer;
+            document.getElementById('themeToggleQuran').onclick = toggleTheme;
+        });
+    </script>
 </body>
 </html>

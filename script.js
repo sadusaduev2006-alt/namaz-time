@@ -1,4 +1,4 @@
-// ==================== ПРЯМОЕ РАСПИСАНИЕ ДЛЯ ГОРОДОВ ====================
+// ==================== ПРЯМОЕ РАСПИСАНИЕ ДЛЯ ГОРОДОВ ДАГЕСТАНА ====================
 const cities = [
     { name: "Махачкала", lat: 42.9849, lng: 47.5046, times: { Fajr: "02:07", Sunrise: "04:14", Dhuhr: "11:51", Asr: "15:51", Maghrib: "19:24", Isha: "21:06" } },
     { name: "Дербент", lat: 42.0569, lng: 48.2885, times: { Fajr: "02:15", Sunrise: "04:22", Dhuhr: "11:59", Asr: "15:59", Maghrib: "19:32", Isha: "21:14" } },
@@ -17,7 +17,7 @@ let compassActive = false;
 const MECCA = { lat: 21.4225, lng: 39.8262 };
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Заполняем время намазов сразу при загрузке
+    // ==================== ОТОБРАЖЕНИЕ ВРЕМЕНИ НАМАЗОВ ====================
     function displayPrayerTimes() {
         document.getElementById('fajr').innerText = prayerTimes.Fajr;
         document.getElementById('sunrise').innerText = prayerTimes.Sunrise;
@@ -28,17 +28,23 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('updateTime').innerText = new Date().toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'});
     }
     
+    // ==================== ОБНОВЛЕНИЕ ГОРОДА И ВРЕМЕНИ ====================
     function updateCityAndTimes(city) {
         currentCity = city;
         prayerTimes = city.times;
         displayPrayerTimes();
         const select = document.getElementById('citySelect');
         for (let i = 0; i < select.options.length; i++) {
-            if (select.options[i].text === city.name) { select.selectedIndex = i; break; }
+            if (select.options[i].text === city.name) { 
+                select.selectedIndex = i; 
+                break; 
+            }
         }
         calculateQiblaAngle();
+        localStorage.setItem('selectedCity', city.name);
     }
     
+    // Событие при смене города в выпадающем списке
     document.getElementById('citySelect')?.addEventListener('change', () => {
         const select = document.getElementById('citySelect');
         const selected = select.options[select.selectedIndex]?.text;
@@ -46,11 +52,18 @@ document.addEventListener('DOMContentLoaded', function() {
         if (found) updateCityAndTimes(found);
     });
     
+    // Восстановление сохранённого города
+    const savedCity = localStorage.getItem('selectedCity');
+    if (savedCity) {
+        const found = cities.find(c => c.name === savedCity);
+        if (found) updateCityAndTimes(found);
+    }
+    
     displayPrayerTimes();
     
-    // КОМПАС
+    // ==================== КОМПАС (ПОЛНОЭКРАННЫЙ) ====================
     const fullscreenCompass = document.getElementById('fullscreenCompass');
-    const compassMenuItem = document.getElementById('compassMenuItem');
+    const floatingCompassBtn = document.getElementById('floatingCompassBtn');
     const closeCompass = document.getElementById('closeFullscreenCompass');
     const startCompassBtn = document.getElementById('startCompassFull');
     const needleFull = document.getElementById('needleFull');
@@ -64,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let y = Math.sin(Δλ) * Math.cos(φ2);
         let x = Math.cos(φ1)*Math.sin(φ2) - Math.sin(φ1)*Math.cos(φ2)*Math.cos(Δλ);
         let θ = Math.atan2(y,x);
-        qiblaDirection = (θ*180/Math.PI+360)%360;
+        qiblaDirection = (θ*180/Math.PI + 360) % 360;
         if (degreeSpan) degreeSpan.innerHTML = `${Math.round(qiblaDirection)}°`;
         updateNeedleFull();
     }
@@ -74,13 +87,15 @@ document.addEventListener('DOMContentLoaded', function() {
         if (compassActive && currentHeading) {
             let angle = qiblaDirection - currentHeading;
             needleFull.style.transform = `translate(-50%,-50%) rotate(${angle}deg)`;
-            let diff = Math.abs(angle%360); if(diff>180) diff=360-diff;
+            let diff = Math.abs(angle % 360);
+            if (diff > 180) diff = 360 - diff;
             if (hintSpan) {
                 if (diff < 10) hintSpan.innerHTML = "✅ Вы смотрите в сторону Киблы!";
-                else hintSpan.innerHTML = `🔄 Повернитесь ${angle>0?'налево':'направо'} на ${Math.round(diff)}°`;
+                else hintSpan.innerHTML = `🔄 Повернитесь ${angle > 0 ? 'налево' : 'направо'} на ${Math.round(diff)}°`;
             }
         } else {
             needleFull.style.transform = `translate(-50%,-50%) rotate(${qiblaDirection}deg)`;
+            if (hintSpan && !compassActive) hintSpan.innerHTML = "📍 Нажмите 'Запустить компас' и поверните телефон";
         }
     }
     
@@ -89,19 +104,33 @@ document.addEventListener('DOMContentLoaded', function() {
         if (startCompassBtn) {
             startCompassBtn.onclick = () => {
                 if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-                    DeviceOrientationEvent.requestPermission().then(perm => {
-                        if (perm === 'granted') {
-                            window.addEventListener('deviceorientation', (e) => {
-                                let heading = e.webkitCompassHeading || (e.alpha ? 360 - e.alpha : null);
-                                if (heading) { currentHeading = heading; compassActive = true; updateNeedleFull(); }
-                            });
-                            if (hintSpan) hintSpan.innerHTML = "✅ Компас активен! Поворачивайте телефон";
-                        } else { if (hintSpan) hintSpan.innerHTML = "❌ Доступ не разрешён"; }
-                    }).catch(() => { if (hintSpan) hintSpan.innerHTML = "❌ Ошибка доступа"; });
+                    DeviceOrientationEvent.requestPermission()
+                        .then(perm => {
+                            if (perm === 'granted') {
+                                window.addEventListener('deviceorientation', (e) => {
+                                    let heading = e.webkitCompassHeading || (e.alpha ? 360 - e.alpha : null);
+                                    if (heading) { 
+                                        currentHeading = heading; 
+                                        compassActive = true; 
+                                        updateNeedleFull(); 
+                                    }
+                                });
+                                if (hintSpan) hintSpan.innerHTML = "✅ Компас активен! Поворачивайте телефон";
+                            } else { 
+                                if (hintSpan) hintSpan.innerHTML = "❌ Доступ не разрешён"; 
+                            }
+                        })
+                        .catch(() => { 
+                            if (hintSpan) hintSpan.innerHTML = "❌ Ошибка доступа"; 
+                        });
                 } else {
                     window.addEventListener('deviceorientation', (e) => {
                         let heading = e.webkitCompassHeading || (e.alpha ? 360 - e.alpha : null);
-                        if (heading) { currentHeading = heading; compassActive = true; updateNeedleFull(); }
+                        if (heading) { 
+                            currentHeading = heading; 
+                            compassActive = true; 
+                            updateNeedleFull(); 
+                        }
                     });
                     if (hintSpan) hintSpan.innerHTML = "✅ Компас активен! Поворачивайте телефон";
                 }
@@ -109,25 +138,43 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    if (compassMenuItem) {
-        compassMenuItem.onclick = (e) => {
-            e.preventDefault();
+    // Открытие компаса по плавающей кнопке
+    if (floatingCompassBtn) {
+        floatingCompassBtn.onclick = () => {
             if (fullscreenCompass) {
                 fullscreenCompass.classList.add('show');
                 initFullscreenCompass();
             }
         };
     }
-    if (closeCompass) closeCompass.onclick = () => { if (fullscreenCompass) fullscreenCompass.classList.remove('show'); };
     
-    // ПРОФИЛЬ
+    // Закрытие компаса
+    if (closeCompass) {
+        closeCompass.onclick = () => { 
+            if (fullscreenCompass) fullscreenCompass.classList.remove('show'); 
+        };
+    }
+    
+    // ==================== ПРОФИЛЬ И НАСТРОЙКИ ====================
     const profileBtn = document.getElementById('profileBtn');
     const profileModal = document.getElementById('profileModal');
     const closeModal = document.querySelector('.close-modal');
-    if (profileBtn) profileBtn.onclick = () => profileModal.classList.add('show');
-    if (closeModal) closeModal.onclick = () => profileModal.classList.remove('show');
-    window.onclick = (e) => { if (e.target === profileModal) profileModal.classList.remove('show'); };
     
+    if (profileBtn) {
+        profileBtn.onclick = () => {
+            if (profileModal) profileModal.classList.add('show');
+        };
+    }
+    if (closeModal) {
+        closeModal.onclick = () => {
+            if (profileModal) profileModal.classList.remove('show');
+        };
+    }
+    window.onclick = (e) => { 
+        if (e.target === profileModal) profileModal.classList.remove('show'); 
+    };
+    
+    // Переключение вкладок в модальном окне
     const tabs = document.querySelectorAll('.modal-tab');
     const panes = document.querySelectorAll('.tab-pane');
     tabs.forEach(tab => {
@@ -139,36 +186,49 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     });
     
-    // ГЕОЛОКАЦИЯ
+    // ==================== ГЕОЛОКАЦИЯ (ОПРЕДЕЛЕНИЕ ГОРОДА) ====================
     function findNearestCity(lat, lng) {
         let nearest = cities[0];
         let minDist = Infinity;
         for (let city of cities) {
             const dist = Math.hypot(city.lat - lat, city.lng - lng);
-            if (dist < minDist) { minDist = dist; nearest = city; }
+            if (dist < minDist) { 
+                minDist = dist; 
+                nearest = city; 
+            }
         }
         return nearest;
     }
     
     function requestLocation() {
-        if (!navigator.geolocation) { document.getElementById('locationStatus').innerHTML = '❌ Браузер не поддерживает геолокацию'; return; }
+        if (!navigator.geolocation) { 
+            document.getElementById('locationStatus').innerHTML = '❌ Браузер не поддерживает геолокацию'; 
+            return; 
+        }
+        
+        const statusDiv = document.getElementById('locationStatus');
+        if (statusDiv) statusDiv.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Определение...';
+        
         navigator.geolocation.getCurrentPosition(
             (pos) => {
                 const nearest = findNearestCity(pos.coords.latitude, pos.coords.longitude);
                 updateCityAndTimes(nearest);
-                localStorage.setItem('selectedCity', nearest.name);
-                document.getElementById('locationStatus').innerHTML = `✅ Определён город: ${nearest.name}`;
-                setTimeout(() => { document.getElementById('locationStatus').innerHTML = ''; }, 3000);
+                if (statusDiv) {
+                    statusDiv.innerHTML = `✅ Определён город: ${nearest.name}`;
+                    setTimeout(() => { statusDiv.innerHTML = ''; }, 3000);
+                }
             },
             (err) => {
                 let msg = '❌ Ошибка: ';
                 if (err.code === err.PERMISSION_DENIED) msg += 'Разрешите доступ в настройках';
                 else msg += 'Не удалось определить';
-                document.getElementById('locationStatus').innerHTML = msg;
-            }
+                if (statusDiv) statusDiv.innerHTML = msg;
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
         );
     }
     
+    // Запрос геолокации при первом входе
     const locationAsked = localStorage.getItem('locationAsked');
     if (!locationAsked) {
         setTimeout(() => {
@@ -181,34 +241,45 @@ document.addEventListener('DOMContentLoaded', function() {
     
     document.getElementById('enableLocationBtn')?.addEventListener('click', requestLocation);
     
-    // АВТОРИЗАЦИЯ
+    // ==================== АВТОРИЗАЦИЯ (FIREBASE) ====================
     const googleBtn = document.getElementById('googleSignIn');
     const signOutBtn = document.getElementById('signOutBtn');
     const userInfoDiv = document.getElementById('userInfo');
     const authBtns = document.querySelector('.auth-buttons');
+    
     if (googleBtn) {
         googleBtn.onclick = async () => {
             if (window.auth && window.signInWithPopup && window.provider) {
                 try {
                     const result = await window.signInWithPopup(window.auth, window.provider);
                     const user = result.user;
-                    userInfoDiv.innerHTML = `<p><strong>${user.displayName || user.email}</strong></p><p style="font-size:12px;">${user.email}</p>`;
+                    if (userInfoDiv) {
+                        userInfoDiv.innerHTML = `<p><strong>${user.displayName || user.email}</strong></p><p style="font-size:12px;">${user.email}</p>`;
+                    }
                     if (authBtns) authBtns.style.display = 'none';
                     if (signOutBtn) signOutBtn.style.display = 'block';
                     localStorage.setItem('user', JSON.stringify({ name: user.displayName, email: user.email }));
-                } catch(e) { alert('Ошибка входа'); }
+                } catch(e) { 
+                    console.error(e); 
+                    alert('Ошибка входа'); 
+                }
+            } else {
+                alert('Firebase не инициализирован. Настройте конфигурацию Firebase в index.html');
             }
         };
     }
+    
     if (signOutBtn) {
         signOutBtn.onclick = async () => {
             if (window.auth && window.signOut) await window.signOut(window.auth);
             localStorage.removeItem('user');
-            userInfoDiv.innerHTML = '<p>Войдите, чтобы сохранять настройки</p>';
+            if (userInfoDiv) userInfoDiv.innerHTML = '<p>Войдите, чтобы сохранять настройки</p>';
             if (authBtns) authBtns.style.display = 'flex';
             signOutBtn.style.display = 'none';
         };
     }
+    
+    // Восстановление сессии
     const savedUser = localStorage.getItem('user');
     if (savedUser && userInfoDiv) {
         const user = JSON.parse(savedUser);
@@ -217,48 +288,61 @@ document.addEventListener('DOMContentLoaded', function() {
         if (signOutBtn) signOutBtn.style.display = 'block';
     }
     
-    // НАСТРОЙКИ
+    // ==================== НАСТРОЙКИ ====================
     const notificationSelect = document.getElementById('notificationTime');
     const azanSelect = document.getElementById('azanSound');
+    
     if (notificationSelect) {
         const saved = localStorage.getItem('notificationTime');
         if (saved) notificationSelect.value = saved;
         notificationSelect.onchange = (e) => localStorage.setItem('notificationTime', e.target.value);
     }
+    
     if (azanSelect) {
         const saved = localStorage.getItem('azanSound');
         if (saved) azanSelect.value = saved;
         azanSelect.onchange = (e) => localStorage.setItem('azanSound', e.target.value);
     }
     
-    // ТЁМНАЯ ТЕМА
+    // ==================== ТЁМНАЯ ТЕМА ====================
     const darkModeCheckbox = document.getElementById('darkModeToggle');
+    
     function initTheme() {
         const theme = localStorage.getItem('theme') || 'dark';
         document.body.setAttribute('data-theme', theme);
         if (darkModeCheckbox) darkModeCheckbox.checked = (theme === 'dark');
     }
+    
     function toggleThemeManually(e) {
         const isDark = e.target.checked;
         const newTheme = isDark ? 'dark' : 'light';
         document.body.setAttribute('data-theme', newTheme);
         localStorage.setItem('theme', newTheme);
     }
+    
     initTheme();
     if (darkModeCheckbox) darkModeCheckbox.onchange = toggleThemeManually;
     
-    // МЕНЮ (три точки)
+    // ==================== МЕНЮ (ТРИ ТОЧКИ) ====================
     const menuBtn = document.getElementById('menuToggle');
     const dropdownMenu = document.getElementById('dropdownMenu');
+    
     if (menuBtn && dropdownMenu) {
-        menuBtn.onclick = (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('show'); };
+        menuBtn.onclick = (e) => { 
+            e.stopPropagation(); 
+            dropdownMenu.classList.toggle('show'); 
+        };
+        
         document.onclick = (e) => {
-            if (!menuBtn.contains(e.target) && !dropdownMenu.contains(e.target)) dropdownMenu.classList.remove('show');
+            if (!menuBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                dropdownMenu.classList.remove('show');
+            }
         };
     }
     
+    // О приложении
     document.getElementById('aboutMenuItem')?.addEventListener('click', (e) => {
         e.preventDefault();
-        alert('📱 Намаз Дагестан — приложение для точного определения времени намазов.\nВерсия 2.0\n\n📍 Автоопределение города\n🕌 Направление Киблы\n📖 Суры Корана');
+        alert('📱 Намаз Дагестан — приложение для точного определения времени намазов.\nВерсия 2.0\n\n📍 Автоопределение города\n🕌 Направление Киблы\n📖 Священный Коран\n\nРазработано для жителей Дагестана');
     });
 });

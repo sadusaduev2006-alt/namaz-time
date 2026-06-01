@@ -248,7 +248,6 @@ document.addEventListener('DOMContentLoaded', function() {
             langItems.forEach(i => i.classList.remove('active'));
             this.classList.add('active');
             
-            // Простая смена языка (заголовок)
             const translations = {
                 ru: "Время намаза",
                 en: "Prayer Times",
@@ -269,6 +268,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const azanSelect = document.getElementById('azanSoundSelect');
     const testAzan = document.getElementById('testAzanBtn');
     const azanAudio = document.getElementById('azanAudio');
+    const azanSource = document.getElementById('azanSource');
+    
+    // Рабочие ссылки на азан
+    const azanUrls = {
+        makkah: 'https://cdn.islamic.network/audio/adhan/ar-makkah.mp3',
+        medina: 'https://cdn.islamic.network/audio/adhan/ar-medina.mp3',
+        fajr: 'https://cdn.islamic.network/audio/adhan/ar-fajr.mp3'
+    };
     
     if (notifToggle) {
         const saved = localStorage.getItem('notificationsEnabled');
@@ -287,33 +294,29 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
     
-    // Рабочие ссылки на азан (заменил на рабочие)
-    const azanUrls = {
-        makkah: 'https://adhan.pages.dev/audio/makkah.mp3',
-        medina: 'https://adhan.pages.dev/audio/medina.mp3',
-        fajr: 'https://adhan.pages.dev/audio/fajr.mp3'
-    };
-    
-    if (azanSelect && azanAudio) {
+    if (azanSelect && azanAudio && azanSource) {
         const saved = localStorage.getItem('azanSound');
-        if (saved && azanUrls[saved]) azanSelect.value = saved;
+        if (saved && azanUrls[saved]) {
+            azanSelect.value = saved;
+            azanSource.src = azanUrls[saved];
+            azanAudio.load();
+        }
         azanSelect.onchange = function(e) {
-            localStorage.setItem('azanSound', e.target.value);
+            const url = azanUrls[e.target.value];
+            if (url) {
+                azanSource.src = url;
+                azanAudio.load();
+                localStorage.setItem('azanSound', e.target.value);
+            }
         };
     }
     
     if (testAzan && azanAudio) {
         testAzan.onclick = function(e) {
             e.preventDefault();
-            const selected = azanSelect ? azanSelect.value : 'makkah';
-            const url = azanUrls[selected];
-            if (url) {
-                azanAudio.src = url;
-                azanAudio.load();
-                azanAudio.play().catch(function() {
-                    alert('Нажмите на экран, затем попробуйте снова');
-                });
-            }
+            azanAudio.play().catch(function() {
+                alert('Нажмите на экран, затем попробуйте снова');
+            });
         };
     }
     
@@ -399,9 +402,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (signOutBtn) signOutBtn.style.display = 'block';
     }
     
-    // Запрос разрешения на уведомления
     setTimeout(function() {
-        if (Notification.permission === 'default') Notification.requestPermission();
+        if (Notification && Notification.permission === 'default') Notification.requestPermission();
     }, 2000);
     
     console.log("Инициализация завершена");

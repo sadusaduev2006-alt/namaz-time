@@ -171,5 +171,12 @@
     <audio id="notificationSound" preload="auto"><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg"></audio>
     
     <script src="script.js"></script>
+    <script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/namaz-time/sw.js')
+            .then(reg => console.log('Service Worker зарегистрирован', reg))
+            .catch(err => console.log('Ошибка регистрации SW:', err));
+    }
+</script>
 </body>
 </html>

@@ -44,22 +44,9 @@
             <div class="header">
                 <div class="header-top">
                     <div class="left-buttons">
-                        <div class="dropdown">
-                            <button id="menuToggle" class="menu-toggle">
-                                <i class="fas fa-ellipsis-h"></i>
-                            </button>
-                            <div id="dropdownMenu" class="dropdown-content">
-                                <a href="surah-fatiha.html">
-                                    <i class="fas fa-star-and-crescent"></i> Сура Аль-Фатиха
-                                </a>
-                                <a href="#" id="profileMenuItem">
-                                    <i class="fas fa-user-circle"></i> Профиль и настройки
-                                </a>
-                                <a href="#" id="aboutMenuItem">
-                                    <i class="fas fa-info-circle"></i> О приложении
-                                </a>
-                            </div>
-                        </div>
+                        <button id="profileBtn" class="profile-btn">
+                            <i class="fas fa-user-circle"></i>
+                        </button>
                     </div>
                     <div class="center-controls">
                         <div class="location-badge">
@@ -76,7 +63,22 @@
                         </div>
                     </div>
                     <div class="right-buttons">
-                        <!-- Пусто, кнопки темы больше нет -->
+                        <div class="dropdown">
+                            <button id="menuToggle" class="menu-toggle">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <div id="dropdownMenu" class="dropdown-content">
+                                <a href="#" id="compassMenuItem">
+                                    <i class="fas fa-compass"></i> Компас Киблы
+                                </a>
+                                <a href="surah-fatiha.html">
+                                    <i class="fas fa-star-and-crescent"></i> Сура Аль-Фатиха
+                                </a>
+                                <a href="#" id="aboutMenuItem">
+                                    <i class="fas fa-info-circle"></i> О приложении
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -91,22 +93,11 @@
                 <div class="prayer-item"><div class="prayer-info"><i class="fas fa-star-of-life"></i><span class="prayer-name">Иша</span></div><span class="prayer-time" id="isha">--:--</span></div>
             </div>
 
-            <div class="next-prayer-card">
-                <div class="next-prayer-label"><i class="fas fa-bell"></i><span>Следующий намаз</span></div>
-                <div class="next-prayer-info"><span class="next-prayer-name" id="nextPrayerName">--</span><span class="next-prayer-time" id="nextPrayerTime">--:--</span></div>
-                <div class="countdown"><i class="fas fa-hourglass-half"></i><span id="countdownText">--</span></div>
-            </div>
-
             <div class="footer-note">
                 <p><i class="far fa-clock"></i> Обновлено: <span id="updateTime">сегодня</span></p>
             </div>
         </div>
     </div>
-
-    <!-- ПЛАВАЮЩАЯ КНОПКА КОМПАСА -->
-    <button id="floatingCompassBtn" class="floating-compass-btn">
-        <i class="fas fa-compass"></i>
-    </button>
 
     <!-- КОМПАС НА ВЕСЬ ЭКРАН -->
     <div id="fullscreenCompass" class="fullscreen-compass">
@@ -133,7 +124,7 @@
         </div>
     </div>
 
-    <!-- МОДАЛЬНОЕ ОКНО ПРОФИЛЯ И НАСТРОЕК -->
+    <!-- МОДАЛЬНОЕ ОКНО ПРОФИЛЯ -->
     <div id="profileModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">

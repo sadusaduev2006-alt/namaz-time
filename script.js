@@ -77,7 +77,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     const today = new Date();
-    document.getElementById('currentDate').innerHTML = `📆 ${today.toLocaleDateString('ru-RU')}`;
     document.getElementById('updateTime').innerText = new Date().toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'});
     
     // КОМПАС
@@ -151,12 +150,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     if (closeCompass) closeCompass.onclick = () => { if (fullscreenCompass) fullscreenCompass.classList.remove('show'); };
     
-    // ПРОФИЛЬ И НАСТРОЙКИ
-    const profileBtn = document.getElementById('profileBtn');
+    // ПРОФИЛЬ И НАСТРОЙКИ (через пункт меню)
     const profileModal = document.getElementById('profileModal');
+    const profileMenuItem = document.getElementById('profileMenuItem');
     const closeModal = document.querySelector('.close-modal');
-    if (profileBtn) profileBtn.onclick = () => profileModal.classList.add('show');
-    if (closeModal) closeModal.onclick = () => profileModal.classList.remove('show');
+    
+    if (profileMenuItem) {
+        profileMenuItem.onclick = (e) => {
+            e.preventDefault();
+            if (profileModal) profileModal.classList.add('show');
+        };
+    }
+    if (closeModal) closeModal.onclick = () => { if (profileModal) profileModal.classList.remove('show'); };
     window.onclick = (e) => { if (e.target === profileModal) profileModal.classList.remove('show'); };
     
     const tabs = document.querySelectorAll('.modal-tab');
@@ -261,49 +266,23 @@ document.addEventListener('DOMContentLoaded', function() {
         azanSelect.onchange = (e) => localStorage.setItem('azanSound', e.target.value);
     }
     
-    // Тёмная тема
+    // Тёмная тема (по умолчанию dark)
     const darkModeCheckbox = document.getElementById('darkModeToggle');
     function initTheme() {
-        const theme = localStorage.getItem('theme') || 'light';
+        const theme = localStorage.getItem('theme') || 'dark';
         document.body.setAttribute('data-theme', theme);
         if (darkModeCheckbox) darkModeCheckbox.checked = (theme === 'dark');
-        const themeToggleBtn = document.getElementById('themeToggle');
-        if (themeToggleBtn) {
-            const icon = themeToggleBtn.querySelector('i');
-            if (theme === 'dark') icon.classList.replace('fa-moon', 'fa-sun');
-            else icon.classList.replace('fa-sun', 'fa-moon');
-        }
     }
     function toggleThemeManually(e) {
         const isDark = e.target.checked;
         const newTheme = isDark ? 'dark' : 'light';
         document.body.setAttribute('data-theme', newTheme);
         localStorage.setItem('theme', newTheme);
-        const themeToggleBtn = document.getElementById('themeToggle');
-        if (themeToggleBtn) {
-            const icon = themeToggleBtn.querySelector('i');
-            if (newTheme === 'dark') icon.classList.replace('fa-moon', 'fa-sun');
-            else icon.classList.replace('fa-sun', 'fa-moon');
-        }
     }
     initTheme();
     if (darkModeCheckbox) darkModeCheckbox.onchange = toggleThemeManually;
     
-    const themeToggleBtn = document.getElementById('themeToggle');
-    if (themeToggleBtn) {
-        themeToggleBtn.onclick = () => {
-            const current = document.body.getAttribute('data-theme');
-            const newTheme = current === 'light' ? 'dark' : 'light';
-            document.body.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            if (darkModeCheckbox) darkModeCheckbox.checked = (newTheme === 'dark');
-            const icon = themeToggleBtn.querySelector('i');
-            if (newTheme === 'dark') icon.classList.replace('fa-moon', 'fa-sun');
-            else icon.classList.replace('fa-sun', 'fa-moon');
-        };
-    }
-    
-    // Меню
+    // Меню (три точки)
     const menuBtn = document.getElementById('menuToggle');
     const dropdownMenu = document.getElementById('dropdownMenu');
     if (menuBtn && dropdownMenu) {

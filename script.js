@@ -272,9 +272,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Рабочие ссылки на азан
     const azanUrls = {
-        makkah: 'https://cdn.islamic.network/audio/adhan/ar-makkah.mp3',
-        medina: 'https://cdn.islamic.network/audio/adhan/ar-medina.mp3',
-        fajr: 'https://cdn.islamic.network/audio/adhan/ar-fajr.mp3'
+        makkah: 'https://github.com/sadusaduev2006-alt/namaz-time/blob/main/audio/AZAN_-_AHMAD_ALNUFAIS_74996900.mp3',
+        medina: 'https://github.com/sadusaduev2006-alt/namaz-time/blob/main/audio/AZAN_-_AHMAD_ALNUFAIS_74996900.mp3,
+        fajr: 'https://github.com/sadusaduev2006-alt/namaz-time/blob/main/audio/AZAN_-_AHMAD_ALNUFAIS_74996900.mp3'
     };
     
     if (notifToggle) {

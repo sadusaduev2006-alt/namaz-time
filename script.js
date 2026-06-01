@@ -17,20 +17,25 @@ let compassActive = false;
 const MECCA = { lat: 21.4225, lng: 39.8262 };
 
 document.addEventListener('DOMContentLoaded', function() {
-    function updateCityAndTimes(city) {
-        currentCity = city;
-        prayerTimes = city.times;
+    // Заполняем время намазов сразу при загрузке
+    function displayPrayerTimes() {
         document.getElementById('fajr').innerText = prayerTimes.Fajr;
         document.getElementById('sunrise').innerText = prayerTimes.Sunrise;
         document.getElementById('dhuhr').innerText = prayerTimes.Dhuhr;
         document.getElementById('asr').innerText = prayerTimes.Asr;
         document.getElementById('maghrib').innerText = prayerTimes.Maghrib;
         document.getElementById('isha').innerText = prayerTimes.Isha;
+        document.getElementById('updateTime').innerText = new Date().toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'});
+    }
+    
+    function updateCityAndTimes(city) {
+        currentCity = city;
+        prayerTimes = city.times;
+        displayPrayerTimes();
         const select = document.getElementById('citySelect');
         for (let i = 0; i < select.options.length; i++) {
             if (select.options[i].text === city.name) { select.selectedIndex = i; break; }
         }
-        calculateNearestPrayer();
         calculateQiblaAngle();
     }
     
@@ -41,47 +46,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (found) updateCityAndTimes(found);
     });
     
-    function calculateNearestPrayer() {
-        const now = new Date();
-        const current = now.getHours()*60 + now.getMinutes();
-        const prayers = [
-            {name:'Фаджр', time:prayerTimes.Fajr, id:'fajr'},
-            {name:'Зухр', time:prayerTimes.Dhuhr, id:'dhuhr'},
-            {name:'Аср', time:prayerTimes.Asr, id:'asr'},
-            {name:'Магриб', time:prayerTimes.Maghrib, id:'maghrib'},
-            {name:'Иша', time:prayerTimes.Isha, id:'isha'}
-        ];
-        let next = null;
-        for(let p of prayers) {
-            if(!p.time) continue;
-            let [h,m] = p.time.split(':').map(Number);
-            let total = h*60+m;
-            if(total > current) { next = {...p, total}; break; }
-        }
-        if(!next && prayers[0]) {
-            let [h,m] = prayers[0].time.split(':').map(Number);
-            next = {...prayers[0], total: h*60+m+1440};
-        }
-        if(next) {
-            let left = next.total - current;
-            document.getElementById('nextPrayerName').innerText = next.name;
-            document.getElementById('nextPrayerTime').innerText = next.time;
-            if(left<=0) document.getElementById('countdownText').innerHTML = "🕋 Время наступило!";
-            else {
-                let hours = Math.floor(left/60), mins = left%60;
-                document.getElementById('countdownText').innerHTML = hours>0 ? `${hours} ч ${mins} мин` : `${mins} минут`;
-            }
-            document.querySelectorAll('.prayer-item').forEach(i=>i.classList.remove('active'));
-            if(next.id) document.getElementById(next.id)?.closest('.prayer-item')?.classList.add('active');
-        }
-    }
-    
-    const today = new Date();
-    document.getElementById('updateTime').innerText = new Date().toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'});
+    displayPrayerTimes();
     
     // КОМПАС
     const fullscreenCompass = document.getElementById('fullscreenCompass');
-    const floatingBtn = document.getElementById('floatingCompassBtn');
+    const compassMenuItem = document.getElementById('compassMenuItem');
     const closeCompass = document.getElementById('closeFullscreenCompass');
     const startCompassBtn = document.getElementById('startCompassFull');
     const needleFull = document.getElementById('needleFull');
@@ -140,8 +109,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    if (floatingBtn) {
-        floatingBtn.onclick = () => {
+    if (compassMenuItem) {
+        compassMenuItem.onclick = (e) => {
+            e.preventDefault();
             if (fullscreenCompass) {
                 fullscreenCompass.classList.add('show');
                 initFullscreenCompass();
@@ -150,18 +120,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     if (closeCompass) closeCompass.onclick = () => { if (fullscreenCompass) fullscreenCompass.classList.remove('show'); };
     
-    // ПРОФИЛЬ И НАСТРОЙКИ (через пункт меню)
+    // ПРОФИЛЬ
+    const profileBtn = document.getElementById('profileBtn');
     const profileModal = document.getElementById('profileModal');
-    const profileMenuItem = document.getElementById('profileMenuItem');
     const closeModal = document.querySelector('.close-modal');
-    
-    if (profileMenuItem) {
-        profileMenuItem.onclick = (e) => {
-            e.preventDefault();
-            if (profileModal) profileModal.classList.add('show');
-        };
-    }
-    if (closeModal) closeModal.onclick = () => { if (profileModal) profileModal.classList.remove('show'); };
+    if (profileBtn) profileBtn.onclick = () => profileModal.classList.add('show');
+    if (closeModal) closeModal.onclick = () => profileModal.classList.remove('show');
     window.onclick = (e) => { if (e.target === profileModal) profileModal.classList.remove('show'); };
     
     const tabs = document.querySelectorAll('.modal-tab');
@@ -175,6 +139,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     });
     
+    // ГЕОЛОКАЦИЯ
     function findNearestCity(lat, lng) {
         let nearest = cities[0];
         let minDist = Infinity;
@@ -216,7 +181,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     document.getElementById('enableLocationBtn')?.addEventListener('click', requestLocation);
     
-    // Авторизация
+    // АВТОРИЗАЦИЯ
     const googleBtn = document.getElementById('googleSignIn');
     const signOutBtn = document.getElementById('signOutBtn');
     const userInfoDiv = document.getElementById('userInfo');
@@ -252,7 +217,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (signOutBtn) signOutBtn.style.display = 'block';
     }
     
-    // Настройки
+    // НАСТРОЙКИ
     const notificationSelect = document.getElementById('notificationTime');
     const azanSelect = document.getElementById('azanSound');
     if (notificationSelect) {
@@ -266,7 +231,7 @@ document.addEventListener('DOMContentLoaded', function() {
         azanSelect.onchange = (e) => localStorage.setItem('azanSound', e.target.value);
     }
     
-    // Тёмная тема (по умолчанию dark)
+    // ТЁМНАЯ ТЕМА
     const darkModeCheckbox = document.getElementById('darkModeToggle');
     function initTheme() {
         const theme = localStorage.getItem('theme') || 'dark';
@@ -282,7 +247,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initTheme();
     if (darkModeCheckbox) darkModeCheckbox.onchange = toggleThemeManually;
     
-    // Меню (три точки)
+    // МЕНЮ (три точки)
     const menuBtn = document.getElementById('menuToggle');
     const dropdownMenu = document.getElementById('dropdownMenu');
     if (menuBtn && dropdownMenu) {
@@ -296,7 +261,4 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         alert('📱 Намаз Дагестан — приложение для точного определения времени намазов.\nВерсия 2.0\n\n📍 Автоопределение города\n🕌 Направление Киблы\n📖 Суры Корана');
     });
-    
-    calculateNearestPrayer();
-    setInterval(() => calculateNearestPrayer(), 60000);
 });

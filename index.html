@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Время намаза — Дагестан</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
@@ -12,12 +12,6 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Намаз Дагестан">
-    <meta name="description" content="Точное время намаза в Махачкале и Дагестане. Коран, 99 имён Аллаха, Кибла, азан.">
-    <meta name="keywords" content="намаз, Махачкала, Дагестан, Коран, Кибла, азан, время намаза">
-    <!-- Предзагрузка критических ресурсов -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-    <link rel="dns-prefetch" href="https://api.aladhan.com">
 </head>
 <body data-theme="light">
     <div class="container">
@@ -35,6 +29,9 @@
                             <option value="43.8485,46.7199">Кизляр</option>
                             <option value="42.8819,47.6372">Каспийск</option>
                         </select>
+                        <button id="gpsLocationBtn" class="gps-btn" title="Определить моё местоположение">
+                            <i class="fas fa-location-dot"></i>
+                        </button>
                     </div>
                     <div class="right-buttons">
                         <div class="dropdown">
@@ -44,18 +41,6 @@
                             <div id="dropdownMenu" class="dropdown-content">
                                 <a href="surah-fatiha.html">
                                     <i class="fas fa-star-and-crescent"></i> Сура Аль-Фатиха
-                                </a>
-                                <a href="quran.html">
-                                    <i class="fas fa-book-quran"></i> Священный Коран
-                                </a>
-                                <a href="asmaul-husna.html">
-                                    <i class="fas fa-heart"></i> 99 имён Аллаха
-                                </a>
-                                <a href="pillars.html">
-                                    <i class="fas fa-mosque"></i> 5 столпов ислама
-                                </a>
-                                <a href="#" id="settingsLink">
-                                <i class="fas fa-sliders-h"></i> Настройки времени намаза
                                 </a>
                             </div>
                         </div>
@@ -96,14 +81,14 @@
 
             <div class="footer-note">
                 <p><i class="far fa-clock"></i> Обновлено: <span id="updateTime">сегодня</span></p>
-                <p class="method"><i class="fas fa-calculator"></i> Метод: MWL (угол 18°)</p>
+                <p class="method"><i class="fas fa-calculator"></i> Метод: Sajda (Фаджр 24°, Иша 15°)</p>
             </div>
         </div>
     </div>
 
-    <audio id="azanAudio" preload="none"><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg"></audio>
-    <audio id="notificationSound" preload="none"><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg"></audio>
+    <audio id="azanAudio" preload="auto"><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg"></audio>
+    <audio id="notificationSound" preload="auto"><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg"></audio>
     
-    <script src="script.js" defer></script>
+    <script src="script.js"></script>
 </body>
 </html>

@@ -709,3 +709,74 @@ document.addEventListener('DOMContentLoaded', function() {
         if (activeBtn) activeBtn.click();
     }
 });
+// ==================== РЕАЛЬНЫЕ УВЕДОМЛЕНИЯ ====================
+let lastNotifiedPrayers = {
+    Fajr: null,
+    Dhuhr: null,
+    Asr: null,
+    Maghrib: null,
+    Isha: null
+};
+
+// Функция проверки уведомлений
+function checkPrayerNotifications() {
+    const notificationsEnabled = localStorage.getItem('notificationsEnabled') === 'true';
+    if (!notificationsEnabled) return;
+    
+    const notificationMinutes = parseInt(localStorage.getItem('notificationTime')) || 5;
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    
+    const prayers = [
+        { name: 'Fajr', displayName: 'Фаджр', time: prayerTimes.Fajr },
+        { name: 'Dhuhr', displayName: 'Зухр', time: prayerTimes.Dhuhr },
+        { name: 'Asr', displayName: 'Аср', time: prayerTimes.Asr },
+        { name: 'Maghrib', displayName: 'Магриб', time: prayerTimes.Maghrib },
+        { name: 'Isha', displayName: 'Иша', time: prayerTimes.Isha }
+    ];
+    
+    prayers.forEach(prayer => {
+        if (!prayer.time) return;
+        
+        const [hours, minutes] = prayer.time.split(':').map(Number);
+        const prayerMinutes = hours * 60 + minutes;
+        const notifyMinutes = prayerMinutes - notificationMinutes;
+        
+        // Проверяем, нужно ли отправить уведомление (в пределах текущей минуты)
+        if (notifyMinutes === currentMinutes && lastNotifiedPrayers[prayer.name] !== new Date().toDateString()) {
+            // Отправляем уведомление
+            if (Notification.permission === 'granted') {
+                new Notification(`🕌 Скоро намаз ${prayer.displayName}`, {
+                    body: `Осталось ${notificationMinutes} минут до намаза ${prayer.displayName}`,
+                    icon: 'https://cdn-icons-png.flaticon.com/512/3069/3069175.png',
+                    vibrate: [200, 100, 200],
+                    sound: 'default'
+                });
+                
+                // Воспроизводим азан
+                const azanAudio = document.getElementById('azanAudio');
+                if (azanAudio) {
+                    azanAudio.play().catch(e => console.log('Азан заблокирован браузером'));
+                }
+                
+                // Запоминаем, что уведомление отправлено
+                lastNotifiedPrayers[prayer.name] = new Date().toDateString();
+            }
+        }
+    });
+}
+
+// Запрашиваем разрешение на уведомления при загрузке
+if (Notification.permission === 'default') {
+    Notification.requestPermission();
+}
+
+// Запускаем проверку каждую минуту
+setInterval(() => {
+    checkPrayerNotifications();
+}, 60000);
+
+// Первая проверка при загрузке
+setTimeout(() => {
+    checkPrayerNotifications();
+}, 5000);

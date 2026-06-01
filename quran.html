@@ -15,7 +15,6 @@
             padding: 20px;
             min-height: 100vh;
         }
-        
         .quran-header {
             display: flex;
             align-items: center;
@@ -24,7 +23,6 @@
             padding-bottom: 16px;
             border-bottom: 1px solid var(--border-color);
         }
-        
         .back-btn {
             background: var(--accent-light);
             border: none;
@@ -36,22 +34,10 @@
             font-size: 20px;
             transition: transform 0.2s;
         }
+        .back-btn:active { transform: scale(0.95); }
+        .quran-title { font-size: 24px; font-weight: 700; color: var(--accent); }
+        .empty-space { width: 44px; }
         
-        .back-btn:hover {
-            transform: scale(1.05);
-        }
-        
-        .quran-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--accent);
-        }
-        
-        .empty-space {
-            width: 44px;
-        }
-        
-        /* Навигация */
         .surah-nav {
             display: flex;
             align-items: center;
@@ -60,7 +46,6 @@
             margin-bottom: 30px;
             flex-wrap: wrap;
         }
-        
         .nav-btn {
             background: var(--accent-light);
             border: none;
@@ -71,16 +56,11 @@
             font-size: 14px;
             color: var(--accent);
             cursor: pointer;
-            transition: background 0.2s;
             display: flex;
             align-items: center;
             gap: 8px;
         }
-        
-        .nav-btn:active {
-            transform: scale(0.97);
-        }
-        
+        .nav-btn:active { transform: scale(0.97); }
         .surah-select {
             flex: 1;
             background: var(--accent-light);
@@ -95,14 +75,12 @@
             text-align: center;
         }
         
-        /* Контент суры */
         .surah-content {
             background: var(--card-bg);
             border-radius: 32px;
             padding: 32px 24px;
             box-shadow: var(--shadow);
         }
-        
         .surah-name {
             text-align: center;
             font-size: 26px;
@@ -110,42 +88,34 @@
             color: var(--accent);
             margin-bottom: 8px;
         }
-        
         .surah-basmala {
             text-align: center;
             font-size: 22px;
             font-family: 'Amiri', serif;
             color: var(--accent);
-            margin-bottom: 24px;
-            padding-bottom: 16px;
+            margin-bottom: 28px;
+            padding-bottom: 20px;
             border-bottom: 1px solid var(--border-color);
             opacity: 0.8;
         }
-        
-        .ayahs-container {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-        
+        .ayahs-container { display: flex; flex-direction: column; gap: 28px; }
         .ayah-line {
             display: flex;
-            align-items: baseline;
-            gap: 12px;
+            align-items: flex-start;
+            gap: 16px;
             flex-wrap: wrap;
             justify-content: flex-end;
         }
-        
         .arabic-ayah {
             font-size: 24px;
-            line-height: 1.7;
+            line-height: 2.2;
             text-align: right;
             font-family: 'Amiri', 'Times New Roman', serif;
             color: var(--text-primary);
             direction: rtl;
             flex: 1;
+            letter-spacing: 0.5px;
         }
-        
         .ayah-number-badge {
             font-size: 12px;
             font-weight: 500;
@@ -158,201 +128,89 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
+            margin-top: 8px;
         }
-        
-        .loading-placeholder {
-            text-align: center;
-            padding: 60px;
-            color: var(--text-secondary);
-        }
-        
-        /* Кэшированная сура */
-        .surah-content.cached {
-            animation: none;
-        }
+        .loading-placeholder { text-align: center; padding: 60px; color: var(--text-secondary); }
         
         @media (max-width: 560px) {
-            .quran-page {
-                padding: 16px;
-            }
-            .surah-content {
-                padding: 24px 16px;
-            }
-            .arabic-ayah {
-                font-size: 20px;
-                line-height: 1.6;
-            }
-            .surah-name {
-                font-size: 22px;
-            }
-            .surah-basmala {
-                font-size: 18px;
-            }
-            .nav-btn {
-                padding: 8px 14px;
-                font-size: 12px;
-            }
+            .quran-page { padding: 16px; }
+            .surah-content { padding: 24px 16px; }
+            .arabic-ayah { font-size: 20px; line-height: 2.0; }
+            .surah-name { font-size: 22px; }
+            .surah-basmala { font-size: 18px; margin-bottom: 22px; padding-bottom: 16px; }
+            .nav-btn { padding: 8px 14px; font-size: 12px; }
+            .ayahs-container { gap: 22px; }
         }
-        
         @media (min-width: 1025px) {
-            .arabic-ayah {
-                font-size: 28px;
-            }
-            .surah-content {
-                padding: 40px 32px;
-            }
+            .arabic-ayah { font-size: 28px; line-height: 2.3; }
+            .surah-content { padding: 40px 32px; }
         }
     </style>
 </head>
 <body data-theme="dark">
     <div class="quran-page">
         <div class="quran-header">
-            <button onclick="window.location.href='index.html'" class="back-btn">
-                <i class="fas fa-arrow-left"></i>
-            </button>
+            <button onclick="window.location.href='index.html'" class="back-btn"><i class="fas fa-arrow-left"></i></button>
             <h1 class="quran-title">📖 Коран</h1>
             <div class="empty-space"></div>
         </div>
 
         <div class="surah-nav">
-            <button id="prevSurahBtn" class="nav-btn">
-                <i class="fas fa-chevron-right"></i>
-            </button>
+            <button id="prevSurahBtn" class="nav-btn"><i class="fas fa-chevron-right"></i></button>
             <select id="surahSelect" class="surah-select">
-                <option value="1">1. Аль-Фатиха</option>
-                <option value="2">2. Аль-Бакара</option>
-                <option value="3">3. Аль-Имран</option>
-                <option value="4">4. Ан-Ниса</option>
-                <option value="5">5. Аль-Маида</option>
-                <option value="6">6. Аль-Анам</option>
-                <option value="7">7. Аль-Араф</option>
-                <option value="8">8. Аль-Анфаль</option>
-                <option value="9">9. Ат-Тавба</option>
-                <option value="10">10. Юнус</option>
-                <option value="11">11. Худ</option>
-                <option value="12">12. Юсуф</option>
-                <option value="13">13. Ар-Рад</option>
-                <option value="14">14. Ибрахим</option>
-                <option value="15">15. Аль-Хиджр</option>
-                <option value="16">16. Ан-Нахль</option>
-                <option value="17">17. Аль-Исра</option>
-                <option value="18">18. Аль-Кахф</option>
-                <option value="19">19. Марьям</option>
-                <option value="20">20. Та Ха</option>
-                <option value="21">21. Аль-Анбия</option>
-                <option value="22">22. Аль-Хаджж</option>
-                <option value="23">23. Аль-Муминун</option>
-                <option value="24">24. Ан-Нур</option>
-                <option value="25">25. Аль-Фуркан</option>
-                <option value="26">26. Аш-Шуара</option>
-                <option value="27">27. Ан-Намль</option>
-                <option value="28">28. Аль-Касас</option>
-                <option value="29">29. Аль-Анкабут</option>
-                <option value="30">30. Ар-Рум</option>
-                <option value="31">31. Лукман</option>
-                <option value="32">32. Ас-Саджда</option>
-                <option value="33">33. Аль-Ахзаб</option>
-                <option value="34">34. Саба</option>
-                <option value="35">35. Фатир</option>
-                <option value="36">36. Йа Син</option>
-                <option value="37">37. Ас-Саффат</option>
-                <option value="38">38. Сад</option>
-                <option value="39">39. Аз-Зумар</option>
-                <option value="40">40. Гафир</option>
-                <option value="41">41. Фуссилят</option>
-                <option value="42">42. Аш-Шура</option>
-                <option value="43">43. Аз-Зухруф</option>
-                <option value="44">44. Ад-Духан</option>
-                <option value="45">45. Аль-Джасия</option>
-                <option value="46">46. Аль-Ахкаф</option>
-                <option value="47">47. Мухаммад</option>
-                <option value="48">48. Аль-Фатх</option>
-                <option value="49">49. Аль-Худжурат</option>
-                <option value="50">50. Каф</option>
-                <option value="51">51. Аз-Зарият</option>
-                <option value="52">52. Ат-Тур</option>
-                <option value="53">53. Ан-Наджм</option>
-                <option value="54">54. Аль-Камар</option>
-                <option value="55">55. Ар-Рахман</option>
-                <option value="56">56. Аль-Вакиа</option>
-                <option value="57">57. Аль-Хадид</option>
-                <option value="58">58. Аль-Муджадила</option>
-                <option value="59">59. Аль-Хашр</option>
-                <option value="60">60. Аль-Мумтахана</option>
-                <option value="61">61. Ас-Сафф</option>
-                <option value="62">62. Аль-Джумуа</option>
-                <option value="63">63. Аль-Мунафикун</option>
-                <option value="64">64. Ат-Тагабун</option>
-                <option value="65">65. Ат-Таляк</option>
-                <option value="66">66. Ат-Тахрим</option>
-                <option value="67">67. Аль-Мульк</option>
-                <option value="68">68. Аль-Калям</option>
-                <option value="69">69. Аль-Хакка</option>
-                <option value="70">70. Аль-Мааридж</option>
-                <option value="71">71. Нух</option>
-                <option value="72">72. Аль-Джинн</option>
-                <option value="73">73. Аль-Муззаммиль</option>
-                <option value="74">74. Аль-Муддассир</option>
-                <option value="75">75. Аль-Кияма</option>
-                <option value="76">76. Аль-Инсан</option>
-                <option value="77">77. Аль-Мурсалят</option>
-                <option value="78">78. Ан-Наба</option>
-                <option value="79">79. Ан-Назиат</option>
-                <option value="80">80. Абаса</option>
-                <option value="81">81. Ат-Таквир</option>
-                <option value="82">82. Аль-Инфитар</option>
-                <option value="83">83. Аль-Мутаффифин</option>
-                <option value="84">84. Аль-Иншикак</option>
-                <option value="85">85. Аль-Бурудж</option>
-                <option value="86">86. Ат-Тарик</option>
-                <option value="87">87. Аль-Аля</option>
-                <option value="88">88. Аль-Гашия</option>
-                <option value="89">89. Аль-Фаджр</option>
-                <option value="90">90. Аль-Балад</option>
-                <option value="91">91. Аш-Шамс</option>
-                <option value="92">92. Аль-Ляйль</option>
-                <option value="93">93. Ад-Духа</option>
-                <option value="94">94. Аш-Шарх</option>
-                <option value="95">95. Ат-Тин</option>
-                <option value="96">96. Аль-Алак</option>
-                <option value="97">97. Аль-Кадр</option>
-                <option value="98">98. Аль-Баййина</option>
-                <option value="99">99. Аз-Зальзаля</option>
-                <option value="100">100. Аль-Адият</option>
-                <option value="101">101. Аль-Кариа</option>
-                <option value="102">102. Ат-Такасур</option>
-                <option value="103">103. Аль-Аср</option>
-                <option value="104">104. Аль-Хумаза</option>
-                <option value="105">105. Аль-Филь</option>
-                <option value="106">106. Курайш</option>
-                <option value="107">107. Аль-Маун</option>
-                <option value="108">108. Аль-Каусар</option>
-                <option value="109">109. Аль-Кафирун</option>
-                <option value="110">110. Ан-Наср</option>
-                <option value="111">111. Аль-Масад</option>
-                <option value="112">112. Аль-Ихляс</option>
-                <option value="113">113. Аль-Фалак</option>
-                <option value="114">114. Ан-Нас</option>
+                <option value="1">1. Аль-Фатиха</option><option value="2">2. Аль-Бакара</option><option value="3">3. Аль-Имран</option>
+                <option value="4">4. Ан-Ниса</option><option value="5">5. Аль-Маида</option><option value="6">6. Аль-Анам</option>
+                <option value="7">7. Аль-Араф</option><option value="8">8. Аль-Анфаль</option><option value="9">9. Ат-Тавба</option>
+                <option value="10">10. Юнус</option><option value="11">11. Худ</option><option value="12">12. Юсуф</option>
+                <option value="13">13. Ар-Рад</option><option value="14">14. Ибрахим</option><option value="15">15. Аль-Хиджр</option>
+                <option value="16">16. Ан-Нахль</option><option value="17">17. Аль-Исра</option><option value="18">18. Аль-Кахф</option>
+                <option value="19">19. Марьям</option><option value="20">20. Та Ха</option><option value="21">21. Аль-Анбия</option>
+                <option value="22">22. Аль-Хаджж</option><option value="23">23. Аль-Муминун</option><option value="24">24. Ан-Нур</option>
+                <option value="25">25. Аль-Фуркан</option><option value="26">26. Аш-Шуара</option><option value="27">27. Ан-Намль</option>
+                <option value="28">28. Аль-Касас</option><option value="29">29. Аль-Анкабут</option><option value="30">30. Ар-Рум</option>
+                <option value="31">31. Лукман</option><option value="32">32. Ас-Саджда</option><option value="33">33. Аль-Ахзаб</option>
+                <option value="34">34. Саба</option><option value="35">35. Фатир</option><option value="36">36. Йа Син</option>
+                <option value="37">37. Ас-Саффат</option><option value="38">38. Сад</option><option value="39">39. Аз-Зумар</option>
+                <option value="40">40. Гафир</option><option value="41">41. Фуссилят</option><option value="42">42. Аш-Шура</option>
+                <option value="43">43. Аз-Зухруф</option><option value="44">44. Ад-Духан</option><option value="45">45. Аль-Джасия</option>
+                <option value="46">46. Аль-Ахкаф</option><option value="47">47. Мухаммад</option><option value="48">48. Аль-Фатх</option>
+                <option value="49">49. Аль-Худжурат</option><option value="50">50. Каф</option><option value="51">51. Аз-Зарият</option>
+                <option value="52">52. Ат-Тур</option><option value="53">53. Ан-Наджм</option><option value="54">54. Аль-Камар</option>
+                <option value="55">55. Ар-Рахман</option><option value="56">56. Аль-Вакиа</option><option value="57">57. Аль-Хадид</option>
+                <option value="58">58. Аль-Муджадила</option><option value="59">59. Аль-Хашр</option><option value="60">60. Аль-Мумтахана</option>
+                <option value="61">61. Ас-Сафф</option><option value="62">62. Аль-Джумуа</option><option value="63">63. Аль-Мунафикун</option>
+                <option value="64">64. Ат-Тагабун</option><option value="65">65. Ат-Таляк</option><option value="66">66. Ат-Тахрим</option>
+                <option value="67">67. Аль-Мульк</option><option value="68">68. Аль-Калям</option><option value="69">69. Аль-Хакка</option>
+                <option value="70">70. Аль-Мааридж</option><option value="71">71. Нух</option><option value="72">72. Аль-Джинн</option>
+                <option value="73">73. Аль-Муззаммиль</option><option value="74">74. Аль-Муддассир</option><option value="75">75. Аль-Кияма</option>
+                <option value="76">76. Аль-Инсан</option><option value="77">77. Аль-Мурсалят</option><option value="78">78. Ан-Наба</option>
+                <option value="79">79. Ан-Назиат</option><option value="80">80. Абаса</option><option value="81">81. Ат-Таквир</option>
+                <option value="82">82. Аль-Инфитар</option><option value="83">83. Аль-Мутаффифин</option><option value="84">84. Аль-Иншикак</option>
+                <option value="85">85. Аль-Бурудж</option><option value="86">86. Ат-Тарик</option><option value="87">87. Аль-Аля</option>
+                <option value="88">88. Аль-Гашия</option><option value="89">89. Аль-Фаджр</option><option value="90">90. Аль-Балад</option>
+                <option value="91">91. Аш-Шамс</option><option value="92">92. Аль-Ляйль</option><option value="93">93. Ад-Духа</option>
+                <option value="94">94. Аш-Шарх</option><option value="95">95. Ат-Тин</option><option value="96">96. Аль-Алак</option>
+                <option value="97">97. Аль-Кадр</option><option value="98">98. Аль-Баййина</option><option value="99">99. Аз-Зальзаля</option>
+                <option value="100">100. Аль-Адият</option><option value="101">101. Аль-Кариа</option><option value="102">102. Ат-Такасур</option>
+                <option value="103">103. Аль-Аср</option><option value="104">104. Аль-Хумаза</option><option value="105">105. Аль-Филь</option>
+                <option value="106">106. Курайш</option><option value="107">107. Аль-Маун</option><option value="108">108. Аль-Каусар</option>
+                <option value="109">109. Аль-Кафирун</option><option value="110">110. Ан-Наср</option><option value="111">111. Аль-Масад</option>
+                <option value="112">112. Аль-Ихляс</option><option value="113">113. Аль-Фалак</option><option value="114">114. Ан-Нас</option>
             </select>
-            <button id="nextSurahBtn" class="nav-btn">
-                <i class="fas fa-chevron-left"></i>
-            </button>
+            <button id="nextSurahBtn" class="nav-btn"><i class="fas fa-chevron-left"></i></button>
         </div>
 
         <div id="surahContent" class="surah-content">
-            <div class="loading-placeholder">
-                <i class="fas fa-spinner fa-pulse"></i> Загрузка...
-            </div>
+            <div class="loading-placeholder"><i class="fas fa-spinner fa-pulse"></i> Загрузка...</div>
         </div>
     </div>
 
     <script>
-        // Кэш для хранения загруженных сур
         const surahCache = {};
         let currentSurah = 1;
         const totalSurahs = 114;
+        const STORAGE_KEY = 'quran_cache';
         
-        // Названия сур для отображения
         const surahNames = {
             1: "Аль-Фатиха", 2: "Аль-Бакара", 3: "Аль-Имран", 4: "Ан-Ниса", 5: "Аль-Маида",
             6: "Аль-Анам", 7: "Аль-Араф", 8: "Аль-Анфаль", 9: "Ат-Тавба", 10: "Юнус",
@@ -375,46 +233,81 @@
             107: "Аль-Маун", 108: "Аль-Каусар", 109: "Аль-Кафирун", 110: "Ан-Наср", 111: "Аль-Масад", 112: "Аль-Ихляс",
             113: "Аль-Фалак", 114: "Ан-Нас"
         };
-
-        // Отображение суры из кэша или загрузка
+        
+        function loadCacheFromStorage() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                const cache = JSON.parse(saved);
+                for (let [key, value] of Object.entries(cache)) {
+                    if (Date.now() - value.timestamp < 86400000) {
+                        surahCache[key] = value.html;
+                    }
+                }
+            }
+        }
+        
+        function saveCacheToStorage() {
+            const toSave = {};
+            for (let [key, value] of Object.entries(surahCache)) {
+                toSave[key] = { html: value, timestamp: Date.now() };
+            }
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+        }
+        
+        function preloadNextSurahs(currentNum) {
+            const toPreload = [];
+            for (let i = 1; i <= 5; i++) {
+                let nextNum = currentNum + i;
+                if (nextNum > totalSurahs) nextNum = nextNum - totalSurahs;
+                if (!surahCache[nextNum]) toPreload.push(nextNum);
+            }
+            toPreload.forEach(surahNum => {
+                if (!surahCache[surahNum]) {
+                    fetch(`https://api.alquran.cloud/v1/surah/${surahNum}/editions/ar.uthmani`)
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.code === 200) {
+                                const surah = data.data[0];
+                                let html = `<div class="surah-name">${surahNum}. ${surahNames[surahNum]}</div>
+                                            <div class="surah-basmala">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+                                            <div class="ayahs-container">`;
+                                surah.ayahs.forEach(ayah => {
+                                    html += `<div class="ayah-line"><span class="arabic-ayah">${ayah.text}</span><span class="ayah-number-badge">${ayah.numberInSurah}</span></div>`;
+                                });
+                                html += `</div>`;
+                                surahCache[surahNum] = html;
+                                saveCacheToStorage();
+                            }
+                        })
+                        .catch(err => console.log(`Не удалось предзагрузить суру ${surahNum}`));
+                }
+            });
+        }
+        
         async function displaySurah(surahNumber) {
             const container = document.getElementById('surahContent');
-            
-            // Если сура уже в кэше — показываем мгновенно
             if (surahCache[surahNumber]) {
                 container.innerHTML = surahCache[surahNumber];
+                preloadNextSurahs(surahNumber);
                 return;
             }
-            
-            // Показываем индикатор загрузки
             container.innerHTML = '<div class="loading-placeholder"><i class="fas fa-spinner fa-pulse"></i> Загрузка...</div>';
-            
             try {
                 const response = await fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}/editions/ar.uthmani`);
                 const data = await response.json();
-                
                 if (data.code === 200) {
                     const surah = data.data[0];
-                    let html = `
-                        <div class="surah-name">${surahNumber}. ${surahNames[surahNumber]}</div>
-                        <div class="surah-basmala">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
-                        <div class="ayahs-container">
-                    `;
-                    
+                    let html = `<div class="surah-name">${surahNumber}. ${surahNames[surahNumber]}</div>
+                                <div class="surah-basmala">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+                                <div class="ayahs-container">`;
                     surah.ayahs.forEach(ayah => {
-                        html += `
-                            <div class="ayah-line">
-                                <span class="arabic-ayah">${ayah.text}</span>
-                                <span class="ayah-number-badge">${ayah.numberInSurah}</span>
-                            </div>
-                        `;
+                        html += `<div class="ayah-line"><span class="arabic-ayah">${ayah.text}</span><span class="ayah-number-badge">${ayah.numberInSurah}</span></div>`;
                     });
-                    
                     html += `</div>`;
-                    
-                    // Сохраняем в кэш
                     surahCache[surahNumber] = html;
+                    saveCacheToStorage();
                     container.innerHTML = html;
+                    preloadNextSurahs(surahNumber);
                 } else {
                     container.innerHTML = '<div class="loading-placeholder">Ошибка загрузки</div>';
                 }
@@ -423,40 +316,24 @@
                 container.innerHTML = '<div class="loading-placeholder">Ошибка сети. Проверьте подключение.</div>';
             }
         }
-
-        // Обновление выбранной суры
+        
         function setSurah(surahNumber) {
             currentSurah = surahNumber;
             document.getElementById('surahSelect').value = surahNumber;
             displaySurah(currentSurah);
         }
-
-        // Переключение на следующую суру
-        function nextSurah() {
-            let next = currentSurah + 1;
-            if (next > totalSurahs) next = 1;
-            setSurah(next);
-        }
-
-        // Переключение на предыдущую суру
-        function prevSurah() {
-            let prev = currentSurah - 1;
-            if (prev < 1) prev = totalSurahs;
-            setSurah(prev);
-        }
-
-        // Назначение обработчиков
+        
+        function nextSurah() { let next = currentSurah + 1; if (next > totalSurahs) next = 1; setSurah(next); }
+        function prevSurah() { let prev = currentSurah - 1; if (prev < 1) prev = totalSurahs; setSurah(prev); }
+        
         document.getElementById('prevSurahBtn').onclick = prevSurah;
         document.getElementById('nextSurahBtn').onclick = nextSurah;
-        document.getElementById('surahSelect').onchange = (e) => {
-            setSurah(parseInt(e.target.value));
-        };
-
-        // Тёмная тема
+        document.getElementById('surahSelect').onchange = (e) => setSurah(parseInt(e.target.value));
+        
         const savedTheme = localStorage.getItem('theme') || 'dark';
         document.body.setAttribute('data-theme', savedTheme);
-
-        // Загрузка первой суры
+        
+        loadCacheFromStorage();
         setSurah(1);
     </script>
 </body>

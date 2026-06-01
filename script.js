@@ -668,3 +668,44 @@ document.addEventListener('DOMContentLoaded', function() {
     
     console.log("Инициализация завершена");
 });
+// Простой скрипт для проверки смены языка
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("Скрипт загружен");
+    
+    // Находим все кнопки языков
+    const langBtns = document.querySelectorAll('.language-item');
+    console.log("Найдено кнопок языков:", langBtns.length);
+    
+    langBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const lang = this.getAttribute('data-lang');
+            console.log("Выбран язык:", lang);
+            alert("Вы выбрали язык: " + lang);
+            
+            // Меняем текст заголовка для теста
+            const title = document.querySelector('.prayer-card h1');
+            if (title) {
+                if (lang === 'ru') title.innerHTML = "🕌 Время намаза";
+                if (lang === 'en') title.innerHTML = "🕌 Prayer Times";
+                if (lang === 'ar') title.innerHTML = "🕌 أوقات الصلاة";
+                if (lang === 'tr') title.innerHTML = "🕌 Namaz Vakti";
+                if (lang === 'kk') title.innerHTML = "🕌 Намаз уақыты";
+            }
+            
+            // Сохраняем выбор
+            localStorage.setItem('language', lang);
+            
+            // Убираем активный класс у всех и добавляем текущему
+            langBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+    
+    // Восстанавливаем сохранённый язык
+    const savedLang = localStorage.getItem('language');
+    if (savedLang) {
+        console.log("Восстановлен язык:", savedLang);
+        const activeBtn = document.querySelector(`.language-item[data-lang="${savedLang}"]`);
+        if (activeBtn) activeBtn.click();
+    }
+});

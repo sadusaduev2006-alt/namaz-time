@@ -96,12 +96,12 @@
         </div>
     </div>
 
-    <!-- ПЛАВАЮЩАЯ КНОПКА КОМПАСА (СЛЕВА СНИЗУ) -->
+    <!-- ПЛАВАЮЩАЯ КНОПКА КОМПАСА -->
     <button id="floatingCompassBtn" class="floating-compass-btn">
         <i class="fas fa-compass"></i>
     </button>
 
-    <!-- ПЛАВАЮЩАЯ КНОПКА КОРАНА (СПРАВА СНИЗУ) -->
+    <!-- ПЛАВАЮЩАЯ КНОПКА КОРАНА -->
     <a href="quran.html" id="floatingQuranBtn" class="floating-quran-btn">
         <i class="fas fa-book-quran"></i>
         <span>Коран</span>
@@ -114,7 +114,7 @@
             <button id="closeFullscreenCompass" class="close-fullscreen">&times;</button>
         </div>
         <div class="compass-full-body">
-            <div class="compass-full" id="compassFull">
+            <div class="compass-full">
                 <div class="needle-full" id="needleFull">
                     <div class="needle-top-full"></div>
                     <div class="needle-bottom-full"></div>
@@ -132,46 +132,169 @@
         </div>
     </div>
 
-    <!-- МОДАЛЬНОЕ ОКНО ПРОФИЛЯ -->
-    <div id="profileModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-user"></i> Профиль и настройки</h3>
-                <button class="close-modal">&times;</button>
+    <!-- ПОЛНОЭКРАННЫЙ ПРОФИЛЬ -->
+    <div id="fullscreenProfile" class="fullscreen-profile">
+        <div class="profile-full-header">
+            <button id="closeProfile" class="close-profile">&times;</button>
+            <h2>Профиль</h2>
+            <div style="width: 44px;"></div>
+        </div>
+        
+        <div class="profile-tabs">
+            <button class="profile-tab active" data-profile-tab="account">👤 Аккаунт</button>
+            <button class="profile-tab" data-profile-tab="notifications">🔔 Уведомления</button>
+            <button class="profile-tab" data-profile-tab="language">🌐 Язык</button>
+            <button class="profile-tab" data-profile-tab="appearance">🎨 Оформление</button>
+        </div>
+
+        <div class="profile-content">
+            <!-- Вкладка Аккаунт -->
+            <div id="profile-tab-account" class="profile-pane active">
+                <div class="account-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div id="profileUserInfo" class="profile-user-info">
+                    <p>Войдите, чтобы сохранять настройки</p>
+                </div>
+                <div class="profile-auth-buttons">
+                    <button id="profileGoogleSignIn" class="profile-auth-btn google-btn">
+                        <i class="fab fa-google"></i> Войти через Google
+                    </button>
+                    <button id="profileAppleSignIn" class="profile-auth-btn apple-btn">
+                        <i class="fab fa-apple"></i> Войти через Apple
+                    </button>
+                </div>
+                <button id="profileSignOutBtn" class="profile-logout-btn" style="display: none;">
+                    <i class="fas fa-sign-out-alt"></i> Выйти
+                </button>
             </div>
-            <div class="modal-tabs">
-                <button class="modal-tab active" data-tab="auth">🔐 Вход</button>
-                <button class="modal-tab" data-tab="settings">⚙️ Настройки</button>
-                <button class="modal-tab" data-tab="location">📍 Геолокация</button>
-            </div>
-            <div class="modal-body">
-                <div id="tab-auth" class="tab-pane active">
-                    <div class="profile-avatar"><i class="fas fa-user-circle"></i></div>
-                    <div id="userInfo" class="user-info"><p>Войдите, чтобы сохранять настройки</p></div>
-                    <div class="auth-buttons">
-                        <button id="googleSignIn" class="auth-btn google-btn"><i class="fab fa-google"></i> Google</button>
-                        <div id="appleid-signin" class="auth-btn apple-btn">🍎 Apple ID</div>
+
+            <!-- Вкладка Уведомления -->
+            <div id="profile-tab-notifications" class="profile-pane">
+                <div class="settings-group">
+                    <div class="settings-item">
+                        <div class="settings-info">
+                            <i class="fas fa-bell"></i>
+                            <div>
+                                <h4>Уведомления о намазах</h4>
+                                <p>Получать напоминания о времени намаза</p>
+                            </div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="notificationsToggle" checked>
+                            <span class="slider"></span>
+                        </label>
                     </div>
-                    <button id="signOutBtn" class="logout-btn" style="display: none;"><i class="fas fa-sign-out-alt"></i> Выйти</button>
+
+                    <div class="settings-item">
+                        <div class="settings-info">
+                            <i class="fas fa-clock"></i>
+                            <div>
+                                <h4>Напоминать за</h4>
+                                <p>За сколько минут до намаза приходит уведомление</p>
+                            </div>
+                        </div>
+                        <select id="notificationTimeSelect" class="settings-select">
+                            <option value="5">5 минут</option>
+                            <option value="10">10 минут</option>
+                            <option value="15">15 минут</option>
+                            <option value="30">30 минут</option>
+                        </select>
+                    </div>
+
+                    <div class="settings-item">
+                        <div class="settings-info">
+                            <i class="fas fa-music"></i>
+                            <div>
+                                <h4>Звук азана</h4>
+                                <p>Выберите мелодию азана</p>
+                            </div>
+                        </div>
+                        <select id="azanSoundSelect" class="settings-select">
+                            <option value="default">Стандартный</option>
+                            <option value="makkah">Мекканский</option>
+                            <option value="medina">Мединский</option>
+                        </select>
+                    </div>
+
+                    <div class="settings-item">
+                        <div class="settings-info">
+                            <i class="fas fa-volume-up"></i>
+                            <div>
+                                <h4>Пробный азан</h4>
+                                <p>Проверить как звучит выбранная мелодия</p>
+                            </div>
+                        </div>
+                        <button id="testAzanBtn" class="test-sound-btn">
+                            <i class="fas fa-play"></i> Тест
+                        </button>
+                    </div>
                 </div>
-                <div id="tab-settings" class="tab-pane">
-                    <h4>Настройки приложения</h4>
-                    <div class="setting-item"><label><i class="fas fa-bell"></i> Уведомления за:</label><select id="notificationTime"><option value="5">5 минут</option><option value="10">10 минут</option><option value="15">15 минут</option><option value="30">30 минут</option></select></div>
-                    <div class="setting-item"><label><i class="fas fa-music"></i> Звук азана:</label><select id="azanSound"><option value="default">Стандартный</option><option value="makkah">Мекканский</option><option value="medina">Мединский</option></select></div>
-                    <div class="setting-item"><label><i class="fas fa-moon"></i> Тёмная тема:</label><label class="switch"><input type="checkbox" id="darkModeToggle" checked><span class="slider"></span></label></div>
+            </div>
+
+            <!-- Вкладка Язык -->
+            <div id="profile-tab-language" class="profile-pane">
+                <div class="language-list">
+                    <button class="language-item active" data-lang="ru">
+                        <i class="fas fa-flag"></i>
+                        <span>Русский</span>
+                        <i class="fas fa-check-circle"></i>
+                    </button>
+                    <button class="language-item" data-lang="en">
+                        <i class="fas fa-flag"></i>
+                        <span>English</span>
+                        <i class="fas fa-check-circle"></i>
+                    </button>
+                    <button class="language-item" data-lang="ar">
+                        <i class="fas fa-flag"></i>
+                        <span>العربية</span>
+                        <i class="fas fa-check-circle"></i>
+                    </button>
+                    <button class="language-item" data-lang="av">
+                        <i class="fas fa-flag"></i>
+                        <span>Аварский</span>
+                        <i class="fas fa-check-circle"></i>
+                    </button>
+                    <button class="language-item" data-lang="ku">
+                        <i class="fas fa-flag"></i>
+                        <span>Кумыкский</span>
+                        <i class="fas fa-check-circle"></i>
+                    </button>
+                    <button class="language-item" data-lang="lez">
+                        <i class="fas fa-flag"></i>
+                        <span>Лезгинский</span>
+                        <i class="fas fa-check-circle"></i>
+                    </button>
                 </div>
-                <div id="tab-location" class="tab-pane">
-                    <h4><i class="fas fa-location-dot"></i> Определение города</h4>
-                    <p class="location-desc">Разрешите доступ к геолокации, чтобы сайт автоматически определял ваш город.</p>
-                    <button id="enableLocationBtn" class="location-permit-btn"><i class="fas fa-location-arrow"></i> Определить мой город</button>
-                    <div id="locationStatus" class="location-status"></div>
+            </div>
+
+            <!-- Вкладка Оформление -->
+            <div id="profile-tab-appearance" class="profile-pane">
+                <div class="settings-group">
+                    <div class="settings-item">
+                        <div class="settings-info">
+                            <i class="fas fa-moon"></i>
+                            <div>
+                                <h4>Тёмная тема</h4>
+                                <p>Включить тёмное оформление</p>
+                            </div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="profileDarkModeToggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <audio id="azanAudio" preload="auto"><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg"></audio>
-    <audio id="notificationSound" preload="auto"><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg"></audio>
+    <audio id="azanAudio" preload="auto">
+        <source id="azanSource" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="notificationSound" preload="auto">
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg">
+    </audio>
     
     <script>
         if ('serviceWorker' in navigator) {
@@ -179,6 +302,13 @@
                 .then(reg => console.log('Service Worker зарегистрирован', reg))
                 .catch(err => console.log('Ошибка регистрации SW:', err));
         }
+        
+        // Запрос разрешения на уведомления при загрузке
+        setTimeout(() => {
+            if (Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+        }, 2000);
     </script>
     <script src="script.js"></script>
 </body>

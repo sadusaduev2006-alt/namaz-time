@@ -160,9 +160,6 @@
                     <button id="profileGoogleSignIn" class="profile-auth-btn google-btn">
                         <i class="fab fa-google"></i> Войти через Google
                     </button>
-                    <button id="profileAppleSignIn" class="profile-auth-btn apple-btn">
-                        <i class="fab fa-apple"></i> Войти через Apple
-                    </button>
                 </div>
                 <button id="profileSignOutBtn" class="profile-logout-btn" style="display: none;">
                     <i class="fas fa-sign-out-alt"></i> Выйти
@@ -211,9 +208,9 @@
                             </div>
                         </div>
                         <select id="azanSoundSelect" class="settings-select">
-                            <option value="default">Стандартный</option>
-                            <option value="makkah">Мекканский</option>
-                            <option value="medina">Мединский</option>
+                            <option value="makkah">Мекканский азан</option>
+                            <option value="medina">Мединский азан</option>
+                            <option value="fajr">Утренний азан</option>
                         </select>
                     </div>
 
@@ -233,60 +230,60 @@
             </div>
 
             <!-- Вкладка Язык -->
-<div id="profile-tab-language" class="profile-pane">
-    <div class="language-list">
-        <button class="language-item active" data-lang="ru">
-            <i class="fas fa-flag"></i>
-            <span>Русский</span>
-            <i class="fas fa-check-circle"></i>
-        </button>
-        <button class="language-item" data-lang="en">
-            <i class="fas fa-flag"></i>
-            <span>English</span>
-            <i class="fas fa-check-circle"></i>
-        </button>
-        <button class="language-item" data-lang="ar">
-            <i class="fas fa-flag"></i>
-            <span>العربية</span>
-            <i class="fas fa-check-circle"></i>
-        </button>
-        <button class="language-item" data-lang="kk">
-            <i class="fas fa-flag"></i>
-            <span>Қазақша</span>
-            <i class="fas fa-check-circle"></i>
-        </button>
-        <button class="language-item" data-lang="tr">
-            <i class="fas fa-flag"></i>
-            <span>Türkçe</span>
-            <i class="fas fa-check-circle"></i>
-        </button>
-        <button class="language-item" data-lang="uz">
-            <i class="fas fa-flag"></i>
-            <span>Oʻzbekcha</span>
-            <i class="fas fa-check-circle"></i>
-        </button>
-        <button class="language-item" data-lang="tt">
-            <i class="fas fa-flag"></i>
-            <span>Татарча</span>
-            <i class="fas fa-check-circle"></i>
-        </button>
-        <button class="language-item" data-lang="ky">
-            <i class="fas fa-flag"></i>
-            <span>Кыргызча</span>
-            <i class="fas fa-check-circle"></i>
-        </button>
-        <button class="language-item" data-lang="hi">
-            <i class="fas fa-flag"></i>
-            <span>हिन्दी</span>
-            <i class="fas fa-check-circle"></i>
-        </button>
-        <button class="language-item" data-lang="es">
-            <i class="fas fa-flag"></i>
-            <span>Español</span>
-            <i class="fas fa-check-circle"></i>
-        </button>
-    </div>
-</div>
+            <div id="profile-tab-language" class="profile-pane">
+                <div class="language-list">
+                    <button class="language-item active" data-lang="ru">
+                        <i class="fas fa-flag"></i>
+                        <span>Русский</span>
+                        <i class="fas fa-check-circle"></i>
+                    </button>
+                    <button class="language-item" data-lang="en">
+                        <i class="fas fa-flag"></i>
+                        <span>English</span>
+                        <i class="fas fa-check-circle"></i>
+                    </button>
+                    <button class="language-item" data-lang="ar">
+                        <i class="fas fa-flag"></i>
+                        <span>العربية</span>
+                        <i class="fas fa-check-circle"></i>
+                    </button>
+                    <button class="language-item" data-lang="kk">
+                        <i class="fas fa-flag"></i>
+                        <span>Қазақша</span>
+                        <i class="fas fa-check-circle"></i>
+                    </button>
+                    <button class="language-item" data-lang="tr">
+                        <i class="fas fa-flag"></i>
+                        <span>Türkçe</span>
+                        <i class="fas fa-check-circle"></i>
+                    </button>
+                    <button class="language-item" data-lang="uz">
+                        <i class="fas fa-flag"></i>
+                        <span>Oʻzbekcha</span>
+                        <i class="fas fa-check-circle"></i>
+                    </button>
+                    <button class="language-item" data-lang="tt">
+                        <i class="fas fa-flag"></i>
+                        <span>Татарча</span>
+                        <i class="fas fa-check-circle"></i>
+                    </button>
+                    <button class="language-item" data-lang="ky">
+                        <i class="fas fa-flag"></i>
+                        <span>Кыргызча</span>
+                        <i class="fas fa-check-circle"></i>
+                    </button>
+                    <button class="language-item" data-lang="hi">
+                        <i class="fas fa-flag"></i>
+                        <span>हिन्दी</span>
+                        <i class="fas fa-check-circle"></i>
+                    </button>
+                    <button class="language-item" data-lang="es">
+                        <i class="fas fa-flag"></i>
+                        <span>Español</span>
+                        <i class="fas fa-check-circle"></i>
+                    </button>
+                </div>
+            </div>
 
             <!-- Вкладка Оформление -->
             <div id="profile-tab-appearance" class="profile-pane">
@@ -309,11 +306,12 @@
         </div>
     </div>
 
+    <!-- АУДИО -->
     <audio id="azanAudio" preload="auto">
-        <source id="azanSource" src="https://www.islamcan.com/audio/adhan/fajr-adhan.mp3" type="audio/mpeg">
-</audio>
+        <source id="azanSource" src="https://www.islamcan.com/audio/adhan/makkah-adhan.mp3" type="audio/mpeg">
+    </audio>
     <audio id="notificationSound" preload="auto">
-        <source id="azanSource" src="https://www.islamcan.com/audio/adhan/fajr-adhan.mp3" type="audio/mpeg">
+        <source src="https://www.islamcan.com/audio/adhan/fajr-adhan.mp3" type="audio/mpeg">
     </audio>
     
     <script>
@@ -323,7 +321,6 @@
                 .catch(err => console.log('Ошибка регистрации SW:', err));
         }
         
-        // Запрос разрешения на уведомления при загрузке
         setTimeout(() => {
             if (Notification.permission === 'default') {
                 Notification.requestPermission();

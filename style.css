@@ -56,8 +56,14 @@ body {
 }
 
 @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .prayer-card {
@@ -69,7 +75,7 @@ body {
     transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Шапка */
+/* ШАПКА */
 .header-top {
     display: flex;
     justify-content: space-between;
@@ -106,7 +112,7 @@ body {
     align-items: center;
     gap: 8px;
     background: var(--accent-light);
-    padding: 6px 12px 6px 16px;
+    padding: 5px 5px 5px 16px;
     border-radius: 40px;
 }
 
@@ -147,19 +153,19 @@ h1 {
     opacity: 0.7;
 }
 
-/* СЕТКА НАМАЗОВ — ОРИГИНАЛЬНЫЙ РАЗМЕР */
+/* СЕТКА НАМАЗОВ — ТОЧНО КАК БЫЛО */
 .prayer-grid {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    margin: 24px 0 28px 0;
+    gap: 10px;
+    margin-bottom: 28px;
 }
 
 .prayer-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 18px 24px;
+    padding: 16px 22px;
     background: var(--prayer-bg);
     border-radius: 28px;
     transition: all 0.25s ease;
@@ -215,7 +221,7 @@ h1 {
     50% { box-shadow: 0 0 0 8px rgba(129, 199, 132, 0); }
 }
 
-/* Следующий намаз */
+/* СЛЕДУЮЩИЙ НАМАЗ */
 .next-prayer-card {
     background: var(--accent-light);
     border-radius: 32px;
@@ -271,6 +277,7 @@ h1 {
     color: var(--accent);
 }
 
+/* ФУТЕР */
 .footer-note {
     text-align: center;
     margin-top: 8px;
@@ -278,6 +285,11 @@ h1 {
     border-top: 1px solid var(--border-color);
     font-size: 12px;
     opacity: 0.7;
+}
+
+.method {
+    font-size: 11px;
+    margin-top: 8px;
 }
 
 /* ПЛАВАЮЩАЯ КНОПКА КОМПАСА */
@@ -296,6 +308,11 @@ h1 {
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     z-index: 100;
     transition: transform 0.2s, background 0.2s;
+}
+
+.floating-compass-btn:hover {
+    transform: scale(1.05);
+    background: var(--active-border);
 }
 
 /* ПОЛНОЭКРАННЫЙ КОМПАС */
@@ -428,9 +445,14 @@ h1 {
     font-weight: 600;
     font-size: 16px;
     cursor: pointer;
+    transition: transform 0.2s;
 }
 
-/* Модальное окно профиля */
+.start-compass-btn:hover {
+    transform: scale(1.02);
+}
+
+/* МОДАЛЬНОЕ ОКНО ПРОФИЛЯ */
 .modal {
     display: none;
     position: fixed;
@@ -529,15 +551,47 @@ input:checked + .slider:before { transform: translateX(24px); }
     cursor: pointer;
 }
 
+/* АДАПТАЦИЯ ДЛЯ ТЕЛЕФОНОВ */
 @media (max-width: 560px) {
-    .prayer-card { padding: 24px 18px 32px 18px; }
-    .prayer-time { font-size: 18px; padding: 4px 12px; }
-    .prayer-name { font-size: 15px; }
-    .next-prayer-name { font-size: 20px; }
-    .next-prayer-time { font-size: 24px; }
-    h1 { font-size: 28px; }
-    .floating-compass-btn { width: 48px; height: 48px; font-size: 20px; }
-    .compass-full { width: 220px; height: 220px; }
-    .needle-full { height: 190px; }
-    .needle-top-full, .needle-bottom-full { height: 95px; }
+    .prayer-card {
+        padding: 24px 18px 32px 18px;
+        border-radius: 40px;
+    }
+    .prayer-time {
+        font-size: 17px;
+        padding: 4px 12px;
+    }
+    .prayer-name {
+        font-size: 15px;
+    }
+    .prayer-info i {
+        font-size: 18px;
+        width: 24px;
+    }
+    .next-prayer-name {
+        font-size: 20px;
+    }
+    .next-prayer-time {
+        font-size: 24px;
+    }
+    h1 {
+        font-size: 28px;
+    }
+    .floating-compass-btn {
+        width: 48px;
+        height: 48px;
+        font-size: 20px;
+        bottom: 20px;
+        left: 20px;
+    }
+    .compass-full {
+        width: 220px;
+        height: 220px;
+    }
+    .needle-full {
+        height: 190px;
+    }
+    .needle-top-full, .needle-bottom-full {
+        height: 95px;
+    }
 }

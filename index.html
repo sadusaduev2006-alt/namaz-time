@@ -12,26 +12,62 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Намаз Дагестан">
+    
+    <!-- Firebase SDK для авторизации -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        
+        // Конфигурация Firebase (замени на свои данные позже)
+        const firebaseConfig = {
+            apiKey: "AIzaSyB4K7cR3X5n9Q2wE8tY7uI6oP5aD3fG1hJ2k",
+            authDomain: "namaz-dagestan.firebaseapp.com",
+            projectId: "namaz-dagestan",
+            storageBucket: "namaz-dagestan.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:abc123def456"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+        
+        window.auth = auth;
+        window.provider = provider;
+        window.signOut = signOut;
+        window.onAuthStateChanged = onAuthStateChanged;
+        window.signInWithPopup = signInWithPopup;
+    </script>
+    
+    <!-- Apple ID Sign In (для iPhone) -->
+    <script type="module" src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js"></script>
 </head>
 <body data-theme="light">
     <div class="container">
         <div class="prayer-card">
             <div class="header">
                 <div class="header-top">
-                    <div class="location-badge">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <select id="citySelect">
-                            <option value="42.9849,47.5046">Махачкала</option>
-                            <option value="42.0569,48.2885">Дербент</option>
-                            <option value="43.2500,46.5833">Хасавюрт</option>
-                            <option value="42.8167,47.1167">Буйнакск</option>
-                            <option value="42.5654,47.8634">Избербаш</option>
-                            <option value="43.8485,46.7199">Кизляр</option>
-                            <option value="42.8819,47.6372">Каспийск</option>
-                        </select>
-                        <button id="gpsLocationBtn" class="gps-btn" title="Определить моё местоположение">
-                            <i class="fas fa-location-dot"></i>
+                    <div class="left-buttons">
+                        <button id="profileBtn" class="profile-btn">
+                            <i class="fas fa-user-circle"></i>
                         </button>
+                    </div>
+                    <div class="center-controls">
+                        <div class="location-badge">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <select id="citySelect">
+                                <option value="42.9849,47.5046">Махачкала</option>
+                                <option value="42.0569,48.2885">Дербент</option>
+                                <option value="43.2500,46.5833">Хасавюрт</option>
+                                <option value="42.8167,47.1167">Буйнакск</option>
+                                <option value="42.5654,47.8634">Избербаш</option>
+                                <option value="43.8485,46.7199">Кизляр</option>
+                                <option value="42.8819,47.6372">Каспийск</option>
+                            </select>
+                            <button id="gpsLocationBtn" class="gps-btn" title="Определить моё местоположение">
+                                <i class="fas fa-location-dot"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="right-buttons">
                         <div class="dropdown">
@@ -52,6 +88,53 @@
                 <h1>🕌 Время намаза</h1>
                 <p class="date" id="currentDate">--</p>
                 <p class="gregorian" id="gregorianDate">--</p>
+            </div>
+
+            <!-- Модальное окно профиля -->
+            <div id="profileModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-user"></i> Мой профиль</h3>
+                        <button class="close-modal">&times;</button>
+                    </div>
+                    <div class="modal-body" id="profileContent">
+                        <div class="profile-avatar">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <div id="userInfo" class="user-info">
+                            <p>Войдите, чтобы сохранять настройки</p>
+                        </div>
+                        <div class="auth-buttons">
+                            <button id="googleSignIn" class="auth-btn google-btn">
+                                <i class="fab fa-google"></i> Войти через Google
+                            </button>
+                            <div id="appleid-signin" class="auth-btn apple-btn" data-color="black" data-border="true" data-type="sign-in"></div>
+                        </div>
+                        <div id="userSettings" class="user-settings" style="display: none;">
+                            <h4>Настройки</h4>
+                            <div class="setting-item">
+                                <label>Уведомления за:</label>
+                                <select id="notificationTime">
+                                    <option value="5">5 минут</option>
+                                    <option value="10">10 минут</option>
+                                    <option value="15">15 минут</option>
+                                    <option value="30">30 минут</option>
+                                </select>
+                            </div>
+                            <div class="setting-item">
+                                <label>Азан:</label>
+                                <select id="azanSound">
+                                    <option value="default">Стандартный</option>
+                                    <option value="makkah">Мекканский</option>
+                                    <option value="medina">Мединский</option>
+                                </select>
+                            </div>
+                            <button id="signOutBtn" class="logout-btn">
+                                <i class="fas fa-sign-out-alt"></i> Выйти
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="prayer-grid">
@@ -81,7 +164,7 @@
 
             <div class="footer-note">
                 <p><i class="far fa-clock"></i> Обновлено: <span id="updateTime">сегодня</span></p>
-                <p class="method"><i class="fas fa-calculator"></i> Метод: Sajda (Фаджр 24°, Иша 15°)</p>
+                <p class="method"><i class="fas fa-calculator"></i> Метод: Точное расписание для Дагестана</p>
             </div>
         </div>
     </div>

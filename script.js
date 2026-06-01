@@ -48,4 +48,276 @@ document.addEventListener('DOMContentLoaded', function() {
             {name:'Фаджр', time:prayerTimes.Fajr, id:'fajr'},
             {name:'Зухр', time:prayerTimes.Dhuhr, id:'dhuhr'},
             {name:'Аср', time:prayerTimes.Asr, id:'asr'},
-            {name:'Магриб', time:prayerTimes
+            {name:'Магриб', time:prayerTimes.Maghrib, id:'maghrib'},
+            {name:'Иша', time:prayerTimes.Isha, id:'isha'}
+        ];
+        let next = null;
+        for(let p of prayers) {
+            if(!p.time) continue;
+            let [h,m] = p.time.split(':').map(Number);
+            let total = h*60+m;
+            if(total > current) { next = {...p, total}; break; }
+        }
+        if(!next && prayers[0]) {
+            let [h,m] = prayers[0].time.split(':').map(Number);
+            next = {...prayers[0], total: h*60+m+1440};
+        }
+        if(next) {
+            let left = next.total - current;
+            document.getElementById('nextPrayerName').innerText = next.name;
+            document.getElementById('nextPrayerTime').innerText = next.time;
+            if(left<=0) document.getElementById('countdownText').innerHTML = "🕋 Время наступило!";
+            else {
+                let hours = Math.floor(left/60), mins = left%60;
+                document.getElementById('countdownText').innerHTML = hours>0 ? `${hours} ч ${mins} мин` : `${mins} минут`;
+            }
+            document.querySelectorAll('.prayer-item').forEach(i=>i.classList.remove('active'));
+            if(next.id) document.getElementById(next.id)?.closest('.prayer-item')?.classList.add('active');
+        }
+    }
+    
+    const today = new Date();
+    document.getElementById('currentDate').innerHTML = `📆 ${today.toLocaleDateString('ru-RU')}`;
+    document.getElementById('updateTime').innerText = new Date().toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'});
+    
+    // КОМПАС
+    const fullscreenCompass = document.getElementById('fullscreenCompass');
+    const floatingBtn = document.getElementById('floatingCompassBtn');
+    const closeCompass = document.getElementById('closeFullscreenCompass');
+    const startCompassBtn = document.getElementById('startCompassFull');
+    const needleFull = document.getElementById('needleFull');
+    const degreeSpan = document.getElementById('qiblaDegreeFull');
+    const hintSpan = document.getElementById('compassHintFull');
+    
+    function calculateQiblaAngle() {
+        let φ1 = currentCity.lat * Math.PI/180;
+        let φ2 = MECCA.lat * Math.PI/180;
+        let Δλ = (MECCA.lng - currentCity.lng) * Math.PI/180;
+        let y = Math.sin(Δλ) * Math.cos(φ2);
+        let x = Math.cos(φ1)*Math.sin(φ2) - Math.sin(φ1)*Math.cos(φ2)*Math.cos(Δλ);
+        let θ = Math.atan2(y,x);
+        qiblaDirection = (θ*180/Math.PI+360)%360;
+        if (degreeSpan) degreeSpan.innerHTML = `${Math.round(qiblaDirection)}°`;
+        updateNeedleFull();
+    }
+    
+    function updateNeedleFull() {
+        if (!needleFull) return;
+        if (compassActive && currentHeading) {
+            let angle = qiblaDirection - currentHeading;
+            needleFull.style.transform = `translate(-50%,-50%) rotate(${angle}deg)`;
+            let diff = Math.abs(angle%360); if(diff>180) diff=360-diff;
+            if (hintSpan) {
+                if (diff < 10) hintSpan.innerHTML = "✅ Вы смотрите в сторону Киблы!";
+                else hintSpan.innerHTML = `🔄 Повернитесь ${angle>0?'налево':'направо'} на ${Math.round(diff)}°`;
+            }
+        } else {
+            needleFull.style.transform = `translate(-50%,-50%) rotate(${qiblaDirection}deg)`;
+        }
+    }
+    
+    function initFullscreenCompass() {
+        calculateQiblaAngle();
+        if (startCompassBtn) {
+            startCompassBtn.onclick = () => {
+                if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    DeviceOrientationEvent.requestPermission().then(perm => {
+                        if (perm === 'granted') {
+                            window.addEventListener('deviceorientation', (e) => {
+                                let heading = e.webkitCompassHeading || (e.alpha ? 360 - e.alpha : null);
+                                if (heading) { currentHeading = heading; compassActive = true; updateNeedleFull(); }
+                            });
+                            if (hintSpan) hintSpan.innerHTML = "✅ Компас активен! Поворачивайте телефон";
+                        } else { if (hintSpan) hintSpan.innerHTML = "❌ Доступ не разрешён"; }
+                    }).catch(() => { if (hintSpan) hintSpan.innerHTML = "❌ Ошибка доступа"; });
+                } else {
+                    window.addEventListener('deviceorientation', (e) => {
+                        let heading = e.webkitCompassHeading || (e.alpha ? 360 - e.alpha : null);
+                        if (heading) { currentHeading = heading; compassActive = true; updateNeedleFull(); }
+                    });
+                    if (hintSpan) hintSpan.innerHTML = "✅ Компас активен! Поворачивайте телефон";
+                }
+            };
+        }
+    }
+    
+    if (floatingBtn) {
+        floatingBtn.onclick = () => {
+            if (fullscreenCompass) {
+                fullscreenCompass.classList.add('show');
+                initFullscreenCompass();
+            }
+        };
+    }
+    if (closeCompass) closeCompass.onclick = () => { if (fullscreenCompass) fullscreenCompass.classList.remove('show'); };
+    
+    // ПРОФИЛЬ И НАСТРОЙКИ
+    const profileBtn = document.getElementById('profileBtn');
+    const profileModal = document.getElementById('profileModal');
+    const closeModal = document.querySelector('.close-modal');
+    if (profileBtn) profileBtn.onclick = () => profileModal.classList.add('show');
+    if (closeModal) closeModal.onclick = () => profileModal.classList.remove('show');
+    window.onclick = (e) => { if (e.target === profileModal) profileModal.classList.remove('show'); };
+    
+    const tabs = document.querySelectorAll('.modal-tab');
+    const panes = document.querySelectorAll('.tab-pane');
+    tabs.forEach(tab => {
+        tab.onclick = () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            panes.forEach(p => p.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById(`tab-${tab.dataset.tab}`).classList.add('active');
+        };
+    });
+    
+    function findNearestCity(lat, lng) {
+        let nearest = cities[0];
+        let minDist = Infinity;
+        for (let city of cities) {
+            const dist = Math.hypot(city.lat - lat, city.lng - lng);
+            if (dist < minDist) { minDist = dist; nearest = city; }
+        }
+        return nearest;
+    }
+    
+    function requestLocation() {
+        if (!navigator.geolocation) { document.getElementById('locationStatus').innerHTML = '❌ Браузер не поддерживает геолокацию'; return; }
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const nearest = findNearestCity(pos.coords.latitude, pos.coords.longitude);
+                updateCityAndTimes(nearest);
+                localStorage.setItem('selectedCity', nearest.name);
+                document.getElementById('locationStatus').innerHTML = `✅ Определён город: ${nearest.name}`;
+                setTimeout(() => { document.getElementById('locationStatus').innerHTML = ''; }, 3000);
+            },
+            (err) => {
+                let msg = '❌ Ошибка: ';
+                if (err.code === err.PERMISSION_DENIED) msg += 'Разрешите доступ в настройках';
+                else msg += 'Не удалось определить';
+                document.getElementById('locationStatus').innerHTML = msg;
+            }
+        );
+    }
+    
+    const locationAsked = localStorage.getItem('locationAsked');
+    if (!locationAsked) {
+        setTimeout(() => {
+            if (confirm('📍 Разрешить сайту определить ваш город для точного времени намаза?')) {
+                requestLocation();
+                localStorage.setItem('locationAsked', 'true');
+            }
+        }, 1000);
+    }
+    
+    document.getElementById('enableLocationBtn')?.addEventListener('click', requestLocation);
+    
+    // Авторизация
+    const googleBtn = document.getElementById('googleSignIn');
+    const signOutBtn = document.getElementById('signOutBtn');
+    const userInfoDiv = document.getElementById('userInfo');
+    const authBtns = document.querySelector('.auth-buttons');
+    if (googleBtn) {
+        googleBtn.onclick = async () => {
+            if (window.auth && window.signInWithPopup && window.provider) {
+                try {
+                    const result = await window.signInWithPopup(window.auth, window.provider);
+                    const user = result.user;
+                    userInfoDiv.innerHTML = `<p><strong>${user.displayName || user.email}</strong></p><p style="font-size:12px;">${user.email}</p>`;
+                    if (authBtns) authBtns.style.display = 'none';
+                    if (signOutBtn) signOutBtn.style.display = 'block';
+                    localStorage.setItem('user', JSON.stringify({ name: user.displayName, email: user.email }));
+                } catch(e) { alert('Ошибка входа'); }
+            }
+        };
+    }
+    if (signOutBtn) {
+        signOutBtn.onclick = async () => {
+            if (window.auth && window.signOut) await window.signOut(window.auth);
+            localStorage.removeItem('user');
+            userInfoDiv.innerHTML = '<p>Войдите, чтобы сохранять настройки</p>';
+            if (authBtns) authBtns.style.display = 'flex';
+            signOutBtn.style.display = 'none';
+        };
+    }
+    const savedUser = localStorage.getItem('user');
+    if (savedUser && userInfoDiv) {
+        const user = JSON.parse(savedUser);
+        userInfoDiv.innerHTML = `<p><strong>${user.name || user.email}</strong></p>`;
+        if (authBtns) authBtns.style.display = 'none';
+        if (signOutBtn) signOutBtn.style.display = 'block';
+    }
+    
+    // Настройки
+    const notificationSelect = document.getElementById('notificationTime');
+    const azanSelect = document.getElementById('azanSound');
+    if (notificationSelect) {
+        const saved = localStorage.getItem('notificationTime');
+        if (saved) notificationSelect.value = saved;
+        notificationSelect.onchange = (e) => localStorage.setItem('notificationTime', e.target.value);
+    }
+    if (azanSelect) {
+        const saved = localStorage.getItem('azanSound');
+        if (saved) azanSelect.value = saved;
+        azanSelect.onchange = (e) => localStorage.setItem('azanSound', e.target.value);
+    }
+    
+    // Тёмная тема
+    const darkModeCheckbox = document.getElementById('darkModeToggle');
+    function initTheme() {
+        const theme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', theme);
+        if (darkModeCheckbox) darkModeCheckbox.checked = (theme === 'dark');
+        const themeToggleBtn = document.getElementById('themeToggle');
+        if (themeToggleBtn) {
+            const icon = themeToggleBtn.querySelector('i');
+            if (theme === 'dark') icon.classList.replace('fa-moon', 'fa-sun');
+            else icon.classList.replace('fa-sun', 'fa-moon');
+        }
+    }
+    function toggleThemeManually(e) {
+        const isDark = e.target.checked;
+        const newTheme = isDark ? 'dark' : 'light';
+        document.body.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        const themeToggleBtn = document.getElementById('themeToggle');
+        if (themeToggleBtn) {
+            const icon = themeToggleBtn.querySelector('i');
+            if (newTheme === 'dark') icon.classList.replace('fa-moon', 'fa-sun');
+            else icon.classList.replace('fa-sun', 'fa-moon');
+        }
+    }
+    initTheme();
+    if (darkModeCheckbox) darkModeCheckbox.onchange = toggleThemeManually;
+    
+    const themeToggleBtn = document.getElementById('themeToggle');
+    if (themeToggleBtn) {
+        themeToggleBtn.onclick = () => {
+            const current = document.body.getAttribute('data-theme');
+            const newTheme = current === 'light' ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            if (darkModeCheckbox) darkModeCheckbox.checked = (newTheme === 'dark');
+            const icon = themeToggleBtn.querySelector('i');
+            if (newTheme === 'dark') icon.classList.replace('fa-moon', 'fa-sun');
+            else icon.classList.replace('fa-sun', 'fa-moon');
+        };
+    }
+    
+    // Меню
+    const menuBtn = document.getElementById('menuToggle');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+    if (menuBtn && dropdownMenu) {
+        menuBtn.onclick = (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('show'); };
+        document.onclick = (e) => {
+            if (!menuBtn.contains(e.target) && !dropdownMenu.contains(e.target)) dropdownMenu.classList.remove('show');
+        };
+    }
+    
+    document.getElementById('aboutMenuItem')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        alert('📱 Намаз Дагестан — приложение для точного определения времени намазов.\nВерсия 2.0\n\n📍 Автоопределение города\n🕌 Направление Киблы\n📖 Суры Корана');
+    });
+    
+    calculateNearestPrayer();
+    setInterval(() => calculateNearestPrayer(), 60000);
+});

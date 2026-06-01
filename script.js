@@ -18,12 +18,7 @@ const translations = {
     en: { prayer: "Prayer Times", updated: "Updated", fajr: "Fajr", sunrise: "Sunrise", dhuhr: "Dhuhr", asr: "Asr", maghrib: "Maghrib", isha: "Isha", profile: "Profile", notifications: "Notifications", language: "Language", appearance: "Appearance", darkTheme: "Dark Theme", notificationDesc: "Receive prayer reminders", remindBefore: "Remind before", azanSound: "Azan sound", testSound: "Test", login: "Sign in", logout: "Sign out" },
     ar: { prayer: "أوقات الصلاة", updated: "تم التحديث", fajr: "الفجر", sunrise: "الشروق", dhuhr: "الظهر", asr: "العصر", maghrib: "المغرب", isha: "العشاء", profile: "الملف الشخصي", notifications: "الإشعارات", language: "اللغة", appearance: "المظهر", darkTheme: "الوضع المظلم", notificationDesc: "تلقي تذكيرات الصلاة", remindBefore: "تذكير قبل", azanSound: "صوت الأذان", testSound: "اختبار", login: "تسجيل الدخول", logout: "تسجيل الخروج" },
     kk: { prayer: "Намаз уақыты", updated: "Жаңартылды", fajr: "Фажр", sunrise: "Шурық", dhuhr: "Зуһр", asr: "Аср", maghrib: "Мағриб", isha: "Иша", profile: "Профиль", notifications: "Хабарландырулар", language: "Тіл", appearance: "Көрініс", darkTheme: "Қараңғы тақырып", notificationDesc: "Намаз ескертулерін алу", remindBefore: "Еске салу", azanSound: "Азан дыбысы", testSound: "Тест", login: "Кіру", logout: "Шығу" },
-    tr: { prayer: "Namaz Vakti", updated: "Güncellendi", fajr: "İmsak", sunrise: "Güneş", dhuhr: "Öğle", asr: "İkindi", maghrib: "Akşam", isha: "Yatsı", profile: "Profil", notifications: "Bildirimler", language: "Dil", appearance: "Görünüm", darkTheme: "Koyu Tema", notificationDesc: "Namaz hatırlatıcıları al", remindBefore: "Hatırlatma", azanSound: "Ezan sesi", testSound: "Test", login: "Giriş yap", logout: "Çıkış yap" },
-    uz: { prayer: "Namoz vaqti", updated: "Yangilandi", fajr: "Bomdod", sunrise: "Quyosh", dhuhr: "Peshin", asr: "Asr", maghrib: "Shom", isha: "Xufton", profile: "Profil", notifications: "Bildirishnomalar", language: "Til", appearance: "Koʻrinish", darkTheme: "Qorongʻu mavzu", notificationDesc: "Namoz eslatmalarini olish", remindBefore: "Eslatma", azanSound: "Azon ovozi", testSound: "Sinov", login: "Kirish", logout: "Chiqish" },
-    tt: { prayer: "Намаз вакыты", updated: "Яңартылды", fajr: "Фаҗр", sunrise: "Шөрек", dhuhr: "Зөһр", asr: "Аср", maghrib: "Мәгъриб", isha: "Иша", profile: "Профиль", notifications: "Белдермәләр", language: "Тел", appearance: "Күренеш", darkTheme: "Караңгы тема", notificationDesc: "Намаз искәртмәләре алу", remindBefore: "Искәртү", azanSound: "Азан тавышы", testSound: "Сынау", login: "Керү", logout: "Чыгу" },
-    ky: { prayer: "Намаз убактысы", updated: "Жаңыртылды", fajr: "Таң", sunrise: "Күн чыгыш", dhuhr: "Бешим", asr: "Экинди", maghrib: "Шам", isha: "Куптан", profile: "Профиль", notifications: "Билдирмелер", language: "Тил", appearance: "Көрүнүш", darkTheme: "Караңгы тема", notificationDesc: "Намаз эскертмелерин алуу", remindBefore: "Эскертүү", azanSound: "Азан үнү", testSound: "Сыноо", login: "Кирүү", logout: "Чыгуу" },
-    hi: { prayer: "नमाज़ का समय", updated: "अपडेट किया गया", fajr: "फज्र", sunrise: "सूर्योदय", dhuhr: "जुहर", asr: "असर", maghrib: "मगरिब", isha: "इशा", profile: "प्रोफ़ाइल", notifications: "सूचनाएं", language: "भाषा", appearance: "दिखावट", darkTheme: "डार्क थीम", notificationDesc: "नमाज़ रिमाइंडर प्राप्त करें", remindBefore: "याद दिलाएं", azanSound: "अज़ान की आवाज़", testSound: "परीक्षण", login: "साइन इन करें", logout: "साइन आउट करें" },
-    es: { prayer: "Horario de oración", updated: "Actualizado", fajr: "Fajr", sunrise: "Amanecer", dhuhr: "Dhuhr", asr: "Asr", maghrib: "Maghrib", isha: "Isha", profile: "Perfil", notifications: "Notificaciones", language: "Idioma", appearance: "Apariencia", darkTheme: "Tema oscuro", notificationDesc: "Recibir recordatorios de oración", remindBefore: "Recordar antes", azanSound: "Sonido del Adhan", testSound: "Probar", login: "Iniciar sesión", logout: "Cerrar sesión" }
+    tr: { prayer: "Namaz Vakti", updated: "Güncellendi", fajr: "İmsak", sunrise: "Güneş", dhuhr: "Öğle", asr: "İkindi", maghrib: "Akşam", isha: "Yatsı", profile: "Profil", notifications: "Bildirimler", language: "Dil", appearance: "Görünüm", darkTheme: "Koyu Tema", notificationDesc: "Namaz hatırlatıcıları al", remindBefore: "Hatırlatma", azanSound: "Ezan sesi", testSound: "Test", login: "Giriş yap", logout: "Çıkış yap" }
 };
 
 let currentLanguage = localStorage.getItem('language') || 'ru';
@@ -35,9 +30,10 @@ function updateUILanguage() {
     let title = document.querySelector('.prayer-card h1');
     if (!title) {
         title = document.createElement('h1');
-        document.querySelector('.header')?.insertBefore(title, document.querySelector('.date') || document.querySelector('.header').children[1]);
+        const header = document.querySelector('.header');
+        if (header) header.insertBefore(title, header.querySelector('.date') || header.children[1]);
     }
-    title.innerHTML = `🕌 ${t.prayer}`;
+    if (title) title.innerHTML = `🕌 ${t.prayer}`;
     
     const prayerNames = document.querySelectorAll('.prayer-name');
     if (prayerNames.length >= 6) {
@@ -53,44 +49,13 @@ function updateUILanguage() {
     if (footer) {
         footer.innerHTML = `<i class="far fa-clock"></i> ${t.updated}: <span id="updateTime">${document.getElementById('updateTime')?.innerText || '--:--'}</span>`;
     }
-    
-    const profileTitle = document.querySelector('.profile-full-header h2');
-    if (profileTitle) profileTitle.innerText = t.profile;
-    
-    const tabs = document.querySelectorAll('.profile-tab');
-    if (tabs.length >= 4) {
-        tabs[0].innerHTML = "👤 " + t.login;
-        tabs[1].innerHTML = "🔔 " + t.notifications;
-        tabs[2].innerHTML = "🌐 " + t.language;
-        tabs[3].innerHTML = "🎨 " + t.appearance;
-    }
-    
-    const notifDesc = document.querySelector('#profile-tab-notifications .settings-item:first-child .settings-info p');
-    if (notifDesc) notifDesc.innerText = t.notificationDesc;
-    
-    const remindLabel = document.querySelector('#profile-tab-notifications .settings-item:nth-child(2) .settings-info h4');
-    if (remindLabel) remindLabel.innerText = t.remindBefore;
-    
-    const soundLabel = document.querySelector('#profile-tab-notifications .settings-item:nth-child(3) .settings-info h4');
-    if (soundLabel) soundLabel.innerText = t.azanSound;
-    
-    const darkLabel = document.querySelector('#profile-tab-appearance .settings-info h4');
-    if (darkLabel) darkLabel.innerText = t.darkTheme;
-    
-    const googleBtn = document.getElementById('profileGoogleSignIn');
-    if (googleBtn) googleBtn.innerHTML = `<i class="fab fa-google"></i> ${t.login}`;
-    
-    const signOutBtn = document.getElementById('profileSignOutBtn');
-    if (signOutBtn) signOutBtn.innerHTML = `<i class="fas fa-sign-out-alt"></i> ${t.logout}`;
-    
-    const testBtn = document.getElementById('testAzanBtn');
-    if (testBtn) testBtn.innerHTML = `<i class="fas fa-play"></i> ${t.testSound}`;
 }
 
+// ==================== ЗАПУСК ПРИ ЗАГРУЗКЕ ====================
 document.addEventListener('DOMContentLoaded', function() {
     console.log("DOM загружен");
     
-    // ==================== ВРЕМЯ НАМАЗА ====================
+    // ВРЕМЯ НАМАЗА
     function displayPrayerTimes() {
         document.getElementById('fajr').innerText = prayerTimes.Fajr;
         document.getElementById('sunrise').innerText = prayerTimes.Sunrise;
@@ -117,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const citySelect = document.getElementById('citySelect');
     if (citySelect) {
-        citySelect.addEventListener('change', () => {
+        citySelect.addEventListener('change', function() {
             const selected = citySelect.options[citySelect.selectedIndex]?.text;
             const found = cities.find(c => c.name === selected);
             if (found) updateCityAndTimes(found);
@@ -129,7 +94,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const found = cities.find(c => c.name === savedCity);
         if (found) updateCityAndTimes(found);
     }
-    
     displayPrayerTimes();
     updateUILanguage();
     
@@ -193,30 +157,36 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     if (floatingCompassBtn) {
-        floatingCompassBtn.onclick = function() {
-            if (fullscreenCompass) fullscreenCompass.classList.add('show');
-            calculateQiblaAngle();
+        floatingCompassBtn.onclick = function(e) {
+            e.preventDefault();
+            console.log("Компас кнопка нажата");
+            if (fullscreenCompass) {
+                fullscreenCompass.classList.add('show');
+                calculateQiblaAngle();
+            }
         };
     }
     
     if (closeCompass) {
-        closeCompass.onclick = function() {
+        closeCompass.onclick = function(e) {
+            e.preventDefault();
             if (fullscreenCompass) fullscreenCompass.classList.remove('show');
         };
     }
     
     if (startCompassBtn) {
-        startCompassBtn.onclick = function() {
+        startCompassBtn.onclick = function(e) {
+            e.preventDefault();
             if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
                 DeviceOrientationEvent.requestPermission().then(perm => {
                     if (perm === 'granted') {
                         window.addEventListener('deviceorientation', handleOrientation);
-                        alert('Компас включён!');
+                        alert('Компас включён! Поворачивайте телефон');
                     } else alert('Доступ не разрешён');
                 }).catch(() => alert('Ошибка доступа'));
             } else {
                 window.addEventListener('deviceorientation', handleOrientation);
-                alert('Компас включён!');
+                alert('Компас включён! Поворачивайте телефон');
             }
         };
     }
@@ -227,25 +197,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeProfile = document.getElementById('closeProfile');
     
     if (profileBtn) {
-        profileBtn.onclick = function() {
+        profileBtn.onclick = function(e) {
+            e.preventDefault();
+            console.log("Профиль кнопка нажата");
             if (fullscreenProfile) fullscreenProfile.classList.add('show');
         };
     }
     
     if (closeProfile) {
-        closeProfile.onclick = function() {
+        closeProfile.onclick = function(e) {
+            e.preventDefault();
             if (fullscreenProfile) fullscreenProfile.classList.remove('show');
-        };
-    }
-    
-    if (fullscreenProfile) {
-        fullscreenProfile.onclick = function(e) {
-            if (e.target === fullscreenProfile) fullscreenProfile.classList.remove('show');
-        };
-    }
-    if (fullscreenCompass) {
-        fullscreenCompass.onclick = function(e) {
-            if (e.target === fullscreenCompass) fullscreenCompass.classList.remove('show');
         };
     }
     
@@ -254,7 +216,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const profilePanes = document.querySelectorAll('.profile-pane');
     
     profileTabs.forEach(tab => {
-        tab.onclick = function() {
+        tab.onclick = function(e) {
+            e.preventDefault();
             const tabId = this.getAttribute('data-profile-tab');
             profileTabs.forEach(t => t.classList.remove('active'));
             profilePanes.forEach(p => p.classList.remove('active'));
@@ -264,11 +227,38 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     });
     
+    // ==================== МЕНЮ (ТРИ ТОЧКИ) ====================
+    const menuToggle = document.getElementById('menuToggle');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+    
+    if (menuToggle && dropdownMenu) {
+        menuToggle.onclick = function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            dropdownMenu.classList.toggle('show');
+        };
+        
+        document.addEventListener('click', function(e) {
+            if (!menuToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+    }
+    
+    const aboutMenuItem = document.getElementById('aboutMenuItem');
+    if (aboutMenuItem) {
+        aboutMenuItem.onclick = function(e) {
+            e.preventDefault();
+            alert('📱 Намаз Дагестан — приложение для точного времени намазов.\nВерсия 2.0');
+        };
+    }
+    
     // ==================== ЯЗЫК ====================
     const languageItems = document.querySelectorAll('.language-item');
     languageItems.forEach(item => {
         if (item.getAttribute('data-lang') === currentLanguage) item.classList.add('active');
-        item.onclick = function() {
+        item.onclick = function(e) {
+            e.preventDefault();
             const lang = this.getAttribute('data-lang');
             currentLanguage = lang;
             localStorage.setItem('language', lang);
@@ -324,9 +314,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     if (testAzanBtn && azanAudio) {
-        testAzanBtn.onclick = function() {
-            azanAudio.play().catch(e => {
-                console.log('Азан не воспроизводится:', e);
+        testAzanBtn.onclick = function(e) {
+            e.preventDefault();
+            azanAudio.play().catch(function(err) {
+                console.log('Азан не воспроизводится:', err);
                 alert('Нажмите на экран, чтобы разрешить звук, потом попробуйте снова');
             });
         };
@@ -338,7 +329,7 @@ document.addEventListener('DOMContentLoaded', function() {
         azanAudio.load();
     }
     
-    // ==================== РЕАЛЬНЫЕ УВЕДОМЛЕНИЯ ====================
+    // ==================== УВЕДОМЛЕНИЯ О НАМАЗАХ ====================
     let lastNotifiedPrayers = { Fajr: null, Dhuhr: null, Asr: null, Maghrib: null, Isha: null };
     
     function checkPrayerNotifications() {
@@ -370,15 +361,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         icon: 'https://cdn-icons-png.flaticon.com/512/3069/3069175.png',
                         vibrate: [200, 100, 200]
                     });
-                    if (azanAudio) azanAudio.play().catch(e => console.log('Азан заблокирован'));
+                    if (azanAudio) azanAudio.play().catch(function(e) { console.log('Азан заблокирован'); });
                     lastNotifiedPrayers[prayer.name] = new Date().toDateString();
                 }
             }
         });
     }
     
-    setInterval(() => checkPrayerNotifications(), 60000);
-    setTimeout(() => checkPrayerNotifications(), 5000);
+    setInterval(checkPrayerNotifications, 60000);
+    setTimeout(checkPrayerNotifications, 5000);
     
     // ==================== ТЁМНАЯ ТЕМА ====================
     const profileDarkModeToggle = document.getElementById('profileDarkModeToggle');
@@ -396,27 +387,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     initTheme();
     
-    // ==================== МЕНЮ ====================
-    const menuToggle = document.getElementById('menuToggle');
-    const dropdownMenu = document.getElementById('dropdownMenu');
-    if (menuToggle && dropdownMenu) {
-        menuToggle.onclick = function(e) {
-            e.stopPropagation();
-            dropdownMenu.classList.toggle('show');
-        };
-        document.onclick = function(e) {
-            if (!menuToggle.contains(e.target) && !dropdownMenu.contains(e.target)) dropdownMenu.classList.remove('show');
-        };
-    }
-    
-    const aboutMenuItem = document.getElementById('aboutMenuItem');
-    if (aboutMenuItem) {
-        aboutMenuItem.onclick = function(e) {
-            e.preventDefault();
-            alert('📱 Намаз Дагестан — приложение для точного времени намазов.\nВерсия 2.0');
-        };
-    }
-    
     // ==================== АВТОРИЗАЦИЯ ====================
     const profileGoogleBtn = document.getElementById('profileGoogleSignIn');
     const profileSignOutBtn = document.getElementById('profileSignOutBtn');
@@ -424,7 +394,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const profileAuthBtns = document.querySelector('.profile-auth-buttons');
     
     if (profileGoogleBtn && window.auth && window.signInWithPopup && window.provider) {
-        profileGoogleBtn.onclick = async function() {
+        profileGoogleBtn.onclick = async function(e) {
+            e.preventDefault();
             try {
                 const result = await window.signInWithPopup(window.auth, window.provider);
                 const user = result.user;
@@ -432,15 +403,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (profileAuthBtns) profileAuthBtns.style.display = 'none';
                 if (profileSignOutBtn) profileSignOutBtn.style.display = 'block';
                 localStorage.setItem('user', JSON.stringify({ name: user.displayName, email: user.email }));
-            } catch(e) {
-                console.error(e);
+            } catch(err) {
+                console.error(err);
                 alert('Ошибка входа');
             }
         };
     }
     
     if (profileSignOutBtn) {
-        profileSignOutBtn.onclick = async function() {
+        profileSignOutBtn.onclick = async function(e) {
+            e.preventDefault();
             if (window.auth && window.signOut) await window.signOut(window.auth);
             localStorage.removeItem('user');
             if (profileUserInfo) profileUserInfo.innerHTML = '<p>Войдите, чтобы сохранять настройки</p>';

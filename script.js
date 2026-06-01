@@ -11,8 +11,127 @@ const cities = [
 
 let currentCity = cities[0];
 let prayerTimes = currentCity.times;
+let currentLanguage = localStorage.getItem('language') || 'ru';
+
+// Переводы
+const translations = {
+    ru: {
+        prayer: "Время намаза",
+        updated: "Обновлено",
+        fajr: "Фаджр",
+        sunrise: "Шурук",
+        dhuhr: "Зухр",
+        asr: "Аср",
+        maghrib: "Магриб",
+        isha: "Иша",
+        profile: "Профиль",
+        about: "О приложении",
+        compass: "Направление на Киблу",
+        quran: "Коран",
+        settings: "Настройки"
+    },
+    en: {
+        prayer: "Prayer Times",
+        updated: "Updated",
+        fajr: "Fajr",
+        sunrise: "Sunrise",
+        dhuhr: "Dhuhr",
+        asr: "Asr",
+        maghrib: "Maghrib",
+        isha: "Isha",
+        profile: "Profile",
+        about: "About",
+        compass: "Qibla Direction",
+        quran: "Quran",
+        settings: "Settings"
+    },
+    ar: {
+        prayer: "أوقات الصلاة",
+        updated: "تم التحديث",
+        fajr: "الفجر",
+        sunrise: "الشروق",
+        dhuhr: "الظهر",
+        asr: "العصر",
+        maghrib: "المغرب",
+        isha: "العشاء",
+        profile: "الملف الشخصي",
+        about: "حول التطبيق",
+        compass: "اتجاه القبلة",
+        quran: "القرآن",
+        settings: "الإعدادات"
+    },
+    av: {
+        prayer: "Как заман",
+        updated: "ТIадегӀан",
+        fajr: "Фаджр",
+        sunrise: "Шурук",
+        dhuhr: "Зухр",
+        asr: "Аср",
+        maghrib: "Магриб",
+        isha: "Иша",
+        profile: "Профиль",
+        about: "Приложениелъул",
+        compass: "Кибла",
+        quran: "Къуръан",
+        settings: "Настройкаби"
+    },
+    ku: {
+        prayer: "Намаз заман",
+        updated: "Янгыртды",
+        fajr: "Фаджр",
+        sunrise: "Шурук",
+        dhuhr: "Зухр",
+        asr: "Аср",
+        maghrib: "Магриб",
+        isha: "Иша",
+        profile: "Профиль",
+        about: "Приложение",
+        compass: "Кибла",
+        quran: "Къуръан",
+        settings: "Настройкалар"
+    },
+    lez: {
+        prayer: "Намаздин вахт",
+        updated: "ЦIийи хъайи",
+        fajr: "Фаджр",
+        sunrise: "Шурук",
+        dhuhr: "Зухр",
+        asr: "Аср",
+        maghrib: "Магриб",
+        isha: "Иша",
+        profile: "Профиль",
+        about: "Приложение",
+        compass: "Кибла",
+        quran: "Къуръан",
+        settings: "Настройкайр"
+    }
+};
+
+function updateUILanguage() {
+    const t = translations[currentLanguage] || translations.ru;
+    document.querySelector('.prayer-card h1')?.remove();
+    const header = document.querySelector('.prayer-card .header');
+    if (header && !document.querySelector('.prayer-card .header h1')) {
+        const h1 = document.createElement('h1');
+        h1.innerHTML = `🕌 ${t.prayer}`;
+        header.insertBefore(h1, header.querySelector('.footer-note'));
+    }
+    // Обновляем названия намазов
+    const prayerNames = document.querySelectorAll('.prayer-name');
+    if (prayerNames.length) {
+        prayerNames[0].innerText = t.fajr;
+        prayerNames[1].innerText = t.sunrise;
+        prayerNames[2].innerText = t.dhuhr;
+        prayerNames[3].innerText = t.asr;
+        prayerNames[4].innerText = t.maghrib;
+        prayerNames[5].innerText = t.isha;
+    }
+    const updateSpan = document.querySelector('.footer-note p');
+    if (updateSpan) updateSpan.innerHTML = `<i class="far fa-clock"></i> ${t.updated}: <span id="updateTime">${document.getElementById('updateTime')?.innerText || '--:--'}</span>`;
+}
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Отображение времени
     function displayPrayerTimes() {
         document.getElementById('fajr').innerText = prayerTimes.Fajr;
         document.getElementById('sunrise').innerText = prayerTimes.Sunrise;
@@ -29,12 +148,10 @@ document.addEventListener('DOMContentLoaded', function() {
         displayPrayerTimes();
         const select = document.getElementById('citySelect');
         for (let i = 0; i < select.options.length; i++) {
-            if (select.options[i].text === city.name) { 
-                select.selectedIndex = i; 
-                break; 
-            }
+            if (select.options[i].text === city.name) { select.selectedIndex = i; break; }
         }
         localStorage.setItem('selectedCity', city.name);
+        if (typeof calculateQiblaAngle === 'function') calculateQiblaAngle();
     }
     
     document.getElementById('citySelect')?.addEventListener('change', () => {
@@ -51,6 +168,145 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     displayPrayerTimes();
+    updateUILanguage();
+    
+    // ==================== ПОЛНОЭКРАННЫЙ ПРОФИЛЬ ====================
+    const fullscreenProfile = document.getElementById('fullscreenProfile');
+    const profileBtn = document.getElementById('profileBtn');
+    const closeProfile = document.getElementById('closeProfile');
+    const profileTabs = document.querySelectorAll('.profile-tab');
+    const profilePanes = document.querySelectorAll('.profile-pane');
+    
+    if (profileBtn) {
+        profileBtn.onclick = () => { if (fullscreenProfile) fullscreenProfile.classList.add('show'); };
+    }
+    if (closeProfile) {
+        closeProfile.onclick = () => { if (fullscreenProfile) fullscreenProfile.classList.remove('show'); };
+    }
+    
+    profileTabs.forEach(tab => {
+        tab.onclick = () => {
+            const tabId = tab.dataset.profileTab;
+            profileTabs.forEach(t => t.classList.remove('active'));
+            profilePanes.forEach(p => p.classList.remove('active'));
+            tab.classList.add('active');
+            const activePane = document.getElementById(`profile-tab-${tabId}`);
+            if (activePane) activePane.classList.add('active');
+        };
+    });
+    
+    // ==================== УВЕДОМЛЕНИЯ ====================
+    const notificationsToggle = document.getElementById('notificationsToggle');
+    const notificationTimeSelect = document.getElementById('notificationTimeSelect');
+    const azanSoundSelect = document.getElementById('azanSoundSelect');
+    const testAzanBtn = document.getElementById('testAzanBtn');
+    const azanAudio = document.getElementById('azanAudio');
+    
+    if (notificationsToggle) {
+        const saved = localStorage.getItem('notificationsEnabled');
+        if (saved !== null) notificationsToggle.checked = saved === 'true';
+        notificationsToggle.onchange = (e) => {
+            localStorage.setItem('notificationsEnabled', e.target.checked);
+            if (e.target.checked && Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+        };
+    }
+    
+    if (notificationTimeSelect) {
+        const saved = localStorage.getItem('notificationTime');
+        if (saved) notificationTimeSelect.value = saved;
+        notificationTimeSelect.onchange = (e) => localStorage.setItem('notificationTime', e.target.value);
+    }
+    
+    if (azanSoundSelect) {
+        const saved = localStorage.getItem('azanSound');
+        if (saved) azanSoundSelect.value = saved;
+        azanSoundSelect.onchange = (e) => {
+            localStorage.setItem('azanSound', e.target.value);
+            const source = document.getElementById('azanSource');
+            if (source) {
+                const sounds = {
+                    default: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+                    makkah: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+                    medina: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'
+                };
+                source.src = sounds[e.target.value] || sounds.default;
+                azanAudio.load();
+            }
+        };
+    }
+    
+    if (testAzanBtn) {
+        testAzanBtn.onclick = () => { if (azanAudio) azanAudio.play().catch(e => console.log('Тест азана заблокирован')); };
+    }
+    
+    // ==================== ЯЗЫК ====================
+    const languageItems = document.querySelectorAll('.language-item');
+    languageItems.forEach(item => {
+        if (item.dataset.lang === currentLanguage) item.classList.add('active');
+        item.onclick = () => {
+            currentLanguage = item.dataset.lang;
+            localStorage.setItem('language', currentLanguage);
+            languageItems.forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+            updateUILanguage();
+        };
+    });
+    
+    // ==================== ТЁМНАЯ ТЕМА В ПРОФИЛЕ ====================
+    const profileDarkModeToggle = document.getElementById('profileDarkModeToggle');
+    function initProfileTheme() {
+        const theme = localStorage.getItem('theme') || 'dark';
+        document.body.setAttribute('data-theme', theme);
+        if (profileDarkModeToggle) profileDarkModeToggle.checked = (theme === 'dark');
+    }
+    if (profileDarkModeToggle) {
+        profileDarkModeToggle.onchange = (e) => {
+            const newTheme = e.target.checked ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        };
+    }
+    initProfileTheme();
+    
+    // ==================== АВТОРИЗАЦИЯ В ПРОФИЛЕ ====================
+    const profileGoogleBtn = document.getElementById('profileGoogleSignIn');
+    const profileAppleBtn = document.getElementById('profileAppleSignIn');
+    const profileSignOutBtn = document.getElementById('profileSignOutBtn');
+    const profileUserInfo = document.getElementById('profileUserInfo');
+    const profileAuthBtns = document.querySelector('.profile-auth-buttons');
+    
+    if (profileGoogleBtn && window.auth && window.signInWithPopup && window.provider) {
+        profileGoogleBtn.onclick = async () => {
+            try {
+                const result = await window.signInWithPopup(window.auth, window.provider);
+                const user = result.user;
+                if (profileUserInfo) profileUserInfo.innerHTML = `<p><strong>${user.displayName || user.email}</strong></p><p style="font-size:12px;">${user.email}</p>`;
+                if (profileAuthBtns) profileAuthBtns.style.display = 'none';
+                if (profileSignOutBtn) profileSignOutBtn.style.display = 'block';
+                localStorage.setItem('user', JSON.stringify({ name: user.displayName, email: user.email }));
+            } catch(e) { console.error(e); alert('Ошибка входа'); }
+        };
+    }
+    
+    if (profileSignOutBtn) {
+        profileSignOutBtn.onclick = async () => {
+            if (window.auth && window.signOut) await window.signOut(window.auth);
+            localStorage.removeItem('user');
+            if (profileUserInfo) profileUserInfo.innerHTML = '<p>Войдите, чтобы сохранять настройки</p>';
+            if (profileAuthBtns) profileAuthBtns.style.display = 'flex';
+            profileSignOutBtn.style.display = 'none';
+        };
+    }
+    
+    const savedUser = localStorage.getItem('user');
+    if (savedUser && profileUserInfo) {
+        const user = JSON.parse(savedUser);
+        profileUserInfo.innerHTML = `<p><strong>${user.name || user.email}</strong></p>`;
+        if (profileAuthBtns) profileAuthBtns.style.display = 'none';
+        if (profileSignOutBtn) profileSignOutBtn.style.display = 'block';
+    }
     
     // ==================== КОМПАС ====================
     const fullscreenCompass = document.getElementById('fullscreenCompass');
@@ -80,14 +336,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function updateCompassNeedle() {
         if (!needleFull) return;
-        
         if (compassActive && currentHeading !== undefined && currentHeading !== null) {
             let rotationAngle = qiblaDirection - currentHeading;
             needleFull.style.transform = `translate(-50%, -50%) rotate(${rotationAngle}deg)`;
-            
             let diff = Math.abs(rotationAngle % 360);
             if (diff > 180) diff = 360 - diff;
-            
             if (hintSpan) {
                 if (diff < 5) {
                     hintSpan.innerHTML = "✅ Вы смотрите точно в сторону Киблы!";
@@ -119,11 +372,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function initFullscreenCompass() {
         calculateQiblaAngle();
-        
         if (startCompassBtn) {
             const newStartBtn = startCompassBtn.cloneNode(true);
             startCompassBtn.parentNode.replaceChild(newStartBtn, startCompassBtn);
-            
             newStartBtn.onclick = () => {
                 if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
                     DeviceOrientationEvent.requestPermission()
@@ -137,19 +388,10 @@ document.addEventListener('DOMContentLoaded', function() {
                                     hintSpan.style.background = "rgba(76, 175, 80, 0.2)";
                                 }
                             } else {
-                                if (hintSpan) {
-                                    hintSpan.innerHTML = "❌ Доступ к компасу не разрешён";
-                                    hintSpan.style.color = "#f44336";
-                                }
+                                if (hintSpan) hintSpan.innerHTML = "❌ Доступ к компасу не разрешён";
                             }
                         })
-                        .catch(err => {
-                            console.error(err);
-                            if (hintSpan) {
-                                hintSpan.innerHTML = "❌ Ошибка доступа к компасу";
-                                hintSpan.style.color = "#f44336";
-                            }
-                        });
+                        .catch(err => { if (hintSpan) hintSpan.innerHTML = "❌ Ошибка доступа"; });
                 } else if (typeof DeviceOrientationEvent !== 'undefined') {
                     window.addEventListener('deviceorientation', handleOrientation);
                     compassActive = true;
@@ -158,23 +400,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         hintSpan.style.color = "#4CAF50";
                         hintSpan.style.background = "rgba(76, 175, 80, 0.2)";
                     }
-                } else {
-                    if (hintSpan) {
-                        hintSpan.innerHTML = "❌ Ваш браузер не поддерживает компас";
-                        hintSpan.style.color = "#f44336";
-                    }
                 }
             };
         }
     }
     
     function handleOrientation(event) {
-        let heading = null;
-        if (event.webkitCompassHeading !== undefined) {
-            heading = event.webkitCompassHeading;
-        } else if (event.alpha !== undefined && event.alpha !== null) {
-            heading = 360 - event.alpha;
-        }
+        let heading = event.webkitCompassHeading || (event.alpha ? 360 - event.alpha : null);
         if (heading !== null && heading !== undefined) {
             currentHeading = heading;
             updateCompassNeedle();
@@ -182,209 +414,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     if (floatingCompassBtn) {
-        const newFloatingBtn = floatingCompassBtn.cloneNode(true);
-        floatingCompassBtn.parentNode.replaceChild(newFloatingBtn, floatingCompassBtn);
-        newFloatingBtn.onclick = () => {
-            if (fullscreenCompass) {
-                fullscreenCompass.classList.add('show');
-                initFullscreenCompass();
-            }
-        };
+        const newBtn = floatingCompassBtn.cloneNode(true);
+        floatingCompassBtn.parentNode.replaceChild(newBtn, floatingCompassBtn);
+        newBtn.onclick = () => { if (fullscreenCompass) { fullscreenCompass.classList.add('show'); initFullscreenCompass(); } };
     }
-    
-    if (closeCompass) {
-        const newCloseBtn = closeCompass.cloneNode(true);
-        closeCompass.parentNode.replaceChild(newCloseBtn, closeCompass);
-        newCloseBtn.onclick = () => {
-            if (fullscreenCompass) fullscreenCompass.classList.remove('show');
-        };
-    }
-    
-    if (fullscreenCompass) {
-        fullscreenCompass.onclick = (e) => {
-            if (e.target === fullscreenCompass) {
-                fullscreenCompass.classList.remove('show');
-            }
-        };
-    }
-    
-    // ==================== ПРОФИЛЬ И НАСТРОЙКИ ====================
-    const profileBtn = document.getElementById('profileBtn');
-    const profileModal = document.getElementById('profileModal');
-    const closeModal = document.querySelector('.close-modal');
-    
-    if (profileBtn) {
-        profileBtn.onclick = () => {
-            if (profileModal) profileModal.classList.add('show');
-        };
-    }
-    if (closeModal) {
-        closeModal.onclick = () => {
-            if (profileModal) profileModal.classList.remove('show');
-        };
-    }
-    window.onclick = (e) => { 
-        if (e.target === profileModal) profileModal.classList.remove('show'); 
-    };
-    
-    const tabs = document.querySelectorAll('.modal-tab');
-    const panes = document.querySelectorAll('.tab-pane');
-    tabs.forEach(tab => {
-        tab.onclick = () => {
-            tabs.forEach(t => t.classList.remove('active'));
-            panes.forEach(p => p.classList.remove('active'));
-            tab.classList.add('active');
-            document.getElementById(`tab-${tab.dataset.tab}`).classList.add('active');
-        };
-    });
-    
-    // ==================== ГЕОЛОКАЦИЯ ====================
-    function findNearestCity(lat, lng) {
-        let nearest = cities[0];
-        let minDist = Infinity;
-        for (let city of cities) {
-            const dist = Math.hypot(city.lat - lat, city.lng - lng);
-            if (dist < minDist) { 
-                minDist = dist; 
-                nearest = city; 
-            }
-        }
-        return nearest;
-    }
-    
-    function requestLocation() {
-        if (!navigator.geolocation) { 
-            document.getElementById('locationStatus').innerHTML = '❌ Браузер не поддерживает геолокацию'; 
-            return; 
-        }
-        const statusDiv = document.getElementById('locationStatus');
-        if (statusDiv) statusDiv.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Определение...';
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                const nearest = findNearestCity(pos.coords.latitude, pos.coords.longitude);
-                updateCityAndTimes(nearest);
-                if (statusDiv) {
-                    statusDiv.innerHTML = `✅ Определён город: ${nearest.name}`;
-                    setTimeout(() => { statusDiv.innerHTML = ''; }, 3000);
-                }
-            },
-            (err) => {
-                let msg = '❌ Ошибка: ';
-                if (err.code === err.PERMISSION_DENIED) msg += 'Разрешите доступ в настройках';
-                else msg += 'Не удалось определить';
-                if (statusDiv) statusDiv.innerHTML = msg;
-            },
-            { enableHighAccuracy: true, timeout: 10000 }
-        );
-    }
-    
-    const locationAsked = localStorage.getItem('locationAsked');
-    if (!locationAsked) {
-        setTimeout(() => {
-            if (confirm('📍 Разрешить сайту определить ваш город для точного времени намаза?')) {
-                requestLocation();
-                localStorage.setItem('locationAsked', 'true');
-            }
-        }, 1000);
-    }
-    
-    document.getElementById('enableLocationBtn')?.addEventListener('click', requestLocation);
-    
-    // ==================== АВТОРИЗАЦИЯ ====================
-    const googleBtn = document.getElementById('googleSignIn');
-    const signOutBtn = document.getElementById('signOutBtn');
-    const userInfoDiv = document.getElementById('userInfo');
-    const authBtns = document.querySelector('.auth-buttons');
-    
-    if (googleBtn) {
-        googleBtn.onclick = async () => {
-            if (window.auth && window.signInWithPopup && window.provider) {
-                try {
-                    const result = await window.signInWithPopup(window.auth, window.provider);
-                    const user = result.user;
-                    if (userInfoDiv) {
-                        userInfoDiv.innerHTML = `<p><strong>${user.displayName || user.email}</strong></p><p style="font-size:12px;">${user.email}</p>`;
-                    }
-                    if (authBtns) authBtns.style.display = 'none';
-                    if (signOutBtn) signOutBtn.style.display = 'block';
-                    localStorage.setItem('user', JSON.stringify({ name: user.displayName, email: user.email }));
-                } catch(e) { 
-                    console.error(e); 
-                    alert('Ошибка входа'); 
-                }
-            } else {
-                alert('Firebase не инициализирован. Настройте конфигурацию Firebase в index.html');
-            }
-        };
-    }
-    
-    if (signOutBtn) {
-        signOutBtn.onclick = async () => {
-            if (window.auth && window.signOut) await window.signOut(window.auth);
-            localStorage.removeItem('user');
-            if (userInfoDiv) userInfoDiv.innerHTML = '<p>Войдите, чтобы сохранять настройки</p>';
-            if (authBtns) authBtns.style.display = 'flex';
-            signOutBtn.style.display = 'none';
-        };
-    }
-    
-    const savedUser = localStorage.getItem('user');
-    if (savedUser && userInfoDiv) {
-        const user = JSON.parse(savedUser);
-        userInfoDiv.innerHTML = `<p><strong>${user.name || user.email}</strong></p>`;
-        if (authBtns) authBtns.style.display = 'none';
-        if (signOutBtn) signOutBtn.style.display = 'block';
-    }
-    
-    // ==================== НАСТРОЙКИ ====================
-    const notificationSelect = document.getElementById('notificationTime');
-    const azanSelect = document.getElementById('azanSound');
-    
-    if (notificationSelect) {
-        const saved = localStorage.getItem('notificationTime');
-        if (saved) notificationSelect.value = saved;
-        notificationSelect.onchange = (e) => localStorage.setItem('notificationTime', e.target.value);
-    }
-    
-    if (azanSelect) {
-        const saved = localStorage.getItem('azanSound');
-        if (saved) azanSelect.value = saved;
-        azanSelect.onchange = (e) => localStorage.setItem('azanSound', e.target.value);
-    }
-    
-    // ==================== ТЁМНАЯ ТЕМА ====================
-    const darkModeCheckbox = document.getElementById('darkModeToggle');
-    
-    function initTheme() {
-        const theme = localStorage.getItem('theme') || 'dark';
-        document.body.setAttribute('data-theme', theme);
-        if (darkModeCheckbox) darkModeCheckbox.checked = (theme === 'dark');
-    }
-    
-    function toggleThemeManually(e) {
-        const isDark = e.target.checked;
-        const newTheme = isDark ? 'dark' : 'light';
-        document.body.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-    }
-    
-    initTheme();
-    if (darkModeCheckbox) darkModeCheckbox.onchange = toggleThemeManually;
+    if (closeCompass) closeCompass.onclick = () => { if (fullscreenCompass) fullscreenCompass.classList.remove('show'); };
     
     // ==================== МЕНЮ ====================
     const menuBtn = document.getElementById('menuToggle');
     const dropdownMenu = document.getElementById('dropdownMenu');
-    
     if (menuBtn && dropdownMenu) {
-        menuBtn.onclick = (e) => { 
-            e.stopPropagation(); 
-            dropdownMenu.classList.toggle('show'); 
-        };
-        document.onclick = (e) => {
-            if (!menuBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
-                dropdownMenu.classList.remove('show');
-            }
-        };
+        menuBtn.onclick = (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('show'); };
+        document.onclick = (e) => { if (!menuBtn.contains(e.target) && !dropdownMenu.contains(e.target)) dropdownMenu.classList.remove('show'); };
     }
     
     document.getElementById('aboutMenuItem')?.addEventListener('click', (e) => {

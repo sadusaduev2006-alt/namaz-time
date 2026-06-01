@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Время намаза — Дагестан</title>
+    <title>Намаз Дагестан</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
@@ -12,7 +12,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Намаз Дагестан">
-    <meta name="theme-color" content="#F4EFE6">
+    <meta name="theme-color" content="#1a1a1a">
     
     <!-- Firebase SDK -->
     <script type="module">
@@ -38,15 +38,28 @@
         window.signInWithPopup = signInWithPopup;
     </script>
 </head>
-<body data-theme="light">
+<body data-theme="dark">
     <div class="container">
         <div class="prayer-card">
             <div class="header">
                 <div class="header-top">
                     <div class="left-buttons">
-                        <button id="profileBtn" class="profile-btn">
-                            <i class="fas fa-user-circle"></i>
-                        </button>
+                        <div class="dropdown">
+                            <button id="menuToggle" class="menu-toggle">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <div id="dropdownMenu" class="dropdown-content">
+                                <a href="surah-fatiha.html">
+                                    <i class="fas fa-star-and-crescent"></i> Сура Аль-Фатиха
+                                </a>
+                                <a href="#" id="profileMenuItem">
+                                    <i class="fas fa-user-circle"></i> Профиль и настройки
+                                </a>
+                                <a href="#" id="aboutMenuItem">
+                                    <i class="fas fa-info-circle"></i> О приложении
+                                </a>
+                            </div>
+                        </div>
                     </div>
                     <div class="center-controls">
                         <div class="location-badge">
@@ -63,27 +76,9 @@
                         </div>
                     </div>
                     <div class="right-buttons">
-                        <div class="dropdown">
-                            <button id="menuToggle" class="menu-toggle">
-                                <i class="fas fa-ellipsis-h"></i>
-                            </button>
-                            <div id="dropdownMenu" class="dropdown-content">
-                                <a href="surah-fatiha.html">
-                                    <i class="fas fa-star-and-crescent"></i> Сура Аль-Фатиха
-                                </a>
-                                <a href="#" id="aboutMenuItem">
-                                    <i class="fas fa-info-circle"></i> О приложении
-                                </a>
-                            </div>
-                        </div>
-                        <button id="themeToggle" class="theme-toggle">
-                            <i class="fas fa-moon"></i>
-                        </button>
+                        <!-- Пусто, кнопки темы больше нет -->
                     </div>
                 </div>
-                <h1>🕌 Время намаза</h1>
-                <p class="date" id="currentDate">--</p>
-                <p class="gregorian" id="gregorianDate">--</p>
             </div>
 
             <!-- СЕТКА НАМАЗОВ -->
@@ -104,7 +99,6 @@
 
             <div class="footer-note">
                 <p><i class="far fa-clock"></i> Обновлено: <span id="updateTime">сегодня</span></p>
-                <p class="method"><i class="fas fa-calculator"></i> Точное расписание для Дагестана</p>
             </div>
         </div>
     </div>
@@ -139,11 +133,11 @@
         </div>
     </div>
 
-    <!-- МОДАЛЬНОЕ ОКНО ПРОФИЛЯ -->
+    <!-- МОДАЛЬНОЕ ОКНО ПРОФИЛЯ И НАСТРОЕК -->
     <div id="profileModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3><i class="fas fa-user"></i> Мой профиль</h3>
+                <h3><i class="fas fa-user"></i> Профиль и настройки</h3>
                 <button class="close-modal">&times;</button>
             </div>
             <div class="modal-tabs">
@@ -165,7 +159,7 @@
                     <h4>Настройки приложения</h4>
                     <div class="setting-item"><label><i class="fas fa-bell"></i> Уведомления за:</label><select id="notificationTime"><option value="5">5 минут</option><option value="10">10 минут</option><option value="15">15 минут</option><option value="30">30 минут</option></select></div>
                     <div class="setting-item"><label><i class="fas fa-music"></i> Звук азана:</label><select id="azanSound"><option value="default">Стандартный</option><option value="makkah">Мекканский</option><option value="medina">Мединский</option></select></div>
-                    <div class="setting-item"><label><i class="fas fa-moon"></i> Тёмная тема:</label><label class="switch"><input type="checkbox" id="darkModeToggle"><span class="slider"></span></label></div>
+                    <div class="setting-item"><label><i class="fas fa-moon"></i> Тёмная тема:</label><label class="switch"><input type="checkbox" id="darkModeToggle" checked><span class="slider"></span></label></div>
                 </div>
                 <div id="tab-location" class="tab-pane">
                     <h4><i class="fas fa-location-dot"></i> Определение города</h4>

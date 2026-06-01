@@ -323,4 +323,19 @@ document.addEventListener('DOMContentLoaded', function() {
     if (menuBtn && dropdownMenu) {
         menuBtn.onclick = (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('show'); };
         document.onclick = (e) => {
-            if (!menuBtn.contains(e.target) && !dropdownMenu.contains(e
+            if (!menuBtn.contains(e.target) && !dropdownMenu.contains(e.target)) dropdownMenu.classList.remove('show');
+        };
+    }
+    
+    const aboutMenuItem = document.getElementById('aboutMenuItem');
+    if (aboutMenuItem) {
+        aboutMenuItem.onclick = (e) => {
+            e.preventDefault();
+            alert('📱 Намаз Дагестан — приложение для точного определения времени намазов.\nВерсия 2.0\nРазработано для жителей Дагестана.\n\n📍 Автоопределение города\n🕌 Направление Киблы\n📖 Суры Корана\n⚙️ Настройки уведомлений');
+        };
+    }
+    
+    // Запуск
+    displayPrayerTimes();
+    setInterval(() => calculateNearestPrayer(), 60000);
+});

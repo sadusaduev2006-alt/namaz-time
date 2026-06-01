@@ -11,13 +11,8 @@ const cities = [
 
 let currentCity = cities[0];
 let prayerTimes = currentCity.times;
-let currentHeading = 0;
-let qiblaDirection = 0;
-let compassActive = false;
-const MECCA = { lat: 21.4225, lng: 39.8262 };
 
 document.addEventListener('DOMContentLoaded', function() {
-    // ==================== ОТОБРАЖЕНИЕ ВРЕМЕНИ НАМАЗОВ ====================
     function displayPrayerTimes() {
         document.getElementById('fajr').innerText = prayerTimes.Fajr;
         document.getElementById('sunrise').innerText = prayerTimes.Sunrise;
@@ -28,7 +23,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('updateTime').innerText = new Date().toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'});
     }
     
-    // ==================== ОБНОВЛЕНИЕ ГОРОДА И ВРЕМЕНИ ====================
     function updateCityAndTimes(city) {
         currentCity = city;
         prayerTimes = city.times;
@@ -40,11 +34,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 break; 
             }
         }
-        calculateQiblaAngle();
         localStorage.setItem('selectedCity', city.name);
     }
     
-    // Событие при смене города в выпадающем списке
     document.getElementById('citySelect')?.addEventListener('change', () => {
         const select = document.getElementById('citySelect');
         const selected = select.options[select.selectedIndex]?.text;
@@ -52,7 +44,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (found) updateCityAndTimes(found);
     });
     
-    // Восстановление сохранённого города
     const savedCity = localStorage.getItem('selectedCity');
     if (savedCity) {
         const found = cities.find(c => c.name === savedCity);
@@ -61,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     displayPrayerTimes();
     
-    // ==================== КОМПАС (ПОЛНОЭКРАННЫЙ) ====================
+    // ==================== КОМПАС ====================
     const fullscreenCompass = document.getElementById('fullscreenCompass');
     const floatingCompassBtn = document.getElementById('floatingCompassBtn');
     const closeCompass = document.getElementById('closeFullscreenCompass');
@@ -69,6 +60,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const needleFull = document.getElementById('needleFull');
     const degreeSpan = document.getElementById('qiblaDegreeFull');
     const hintSpan = document.getElementById('compassHintFull');
+    const kaabaIcon = document.getElementById('kaabaIcon');
+    let currentHeading = 0;
+    let qiblaDirection = 0;
+    let compassActive = false;
+    const MECCA = { lat: 21.4225, lng: 39.8262 };
     
     function calculateQiblaAngle() {
         let φ1 = currentCity.lat * Math.PI/180;
@@ -79,68 +75,116 @@ document.addEventListener('DOMContentLoaded', function() {
         let θ = Math.atan2(y,x);
         qiblaDirection = (θ*180/Math.PI + 360) % 360;
         if (degreeSpan) degreeSpan.innerHTML = `${Math.round(qiblaDirection)}°`;
-        updateNeedleFull();
+        updateCompassNeedle();
     }
     
-    function updateNeedleFull() {
+    function updateCompassNeedle() {
         if (!needleFull) return;
-        if (compassActive && currentHeading) {
-            let angle = qiblaDirection - currentHeading;
-            needleFull.style.transform = `translate(-50%,-50%) rotate(${angle}deg)`;
-            let diff = Math.abs(angle % 360);
+        
+        if (compassActive && currentHeading !== undefined && currentHeading !== null) {
+            let rotationAngle = qiblaDirection - currentHeading;
+            needleFull.style.transform = `translate(-50%, -50%) rotate(${rotationAngle}deg)`;
+            
+            let diff = Math.abs(rotationAngle % 360);
             if (diff > 180) diff = 360 - diff;
+            
             if (hintSpan) {
-                if (diff < 10) hintSpan.innerHTML = "✅ Вы смотрите в сторону Киблы!";
-                else hintSpan.innerHTML = `🔄 Повернитесь ${angle > 0 ? 'налево' : 'направо'} на ${Math.round(diff)}°`;
+                if (diff < 5) {
+                    hintSpan.innerHTML = "✅ Вы смотрите точно в сторону Киблы!";
+                    hintSpan.style.color = "#4CAF50";
+                    hintSpan.style.background = "rgba(76, 175, 80, 0.2)";
+                    if (kaabaIcon) kaabaIcon.classList.add('correct');
+                } else if (diff < 15) {
+                    hintSpan.innerHTML = `🔄 Почти правильно! Отклонение ${Math.round(diff)}° ${rotationAngle > 0 ? 'влево' : 'вправо'}`;
+                    hintSpan.style.color = "#FF9800";
+                    hintSpan.style.background = "rgba(255, 152, 0, 0.2)";
+                    if (kaabaIcon) kaabaIcon.classList.remove('correct');
+                } else {
+                    hintSpan.innerHTML = `🧭 Повернитесь ${rotationAngle > 0 ? 'налево' : 'направо'} на ${Math.round(diff)}°`;
+                    hintSpan.style.color = "#f44336";
+                    hintSpan.style.background = "rgba(244, 67, 54, 0.2)";
+                    if (kaabaIcon) kaabaIcon.classList.remove('correct');
+                }
             }
         } else {
-            needleFull.style.transform = `translate(-50%,-50%) rotate(${qiblaDirection}deg)`;
-            if (hintSpan && !compassActive) hintSpan.innerHTML = "📍 Нажмите 'Запустить компас' и поверните телефон";
+            needleFull.style.transform = `translate(-50%, -50%) rotate(${qiblaDirection}deg)`;
+            if (hintSpan) {
+                hintSpan.innerHTML = "📍 Нажмите 'Запустить компас' и поверните телефон";
+                hintSpan.style.color = "var(--text-secondary)";
+                hintSpan.style.background = "var(--accent-light)";
+            }
+            if (kaabaIcon) kaabaIcon.classList.remove('correct');
         }
     }
     
     function initFullscreenCompass() {
         calculateQiblaAngle();
+        
         if (startCompassBtn) {
-            startCompassBtn.onclick = () => {
-                if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+            const newStartBtn = startCompassBtn.cloneNode(true);
+            startCompassBtn.parentNode.replaceChild(newStartBtn, startCompassBtn);
+            
+            newStartBtn.onclick = () => {
+                if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
                     DeviceOrientationEvent.requestPermission()
-                        .then(perm => {
-                            if (perm === 'granted') {
-                                window.addEventListener('deviceorientation', (e) => {
-                                    let heading = e.webkitCompassHeading || (e.alpha ? 360 - e.alpha : null);
-                                    if (heading) { 
-                                        currentHeading = heading; 
-                                        compassActive = true; 
-                                        updateNeedleFull(); 
-                                    }
-                                });
-                                if (hintSpan) hintSpan.innerHTML = "✅ Компас активен! Поворачивайте телефон";
-                            } else { 
-                                if (hintSpan) hintSpan.innerHTML = "❌ Доступ не разрешён"; 
+                        .then(permissionState => {
+                            if (permissionState === 'granted') {
+                                window.addEventListener('deviceorientation', handleOrientation);
+                                compassActive = true;
+                                if (hintSpan) {
+                                    hintSpan.innerHTML = "✅ Компас активен! Поворачивайте телефон";
+                                    hintSpan.style.color = "#4CAF50";
+                                    hintSpan.style.background = "rgba(76, 175, 80, 0.2)";
+                                }
+                            } else {
+                                if (hintSpan) {
+                                    hintSpan.innerHTML = "❌ Доступ к компасу не разрешён";
+                                    hintSpan.style.color = "#f44336";
+                                }
                             }
                         })
-                        .catch(() => { 
-                            if (hintSpan) hintSpan.innerHTML = "❌ Ошибка доступа"; 
+                        .catch(err => {
+                            console.error(err);
+                            if (hintSpan) {
+                                hintSpan.innerHTML = "❌ Ошибка доступа к компасу";
+                                hintSpan.style.color = "#f44336";
+                            }
                         });
+                } else if (typeof DeviceOrientationEvent !== 'undefined') {
+                    window.addEventListener('deviceorientation', handleOrientation);
+                    compassActive = true;
+                    if (hintSpan) {
+                        hintSpan.innerHTML = "✅ Компас активен! Поворачивайте телефон";
+                        hintSpan.style.color = "#4CAF50";
+                        hintSpan.style.background = "rgba(76, 175, 80, 0.2)";
+                    }
                 } else {
-                    window.addEventListener('deviceorientation', (e) => {
-                        let heading = e.webkitCompassHeading || (e.alpha ? 360 - e.alpha : null);
-                        if (heading) { 
-                            currentHeading = heading; 
-                            compassActive = true; 
-                            updateNeedleFull(); 
-                        }
-                    });
-                    if (hintSpan) hintSpan.innerHTML = "✅ Компас активен! Поворачивайте телефон";
+                    if (hintSpan) {
+                        hintSpan.innerHTML = "❌ Ваш браузер не поддерживает компас";
+                        hintSpan.style.color = "#f44336";
+                    }
                 }
             };
         }
     }
     
-    // Открытие компаса по плавающей кнопке
+    function handleOrientation(event) {
+        let heading = null;
+        if (event.webkitCompassHeading !== undefined) {
+            heading = event.webkitCompassHeading;
+        } else if (event.alpha !== undefined && event.alpha !== null) {
+            heading = 360 - event.alpha;
+        }
+        if (heading !== null && heading !== undefined) {
+            currentHeading = heading;
+            updateCompassNeedle();
+        }
+    }
+    
     if (floatingCompassBtn) {
-        floatingCompassBtn.onclick = () => {
+        const newFloatingBtn = floatingCompassBtn.cloneNode(true);
+        floatingCompassBtn.parentNode.replaceChild(newFloatingBtn, floatingCompassBtn);
+        newFloatingBtn.onclick = () => {
             if (fullscreenCompass) {
                 fullscreenCompass.classList.add('show');
                 initFullscreenCompass();
@@ -148,10 +192,19 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
     
-    // Закрытие компаса
     if (closeCompass) {
-        closeCompass.onclick = () => { 
-            if (fullscreenCompass) fullscreenCompass.classList.remove('show'); 
+        const newCloseBtn = closeCompass.cloneNode(true);
+        closeCompass.parentNode.replaceChild(newCloseBtn, closeCompass);
+        newCloseBtn.onclick = () => {
+            if (fullscreenCompass) fullscreenCompass.classList.remove('show');
+        };
+    }
+    
+    if (fullscreenCompass) {
+        fullscreenCompass.onclick = (e) => {
+            if (e.target === fullscreenCompass) {
+                fullscreenCompass.classList.remove('show');
+            }
         };
     }
     
@@ -174,7 +227,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.target === profileModal) profileModal.classList.remove('show'); 
     };
     
-    // Переключение вкладок в модальном окне
     const tabs = document.querySelectorAll('.modal-tab');
     const panes = document.querySelectorAll('.tab-pane');
     tabs.forEach(tab => {
@@ -186,7 +238,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     });
     
-    // ==================== ГЕОЛОКАЦИЯ (ОПРЕДЕЛЕНИЕ ГОРОДА) ====================
+    // ==================== ГЕОЛОКАЦИЯ ====================
     function findNearestCity(lat, lng) {
         let nearest = cities[0];
         let minDist = Infinity;
@@ -205,10 +257,8 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('locationStatus').innerHTML = '❌ Браузер не поддерживает геолокацию'; 
             return; 
         }
-        
         const statusDiv = document.getElementById('locationStatus');
         if (statusDiv) statusDiv.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Определение...';
-        
         navigator.geolocation.getCurrentPosition(
             (pos) => {
                 const nearest = findNearestCity(pos.coords.latitude, pos.coords.longitude);
@@ -228,7 +278,6 @@ document.addEventListener('DOMContentLoaded', function() {
         );
     }
     
-    // Запрос геолокации при первом входе
     const locationAsked = localStorage.getItem('locationAsked');
     if (!locationAsked) {
         setTimeout(() => {
@@ -241,7 +290,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     document.getElementById('enableLocationBtn')?.addEventListener('click', requestLocation);
     
-    // ==================== АВТОРИЗАЦИЯ (FIREBASE) ====================
+    // ==================== АВТОРИЗАЦИЯ ====================
     const googleBtn = document.getElementById('googleSignIn');
     const signOutBtn = document.getElementById('signOutBtn');
     const userInfoDiv = document.getElementById('userInfo');
@@ -279,7 +328,6 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
     
-    // Восстановление сессии
     const savedUser = localStorage.getItem('user');
     if (savedUser && userInfoDiv) {
         const user = JSON.parse(savedUser);
@@ -323,7 +371,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initTheme();
     if (darkModeCheckbox) darkModeCheckbox.onchange = toggleThemeManually;
     
-    // ==================== МЕНЮ (ТРИ ТОЧКИ) ====================
+    // ==================== МЕНЮ ====================
     const menuBtn = document.getElementById('menuToggle');
     const dropdownMenu = document.getElementById('dropdownMenu');
     
@@ -332,7 +380,6 @@ document.addEventListener('DOMContentLoaded', function() {
             e.stopPropagation(); 
             dropdownMenu.classList.toggle('show'); 
         };
-        
         document.onclick = (e) => {
             if (!menuBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
                 dropdownMenu.classList.remove('show');
@@ -340,7 +387,6 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
     
-    // О приложении
     document.getElementById('aboutMenuItem')?.addEventListener('click', (e) => {
         e.preventDefault();
         alert('📱 Намаз Дагестан — приложение для точного определения времени намазов.\nВерсия 2.0\n\n📍 Автоопределение города\n🕌 Направление Киблы\n📖 Священный Коран\n\nРазработано для жителей Дагестана');

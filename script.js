@@ -49,4 +49,3 @@ document.addEventListener('DOMContentLoaded', function() {
             {name:'Зухр', time:prayerTimes.Dhuhr, id:'dhuhr'},
             {name:'Аср', time:prayerTimes.Asr, id:'asr'},
             {name:'Магриб', time:prayerTimes
-            

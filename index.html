@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>Намаз Дагестан</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://api.alquran.cloud">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
@@ -77,7 +81,6 @@
                 </div>
             </div>
 
-            <!-- СЕТКА НАМАЗОВ -->
             <div class="prayer-grid">
                 <div class="prayer-item"><div class="prayer-info"><i class="fas fa-cloud-moon"></i><span class="prayer-name">Фаджр</span></div><span class="prayer-time" id="fajr">--:--</span></div>
                 <div class="prayer-item"><div class="prayer-info"><i class="fas fa-sun"></i><span class="prayer-name">Шурук</span></div><span class="prayer-time" id="sunrise">--:--</span></div>
@@ -111,13 +114,13 @@
             <button id="closeFullscreenCompass" class="close-fullscreen">&times;</button>
         </div>
         <div class="compass-full-body">
-            <div class="compass-full">
+            <div class="compass-full" id="compassFull">
                 <div class="needle-full" id="needleFull">
                     <div class="needle-top-full"></div>
                     <div class="needle-bottom-full"></div>
                 </div>
                 <div class="compass-mark-full">N</div>
-                <div class="kaaba-icon">
+                <div class="kaaba-icon-full" id="kaabaIcon">
                     <i class="fas fa-kaaba"></i>
                 </div>
             </div>
@@ -170,13 +173,13 @@
     <audio id="azanAudio" preload="auto"><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg"></audio>
     <audio id="notificationSound" preload="auto"><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg"></audio>
     
-    <script src="script.js"></script>
     <script>
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/namaz-time/sw.js')
-            .then(reg => console.log('Service Worker зарегистрирован', reg))
-            .catch(err => console.log('Ошибка регистрации SW:', err));
-    }
-</script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/namaz-time/sw.js')
+                .then(reg => console.log('Service Worker зарегистрирован', reg))
+                .catch(err => console.log('Ошибка регистрации SW:', err));
+        }
+    </script>
+    <script src="script.js"></script>
 </body>
 </html>

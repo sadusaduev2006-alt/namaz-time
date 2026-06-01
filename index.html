@@ -306,12 +306,12 @@
         </div>
     </div>
 
-    <!-- АУДИО -->
+    <!-- АУДИО С ИСПРАВЛЕННЫМИ ССЫЛКАМИ -->
     <audio id="azanAudio" preload="auto">
-        <source id="azanSource" src="https://www.islamcan.com/audio/adhan/makkah-adhan.mp3" type="audio/mpeg">
+        <source id="azanSource" src="https://adhan.pages.dev/audio/makkah.mp3" type="audio/mpeg">
     </audio>
     <audio id="notificationSound" preload="auto">
-        <source src="https://www.islamcan.com/audio/adhan/fajr-adhan.mp3" type="audio/mpeg">
+        <source src="https://adhan.pages.dev/audio/makkah.mp3" type="audio/mpeg">
     </audio>
     
     <script>
@@ -321,8 +321,8 @@
                 .catch(err => console.log('Ошибка регистрации SW:', err));
         }
         
-        setTimeout(() => {
-            if (Notification.permission === 'default') {
+        setTimeout(function() {
+            if (Notification && Notification.permission === 'default') {
                 Notification.requestPermission();
             }
         }, 2000);

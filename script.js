@@ -1,4 +1,4 @@
-// ==================== ПРЯМОЕ РАСПИСАНИЕ ДЛЯ ВСЕХ ГОРОДОВ ====================
+// ==================== ПРЯМОЕ РАСПИСАНИЕ ДЛЯ ГОРОДОВ ====================
 const cities = [
     { name: "Махачкала", lat: 42.9849, lng: 47.5046, times: { Fajr: "02:07", Sunrise: "04:14", Dhuhr: "11:51", Asr: "15:51", Maghrib: "19:24", Isha: "21:06" } },
     { name: "Дербент", lat: 42.0569, lng: 48.2885, times: { Fajr: "02:15", Sunrise: "04:22", Dhuhr: "11:59", Asr: "15:59", Maghrib: "19:32", Isha: "21:14" } },
@@ -17,43 +17,7 @@ let compassActive = false;
 const MECCA = { lat: 21.4225, lng: 39.8262 };
 
 document.addEventListener('DOMContentLoaded', function() {
-    // ==================== МОДАЛЬНОЕ ОКНО ПРОФИЛЯ ====================
-    const profileBtn = document.getElementById('profileBtn');
-    const profileModal = document.getElementById('profileModal');
-    const closeModal = document.querySelector('.close-modal');
-    
-    function openModal() { profileModal.classList.add('show'); }
-    function closeModalFunc() { profileModal.classList.remove('show'); }
-    
-    if (profileBtn) profileBtn.onclick = openModal;
-    if (closeModal) closeModal.onclick = closeModalFunc;
-    window.onclick = (e) => { if (e.target === profileModal) closeModalFunc(); };
-    
-    // Переключение вкладок в модальном окне
-    const tabs = document.querySelectorAll('.modal-tab');
-    const panes = document.querySelectorAll('.tab-pane');
-    tabs.forEach(tab => {
-        tab.onclick = () => {
-            tabs.forEach(t => t.classList.remove('active'));
-            panes.forEach(p => p.classList.remove('active'));
-            tab.classList.add('active');
-            document.getElementById(`tab-${tab.dataset.tab}`).classList.add('active');
-        };
-    });
-    
-    // ==================== ГЕОЛОКАЦИЯ ПРИ ЗАГРУЗКЕ ====================
-    function findNearestCity(lat, lng) {
-        let nearest = cities[0];
-        let minDistance = Infinity;
-        for (let city of cities) {
-            const dLat = city.lat - lat;
-            const dLng = city.lng - lng;
-            const distance = Math.sqrt(dLat*dLat + dLng*dLng);
-            if (distance < minDistance) { minDistance = distance; nearest = city; }
-        }
-        return nearest;
-    }
-    
+    // ==================== ОБНОВЛЕНИЕ ГОРОДА И ВРЕМЕНИ ====================
     function updateCityAndTimes(city) {
         currentCity = city;
         prayerTimes = city.times;
@@ -63,7 +27,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('asr').innerText = prayerTimes.Asr;
         document.getElementById('maghrib').innerText = prayerTimes.Maghrib;
         document.getElementById('isha').innerText = prayerTimes.Isha;
-        
         const select = document.getElementById('citySelect');
         for (let i = 0; i < select.options.length; i++) {
             if (select.options[i].text === city.name) { select.selectedIndex = i; break; }
@@ -72,146 +35,12 @@ document.addEventListener('DOMContentLoaded', function() {
         calculateQiblaAngle();
     }
     
-    function requestLocationPermission() {
-        if (!navigator.geolocation) {
-            document.getElementById('locationStatus').innerHTML = 'Ваш браузер не поддерживает геолокацию';
-            return;
-        }
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const nearest = findNearestCity(position.coords.latitude, position.coords.longitude);
-                updateCityAndTimes(nearest);
-                localStorage.setItem('selectedCity', nearest.name);
-                document.getElementById('locationStatus').innerHTML = `✅ Определён город: ${nearest.name}`;
-                setTimeout(() => { document.getElementById('locationStatus').innerHTML = ''; }, 3000);
-            },
-            (error) => {
-                let msg = '❌ Не удалось определить местоположение. ';
-                if (error.code === error.PERMISSION_DENIED) msg += 'Разрешите доступ в настройках браузера.';
-                document.getElementById('locationStatus').innerHTML = msg;
-            }
-        );
-    }
-    
-    // Запрос геолокации при загрузке страницы (один раз)
-    const locationAsked = localStorage.getItem('locationAsked');
-    if (!locationAsked) {
-        setTimeout(() => {
-            if (confirm('📍 Разрешить сайту определить ваш город для точного времени намаза?')) {
-                requestLocationPermission();
-                localStorage.setItem('locationAsked', 'true');
-            }
-        }, 1000);
-    }
-    
-    document.getElementById('enableLocationBtn')?.addEventListener('click', requestLocationPermission);
-    
-    // ==================== АВТОРИЗАЦИЯ ====================
-    const googleBtn = document.getElementById('googleSignIn');
-    const signOutBtn = document.getElementById('signOutBtn');
-    const userInfoDiv = document.getElementById('userInfo');
-    const authBtnsDiv = document.querySelector('.auth-buttons');
-    
-    if (googleBtn) {
-        googleBtn.onclick = async () => {
-            if (window.auth && window.signInWithPopup && window.provider) {
-                try {
-                    const result = await window.signInWithPopup(window.auth, window.provider);
-                    const user = result.user;
-                    userInfoDiv.innerHTML = `<p><strong>${user.displayName || user.email}</strong></p><p style="font-size:12px;">${user.email}</p>`;
-                    if (authBtnsDiv) authBtnsDiv.style.display = 'none';
-                    if (signOutBtn) signOutBtn.style.display = 'block';
-                    localStorage.setItem('user', JSON.stringify({ name: user.displayName, email: user.email }));
-                } catch(e) { console.error(e); alert('Ошибка входа'); }
-            }
-        };
-    }
-    
-    if (signOutBtn) {
-        signOutBtn.onclick = async () => {
-            if (window.auth && window.signOut) await window.signOut(window.auth);
-            localStorage.removeItem('user');
-            userInfoDiv.innerHTML = '<p>Войдите, чтобы сохранять настройки</p>';
-            if (authBtnsDiv) authBtnsDiv.style.display = 'flex';
-            signOutBtn.style.display = 'none';
-        };
-    }
-    
-    const savedUser = localStorage.getItem('user');
-    if (savedUser && userInfoDiv) {
-        const user = JSON.parse(savedUser);
-        userInfoDiv.innerHTML = `<p><strong>${user.name || user.email}</strong></p>`;
-        if (authBtnsDiv) authBtnsDiv.style.display = 'none';
-        if (signOutBtn) signOutBtn.style.display = 'block';
-    }
-    
-    // ==================== НАСТРОЙКИ ====================
-    const notificationSelect = document.getElementById('notificationTime');
-    const azanSelect = document.getElementById('azanSound');
-    const darkModeCheckbox = document.getElementById('darkModeToggle');
-    
-    if (notificationSelect) {
-        const saved = localStorage.getItem('notificationTime');
-        if (saved) notificationSelect.value = saved;
-        notificationSelect.onchange = (e) => localStorage.setItem('notificationTime', e.target.value);
-    }
-    if (azanSelect) {
-        const saved = localStorage.getItem('azanSound');
-        if (saved) azanSelect.value = saved;
-        azanSelect.onchange = (e) => localStorage.setItem('azanSound', e.target.value);
-    }
-    
-    // Тёмная тема
-    function initTheme() {
-        const theme = localStorage.getItem('theme') || 'light';
-        document.body.setAttribute('data-theme', theme);
-        if (darkModeCheckbox) darkModeCheckbox.checked = (theme === 'dark');
-    }
-    function toggleThemeManually(e) {
-        const isDark = e.target.checked;
-        const newTheme = isDark ? 'dark' : 'light';
-        document.body.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-    }
-    initTheme();
-    if (darkModeCheckbox) darkModeCheckbox.onchange = toggleThemeManually;
-    
-    // Кнопка темы на главном экране
-    const themeToggleBtn = document.getElementById('themeToggle');
-    if (themeToggleBtn) {
-        themeToggleBtn.onclick = () => {
-            const current = document.body.getAttribute('data-theme');
-            const newTheme = current === 'light' ? 'dark' : 'light';
-            document.body.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            if (darkModeCheckbox) darkModeCheckbox.checked = (newTheme === 'dark');
-            const icon = themeToggleBtn.querySelector('i');
-            if (newTheme === 'dark') icon.classList.replace('fa-moon', 'fa-sun');
-            else icon.classList.replace('fa-sun', 'fa-moon');
-        };
-    }
-    
-    // ==================== НАМАЗЫ ====================
-    function updateCityFromSelect() {
+    document.getElementById('citySelect')?.addEventListener('change', () => {
         const select = document.getElementById('citySelect');
-        const selectedName = select.options[select.selectedIndex]?.text;
-        const found = cities.find(c => c.name === selectedName);
+        const selected = select.options[select.selectedIndex]?.text;
+        const found = cities.find(c => c.name === selected);
         if (found) updateCityAndTimes(found);
-    }
-    document.getElementById('citySelect')?.addEventListener('change', updateCityFromSelect);
-    
-    function displayPrayerTimes() {
-        document.getElementById('fajr').innerText = prayerTimes.Fajr;
-        document.getElementById('sunrise').innerText = prayerTimes.Sunrise;
-        document.getElementById('dhuhr').innerText = prayerTimes.Dhuhr;
-        document.getElementById('asr').innerText = prayerTimes.Asr;
-        document.getElementById('maghrib').innerText = prayerTimes.Maghrib;
-        document.getElementById('isha').innerText = prayerTimes.Isha;
-        const today = new Date();
-        document.getElementById('currentDate').innerHTML = `📆 ${today.toLocaleDateString('ru-RU')}`;
-        document.getElementById('updateTime').innerText = new Date().toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'});
-        calculateNearestPrayer();
-    }
+    });
     
     function calculateNearestPrayer() {
         const now = new Date();
@@ -248,11 +77,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // ==================== КОМПАС В ОТДЕЛЬНОЙ ПАНЕЛИ ====================
-    const compassPanel = document.getElementById('compassPanel');
-    const compassMenuItem = document.getElementById('compassMenuItem');
-    const closeCompass = document.getElementById('closeCompass');
-    const requestLocationBtn = document.getElementById('requestLocation');
+    const today = new Date();
+    document.getElementById('currentDate').innerHTML = `📆 ${today.toLocaleDateString('ru-RU')}`;
+    document.getElementById('updateTime').innerText = new Date().toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'});
+    
+    // ==================== КОМПАС НА ВЕСЬ ЭКРАН ====================
+    const fullscreenCompass = document.getElementById('fullscreenCompass');
+    const floatingBtn = document.getElementById('floatingCompassBtn');
+    const closeCompass = document.getElementById('closeFullscreenCompass');
+    const startCompassBtn = document.getElementById('startCompassFull');
+    const needleFull = document.getElementById('needleFull');
+    const degreeSpan = document.getElementById('qiblaDegreeFull');
+    const hintSpan = document.getElementById('compassHintFull');
     
     function calculateQiblaAngle() {
         let φ1 = currentCity.lat * Math.PI/180;
@@ -262,62 +98,200 @@ document.addEventListener('DOMContentLoaded', function() {
         let x = Math.cos(φ1)*Math.sin(φ2) - Math.sin(φ1)*Math.cos(φ2)*Math.cos(Δλ);
         let θ = Math.atan2(y,x);
         qiblaDirection = (θ*180/Math.PI+360)%360;
-        document.getElementById('qiblaDegree').innerHTML = `${Math.round(qiblaDirection)}° от севера`;
-        updateNeedle();
+        if (degreeSpan) degreeSpan.innerHTML = `${Math.round(qiblaDirection)}°`;
+        updateNeedleFull();
     }
     
-    function updateNeedle() {
-        let needle = document.getElementById('needle');
-        if(!needle) return;
-        if(compassActive && currentHeading) {
+    function updateNeedleFull() {
+        if (!needleFull) return;
+        if (compassActive && currentHeading) {
             let angle = qiblaDirection - currentHeading;
-            needle.style.transform = `translate(-50%,-50%) rotate(${angle}deg)`;
-            let hint = document.getElementById('compassHint');
-            if(hint) {
-                let diff = Math.abs(angle%360); if(diff>180) diff=360-diff;
-                if(diff<10) hint.innerHTML = "✅ Вы смотрите в сторону Киблы!";
-                else hint.innerHTML = `🔄 Повернитесь ${angle>0?'налево':'направо'} на ${Math.round(diff)}°`;
+            needleFull.style.transform = `translate(-50%,-50%) rotate(${angle}deg)`;
+            let diff = Math.abs(angle%360); if(diff>180) diff=360-diff;
+            if (hintSpan) {
+                if (diff < 10) hintSpan.innerHTML = "✅ Вы смотрите в сторону Киблы!";
+                else hintSpan.innerHTML = `🔄 Повернитесь ${angle>0?'налево':'направо'} на ${Math.round(diff)}°`;
             }
         } else {
-            needle.style.transform = `translate(-50%,-50%) rotate(${qiblaDirection}deg)`;
+            needleFull.style.transform = `translate(-50%,-50%) rotate(${qiblaDirection}deg)`;
         }
     }
     
-    function initCompass() {
+    function initFullscreenCompass() {
         calculateQiblaAngle();
-        if (requestLocationBtn) {
-            requestLocationBtn.onclick = () => {
-                if(typeof DeviceOrientationEvent.requestPermission === 'function') {
+        if (startCompassBtn) {
+            startCompassBtn.onclick = () => {
+                if (typeof DeviceOrientationEvent.requestPermission === 'function') {
                     DeviceOrientationEvent.requestPermission().then(perm => {
-                        if(perm==='granted') {
+                        if (perm === 'granted') {
                             window.addEventListener('deviceorientation', (e) => {
-                                let heading = e.webkitCompassHeading || (e.alpha ? 360-e.alpha : null);
-                                if(heading) { currentHeading = heading; compassActive = true; updateNeedle(); }
+                                let heading = e.webkitCompassHeading || (e.alpha ? 360 - e.alpha : null);
+                                if (heading) { currentHeading = heading; compassActive = true; updateNeedleFull(); }
                             });
-                            alert('Компас включён! Поворачивайте телефон');
-                        } else alert('Доступ не разрешён');
-                    }).catch(()=>alert('Ошибка доступа'));
+                            if (hintSpan) hintSpan.innerHTML = "✅ Компас активен! Поворачивайте телефон";
+                        } else { if (hintSpan) hintSpan.innerHTML = "❌ Доступ не разрешён"; }
+                    }).catch(() => { if (hintSpan) hintSpan.innerHTML = "❌ Ошибка доступа"; });
                 } else {
                     window.addEventListener('deviceorientation', (e) => {
-                        let heading = e.webkitCompassHeading || (e.alpha ? 360-e.alpha : null);
-                        if(heading) { currentHeading = heading; compassActive = true; updateNeedle(); }
+                        let heading = e.webkitCompassHeading || (e.alpha ? 360 - e.alpha : null);
+                        if (heading) { currentHeading = heading; compassActive = true; updateNeedleFull(); }
                     });
-                    alert('Компас включён! Поворачивайте телефон');
+                    if (hintSpan) hintSpan.innerHTML = "✅ Компас активен! Поворачивайте телефон";
                 }
             };
         }
     }
     
-    if (compassMenuItem) {
-        compassMenuItem.onclick = (e) => {
-            e.preventDefault();
-            if (compassPanel) compassPanel.style.display = 'block';
-            initCompass();
+    if (floatingBtn) {
+        floatingBtn.onclick = () => {
+            if (fullscreenCompass) {
+                fullscreenCompass.classList.add('show');
+                initFullscreenCompass();
+            }
         };
     }
-    if (closeCompass) closeCompass.onclick = () => { if (compassPanel) compassPanel.style.display = 'none'; };
+    if (closeCompass) closeCompass.onclick = () => { if (fullscreenCompass) fullscreenCompass.classList.remove('show'); };
     
-    // ==================== МЕНЮ ====================
+    // ==================== ПРОФИЛЬ, НАСТРОЙКИ, ГЕОЛОКАЦИЯ ====================
+    const profileBtn = document.getElementById('profileBtn');
+    const profileModal = document.getElementById('profileModal');
+    const closeModal = document.querySelector('.close-modal');
+    if (profileBtn) profileBtn.onclick = () => profileModal.classList.add('show');
+    if (closeModal) closeModal.onclick = () => profileModal.classList.remove('show');
+    window.onclick = (e) => { if (e.target === profileModal) profileModal.classList.remove('show'); };
+    
+    const tabs = document.querySelectorAll('.modal-tab');
+    const panes = document.querySelectorAll('.tab-pane');
+    tabs.forEach(tab => {
+        tab.onclick = () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            panes.forEach(p => p.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById(`tab-${tab.dataset.tab}`).classList.add('active');
+        };
+    });
+    
+    function findNearestCity(lat, lng) {
+        let nearest = cities[0];
+        let minDist = Infinity;
+        for (let city of cities) {
+            const dist = Math.hypot(city.lat - lat, city.lng - lng);
+            if (dist < minDist) { minDist = dist; nearest = city; }
+        }
+        return nearest;
+    }
+    
+    function requestLocation() {
+        if (!navigator.geolocation) { document.getElementById('locationStatus').innerHTML = '❌ Браузер не поддерживает геолокацию'; return; }
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const nearest = findNearestCity(pos.coords.latitude, pos.coords.longitude);
+                updateCityAndTimes(nearest);
+                localStorage.setItem('selectedCity', nearest.name);
+                document.getElementById('locationStatus').innerHTML = `✅ Определён город: ${nearest.name}`;
+                setTimeout(() => { document.getElementById('locationStatus').innerHTML = ''; }, 3000);
+            },
+            (err) => {
+                let msg = '❌ Ошибка: ';
+                if (err.code === err.PERMISSION_DENIED) msg += 'Разрешите доступ в настройках';
+                else msg += 'Не удалось определить';
+                document.getElementById('locationStatus').innerHTML = msg;
+            }
+        );
+    }
+    
+    const locationAsked = localStorage.getItem('locationAsked');
+    if (!locationAsked) {
+        setTimeout(() => {
+            if (confirm('📍 Разрешить сайту определить ваш город для точного времени намаза?')) {
+                requestLocation();
+                localStorage.setItem('locationAsked', 'true');
+            }
+        }, 1000);
+    }
+    
+    document.getElementById('enableLocationBtn')?.addEventListener('click', requestLocation);
+    
+    // Авторизация
+    const googleBtn = document.getElementById('googleSignIn');
+    const signOutBtn = document.getElementById('signOutBtn');
+    const userInfoDiv = document.getElementById('userInfo');
+    const authBtns = document.querySelector('.auth-buttons');
+    if (googleBtn) {
+        googleBtn.onclick = async () => {
+            if (window.auth && window.signInWithPopup && window.provider) {
+                try {
+                    const result = await window.signInWithPopup(window.auth, window.provider);
+                    const user = result.user;
+                    userInfoDiv.innerHTML = `<p><strong>${user.displayName || user.email}</strong></p><p style="font-size:12px;">${user.email}</p>`;
+                    if (authBtns) authBtns.style.display = 'none';
+                    if (signOutBtn) signOutBtn.style.display = 'block';
+                    localStorage.setItem('user', JSON.stringify({ name: user.displayName, email: user.email }));
+                } catch(e) { alert('Ошибка входа'); }
+            }
+        };
+    }
+    if (signOutBtn) {
+        signOutBtn.onclick = async () => {
+            if (window.auth && window.signOut) await window.signOut(window.auth);
+            localStorage.removeItem('user');
+            userInfoDiv.innerHTML = '<p>Войдите, чтобы сохранять настройки</p>';
+            if (authBtns) authBtns.style.display = 'flex';
+            signOutBtn.style.display = 'none';
+        };
+    }
+    const savedUser = localStorage.getItem('user');
+    if (savedUser && userInfoDiv) {
+        const user = JSON.parse(savedUser);
+        userInfoDiv.innerHTML = `<p><strong>${user.name || user.email}</strong></p>`;
+        if (authBtns) authBtns.style.display = 'none';
+        if (signOutBtn) signOutBtn.style.display = 'block';
+    }
+    
+    // Настройки
+    const notificationSelect = document.getElementById('notificationTime');
+    const azanSelect = document.getElementById('azanSound');
+    if (notificationSelect) {
+        const saved = localStorage.getItem('notificationTime');
+        if (saved) notificationSelect.value = saved;
+        notificationSelect.onchange = (e) => localStorage.setItem('notificationTime', e.target.value);
+    }
+    if (azanSelect) {
+        const saved = localStorage.getItem('azanSound');
+        if (saved) azanSelect.value = saved;
+        azanSelect.onchange = (e) => localStorage.setItem('azanSound', e.target.value);
+    }
+    
+    // Тёмная тема
+    const darkModeCheckbox = document.getElementById('darkModeToggle');
+    function initTheme() {
+        const theme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', theme);
+        if (darkModeCheckbox) darkModeCheckbox.checked = (theme === 'dark');
+    }
+    function toggleThemeManually(e) {
+        const isDark = e.target.checked;
+        const newTheme = isDark ? 'dark' : 'light';
+        document.body.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+    }
+    initTheme();
+    if (darkModeCheckbox) darkModeCheckbox.onchange = toggleThemeManually;
+    
+    const themeToggleBtn = document.getElementById('themeToggle');
+    if (themeToggleBtn) {
+        themeToggleBtn.onclick = () => {
+            const current = document.body.getAttribute('data-theme');
+            const newTheme = current === 'light' ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            if (darkModeCheckbox) darkModeCheckbox.checked = (newTheme === 'dark');
+            const icon = themeToggleBtn.querySelector('i');
+            if (newTheme === 'dark') icon.classList.replace('fa-moon', 'fa-sun');
+            else icon.classList.replace('fa-sun', 'fa-moon');
+        };
+    }
+    
     const menuBtn = document.getElementById('menuToggle');
     const dropdownMenu = document.getElementById('dropdownMenu');
     if (menuBtn && dropdownMenu) {
@@ -327,15 +301,11 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
     
-    const aboutMenuItem = document.getElementById('aboutMenuItem');
-    if (aboutMenuItem) {
-        aboutMenuItem.onclick = (e) => {
-            e.preventDefault();
-            alert('📱 Намаз Дагестан — приложение для точного определения времени намазов.\nВерсия 2.0\nРазработано для жителей Дагестана.\n\n📍 Автоопределение города\n🕌 Направление Киблы\n📖 Суры Корана\n⚙️ Настройки уведомлений');
-        };
-    }
+    document.getElementById('aboutMenuItem')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        alert('📱 Намаз Дагестан — приложение для точного определения времени намазов.\nВерсия 2.0\n\n📍 Автоопределение города\n🕌 Направление Киблы\n📖 Суры Корана');
+    });
     
-    // Запуск
-    displayPrayerTimes();
+    calculateNearestPrayer();
     setInterval(() => calculateNearestPrayer(), 60000);
 });

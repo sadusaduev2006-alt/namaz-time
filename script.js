@@ -1,7 +1,4 @@
-// ==================== ПРОСТАЯ РАБОЧАЯ ВЕРСИЯ ====================
-console.log("Скрипт загружен");
-
-// Данные городов
+// ==================== ПРЯМОЕ РАСПИСАНИЕ ДЛЯ ГОРОДОВ ====================
 const cities = [
     { name: "Махачкала", lat: 42.9849, lng: 47.5046, times: { Fajr: "02:07", Sunrise: "04:14", Dhuhr: "11:51", Asr: "15:51", Maghrib: "19:24", Isha: "21:06" } },
     { name: "Дербент", lat: 42.0569, lng: 48.2885, times: { Fajr: "02:15", Sunrise: "04:22", Dhuhr: "11:59", Asr: "15:59", Maghrib: "19:32", Isha: "21:14" } },
@@ -15,18 +12,22 @@ const cities = [
 let currentCity = cities[0];
 let prayerTimes = currentCity.times;
 
-// ОТОБРАЖЕНИЕ ВРЕМЕНИ
+// Координаты Мекки (объявляем ДО использования)
+const MECCA = { lat: 21.4225, lng: 39.8262 };
+
+// ==================== ОТОБРАЖЕНИЕ ВРЕМЕНИ ====================
 function displayPrayerTimes() {
-    document.getElementById('fajr').innerText = prayerTimes.Fajr;
-    document.getElementById('sunrise').innerText = prayerTimes.Sunrise;
-    document.getElementById('dhuhr').innerText = prayerTimes.Dhuhr;
-    document.getElementById('asr').innerText = prayerTimes.Asr;
-    document.getElementById('maghrib').innerText = prayerTimes.Maghrib;
-    document.getElementById('isha').innerText = prayerTimes.Isha;
-    document.getElementById('updateTime').innerText = new Date().toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'});
+    if (document.getElementById('fajr')) {
+        document.getElementById('fajr').innerText = prayerTimes.Fajr;
+        document.getElementById('sunrise').innerText = prayerTimes.Sunrise;
+        document.getElementById('dhuhr').innerText = prayerTimes.Dhuhr;
+        document.getElementById('asr').innerText = prayerTimes.Asr;
+        document.getElementById('maghrib').innerText = prayerTimes.Maghrib;
+        document.getElementById('isha').innerText = prayerTimes.Isha;
+        document.getElementById('updateTime').innerText = new Date().toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'});
+    }
 }
 
-// СМЕНА ГОРОДА
 function updateCityAndTimes(city) {
     currentCity = city;
     prayerTimes = city.times;
@@ -40,17 +41,18 @@ function updateCityAndTimes(city) {
     localStorage.setItem('selectedCity', city.name);
 }
 
-// ЗАПУСК ПРИ ЗАГРУЗКЕ
+// ==================== ЗАПУСК ====================
 document.addEventListener('DOMContentLoaded', function() {
-    console.log("DOM загружен, запускаем...");
+    console.log("DOM загружен");
     
-    // Загружаем время
+    // Восстанавливаем сохранённый город
     const savedCity = localStorage.getItem('selectedCity');
     if (savedCity) {
         const found = cities.find(c => c.name === savedCity);
         if (found) updateCityAndTimes(found);
+    } else {
+        displayPrayerTimes();
     }
-    displayPrayerTimes();
     
     // ========== ВЫБОР ГОРОДА ==========
     const citySelect = document.getElementById('citySelect');
@@ -62,19 +64,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // ========== ПРОФИЛЬ (открыть/закрыть) ==========
+    // ========== ПРОФИЛЬ ==========
     const profileBtn = document.getElementById('profileBtn');
     const profileModal = document.getElementById('fullscreenProfile');
     const closeProfile = document.getElementById('closeProfile');
     
     if (profileBtn && profileModal) {
-        profileBtn.onclick = function() {
+        profileBtn.onclick = function(e) {
+            e.preventDefault();
             console.log("Профиль открыт");
             profileModal.classList.add('show');
         };
     }
+    
     if (closeProfile && profileModal) {
-        closeProfile.onclick = function() {
+        closeProfile.onclick = function(e) {
+            e.preventDefault();
+            console.log("Профиль закрыт");
             profileModal.classList.remove('show');
         };
     }
@@ -83,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const compassBtn = document.getElementById('floatingCompassBtn');
     const compassModal = document.getElementById('fullscreenCompass');
     const closeCompass = document.getElementById('closeFullscreenCompass');
-    const startCompass = document.getElementById('startCompassFull');
+    const startCompassBtn = document.getElementById('startCompassFull');
     const needleFull = document.getElementById('needleFull');
     const degreeSpan = document.getElementById('qiblaDegreeFull');
     const hintSpan = document.getElementById('compassHintFull');
@@ -92,9 +98,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentHeading = 0;
     let qiblaDirection = 0;
     let compassActive = false;
-    const MECCA = { lat: 21.4225, lng: 39.8262 };
     
-    function calculateQibla() {
+    function calculateQiblaAngle() {
         let φ1 = currentCity.lat * Math.PI/180;
         let φ2 = MECCA.lat * Math.PI/180;
         let Δλ = (MECCA.lng - currentCity.lng) * Math.PI/180;
@@ -139,29 +144,35 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     if (compassBtn && compassModal) {
-        compassBtn.onclick = function() {
+        compassBtn.onclick = function(e) {
+            e.preventDefault();
             console.log("Компас открыт");
             compassModal.classList.add('show');
-            calculateQibla();
+            calculateQiblaAngle();
         };
     }
+    
     if (closeCompass && compassModal) {
-        closeCompass.onclick = function() {
+        closeCompass.onclick = function(e) {
+            e.preventDefault();
+            console.log("Компас закрыт");
             compassModal.classList.remove('show');
         };
     }
-    if (startCompass) {
-        startCompass.onclick = function() {
+    
+    if (startCompassBtn) {
+        startCompassBtn.onclick = function(e) {
+            e.preventDefault();
             if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
                 DeviceOrientationEvent.requestPermission().then(perm => {
                     if (perm === 'granted') {
                         window.addEventListener('deviceorientation', handleOrientation);
-                        alert('Компас включён!');
+                        alert('Компас включён! Поворачивайте телефон');
                     } else alert('Доступ не разрешён');
                 }).catch(() => alert('Ошибка доступа'));
             } else {
                 window.addEventListener('deviceorientation', handleOrientation);
-                alert('Компас включён!');
+                alert('Компас включён! Поворачивайте телефон');
             }
         };
     }
@@ -173,8 +184,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (menuBtn && dropdownMenu) {
         menuBtn.onclick = function(e) {
             e.stopPropagation();
+            e.preventDefault();
             dropdownMenu.classList.toggle('show');
         };
+        
         document.addEventListener('click', function(e) {
             if (!menuBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
                 dropdownMenu.classList.remove('show');
@@ -187,15 +200,17 @@ document.addEventListener('DOMContentLoaded', function() {
     if (aboutItem) {
         aboutItem.onclick = function(e) {
             e.preventDefault();
-            alert('📱 Намаз Дагестан\nВерсия 2.0\n\n📍 Автоопределение города\n🕌 Направление Киблы\n📖 Священный Коран');
+            alert('📱 Намаз Дагестан\nВерсия 2.0\n\n📍 Махачкала и города Дагестана\n🕌 Направление Киблы\n📖 Священный Коран');
         };
     }
     
     // ========== ВКЛАДКИ ПРОФИЛЯ ==========
     const profileTabs = document.querySelectorAll('.profile-tab');
     const profilePanes = document.querySelectorAll('.profile-pane');
+    
     profileTabs.forEach(tab => {
-        tab.onclick = function() {
+        tab.onclick = function(e) {
+            e.preventDefault();
             const tabId = this.getAttribute('data-profile-tab');
             profileTabs.forEach(t => t.classList.remove('active'));
             profilePanes.forEach(p => p.classList.remove('active'));
@@ -226,28 +241,34 @@ document.addEventListener('DOMContentLoaded', function() {
     const currentLang = localStorage.getItem('language') || 'ru';
     langItems.forEach(item => {
         if (item.getAttribute('data-lang') === currentLang) item.classList.add('active');
-        item.onclick = function() {
+        item.onclick = function(e) {
+            e.preventDefault();
             const lang = this.getAttribute('data-lang');
             localStorage.setItem('language', lang);
             langItems.forEach(i => i.classList.remove('active'));
             this.classList.add('active');
-            alert('Язык изменён. Обновите страницу для полного применения.');
+            
+            // Простая смена языка (заголовок)
+            const translations = {
+                ru: "Время намаза",
+                en: "Prayer Times",
+                ar: "أوقات الصلاة",
+                kk: "Намаз уақыты",
+                tr: "Namaz Vakti"
+            };
+            const title = document.querySelector('.prayer-card h1');
+            if (title && translations[lang]) {
+                title.innerHTML = `🕌 ${translations[lang]}`;
+            }
         };
     });
     
-    // ========== УВЕДОМЛЕНИЯ И ЗВУК ==========
+    // ========== УВЕДОМЛЕНИЯ ==========
     const notifToggle = document.getElementById('notificationsToggle');
     const notifTime = document.getElementById('notificationTimeSelect');
     const azanSelect = document.getElementById('azanSoundSelect');
     const testAzan = document.getElementById('testAzanBtn');
     const azanAudio = document.getElementById('azanAudio');
-    const azanSource = document.getElementById('azanSource');
-    
-    const azanUrls = {
-        makkah: 'https://www.islamcan.com/audio/adhan/makkah-adhan.mp3',
-        medina: 'https://www.islamcan.com/audio/adhan/medinah-adhan.mp3',
-        fajr: 'https://www.islamcan.com/audio/adhan/fajr-adhan.mp3'
-    };
     
     if (notifToggle) {
         const saved = localStorage.getItem('notificationsEnabled');
@@ -266,32 +287,34 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
     
-    if (azanSelect) {
+    // Рабочие ссылки на азан (заменил на рабочие)
+    const azanUrls = {
+        makkah: 'https://adhan.pages.dev/audio/makkah.mp3',
+        medina: 'https://adhan.pages.dev/audio/medina.mp3',
+        fajr: 'https://adhan.pages.dev/audio/fajr.mp3'
+    };
+    
+    if (azanSelect && azanAudio) {
         const saved = localStorage.getItem('azanSound');
         if (saved && azanUrls[saved]) azanSelect.value = saved;
         azanSelect.onchange = function(e) {
-            const url = azanUrls[e.target.value];
-            if (url && azanSource) {
-                azanSource.src = url;
-                azanAudio.load();
-                localStorage.setItem('azanSound', e.target.value);
-            }
+            localStorage.setItem('azanSound', e.target.value);
         };
     }
     
     if (testAzan && azanAudio) {
-        testAzan.onclick = function() {
-            azanAudio.play().catch(function() {
-                alert('Нажмите на экран, чтобы разрешить звук');
-            });
+        testAzan.onclick = function(e) {
+            e.preventDefault();
+            const selected = azanSelect ? azanSelect.value : 'makkah';
+            const url = azanUrls[selected];
+            if (url) {
+                azanAudio.src = url;
+                azanAudio.load();
+                azanAudio.play().catch(function() {
+                    alert('Нажмите на экран, затем попробуйте снова');
+                });
+            }
         };
-    }
-    
-    // Загружаем сохранённый звук
-    const savedSound = localStorage.getItem('azanSound');
-    if (savedSound && azanUrls[savedSound] && azanSource) {
-        azanSource.src = azanUrls[savedSound];
-        azanAudio.load();
     }
     
     // ========== УВЕДОМЛЕНИЯ О НАМАЗАХ ==========
@@ -326,7 +349,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         body: `Осталось ${minutesBefore} минут`,
                         icon: 'https://cdn-icons-png.flaticon.com/512/3069/3069175.png'
                     });
-                    if (azanAudio) azanAudio.play().catch(e => console.log('Азан заблокирован'));
                     notified[p.name] = today;
                 }
             }
@@ -336,11 +358,6 @@ document.addEventListener('DOMContentLoaded', function() {
     setInterval(checkNotifications, 60000);
     setTimeout(checkNotifications, 5000);
     
-    // Запрос разрешения на уведомления
-    setTimeout(function() {
-        if (Notification.permission === 'default') Notification.requestPermission();
-    }, 2000);
-    
     // ========== АВТОРИЗАЦИЯ ==========
     const googleBtn = document.getElementById('profileGoogleSignIn');
     const signOutBtn = document.getElementById('profileSignOutBtn');
@@ -348,7 +365,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const authBtns = document.querySelector('.profile-auth-buttons');
     
     if (googleBtn && window.auth && window.signInWithPopup && window.provider) {
-        googleBtn.onclick = async function() {
+        googleBtn.onclick = async function(e) {
+            e.preventDefault();
             try {
                 const result = await window.signInWithPopup(window.auth, window.provider);
                 const user = result.user;
@@ -356,14 +374,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (authBtns) authBtns.style.display = 'none';
                 if (signOutBtn) signOutBtn.style.display = 'block';
                 localStorage.setItem('user', JSON.stringify({ name: user.displayName, email: user.email }));
-            } catch(e) {
+            } catch(err) {
                 alert('Ошибка входа');
             }
         };
     }
     
     if (signOutBtn) {
-        signOutBtn.onclick = async function() {
+        signOutBtn.onclick = async function(e) {
+            e.preventDefault();
             if (window.auth && window.signOut) await window.signOut(window.auth);
             localStorage.removeItem('user');
             if (userInfo) userInfo.innerHTML = '<p>Войдите, чтобы сохранять настройки</p>';
@@ -380,5 +399,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (signOutBtn) signOutBtn.style.display = 'block';
     }
     
-    console.log("Готово!");
+    // Запрос разрешения на уведомления
+    setTimeout(function() {
+        if (Notification.permission === 'default') Notification.requestPermission();
+    }, 2000);
+    
+    console.log("Инициализация завершена");
 });

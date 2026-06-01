@@ -10,13 +10,13 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3069/3069175.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Намаз Дагестан">
     
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyB4K7cR3X5n9Q2wE8tY7uI6oP5aD3fG1hJ2k",
@@ -34,7 +34,6 @@
         window.auth = auth;
         window.provider = provider;
         window.signOut = signOut;
-        window.onAuthStateChanged = onAuthStateChanged;
         window.signInWithPopup = signInWithPopup;
     </script>
 </head>
@@ -71,9 +70,6 @@
                                 <a href="surah-fatiha.html">
                                     <i class="fas fa-star-and-crescent"></i> Сура Аль-Фатиха
                                 </a>
-                                <a href="#" id="compassMenuItem">
-                                    <i class="fas fa-compass"></i> Компас Киблы
-                                </a>
                                 <a href="#" id="aboutMenuItem">
                                     <i class="fas fa-info-circle"></i> О приложении
                                 </a>
@@ -89,107 +85,12 @@
                 <p class="gregorian" id="gregorianDate">--</p>
             </div>
 
-            <!-- Модальное окно профиля с вкладками -->
-            <div id="profileModal" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3><i class="fas fa-user"></i> Мой профиль</h3>
-                        <button class="close-modal">&times;</button>
-                    </div>
-                    <div class="modal-tabs">
-                        <button class="modal-tab active" data-tab="auth">🔐 Вход</button>
-                        <button class="modal-tab" data-tab="settings">⚙️ Настройки</button>
-                        <button class="modal-tab" data-tab="location">📍 Геолокация</button>
-                    </div>
-                    <div class="modal-body">
-                        <!-- Вкладка 1: Авторизация -->
-                        <div id="tab-auth" class="tab-pane active">
-                            <div class="profile-avatar">
-                                <i class="fas fa-user-circle"></i>
-                            </div>
-                            <div id="userInfo" class="user-info">
-                                <p>Войдите, чтобы сохранять настройки</p>
-                            </div>
-                            <div class="auth-buttons">
-                                <button id="googleSignIn" class="auth-btn google-btn">
-                                    <i class="fab fa-google"></i> Google
-                                </button>
-                                <div id="appleid-signin" class="auth-btn apple-btn">🍎 Apple ID</div>
-                            </div>
-                            <button id="signOutBtn" class="logout-btn" style="display: none;">
-                                <i class="fas fa-sign-out-alt"></i> Выйти
-                            </button>
-                        </div>
-                        
-                        <!-- Вкладка 2: Настройки -->
-                        <div id="tab-settings" class="tab-pane">
-                            <h4>Настройки приложения</h4>
-                            <div class="setting-item">
-                                <label><i class="fas fa-bell"></i> Уведомления за:</label>
-                                <select id="notificationTime">
-                                    <option value="5">5 минут</option>
-                                    <option value="10">10 минут</option>
-                                    <option value="15">15 минут</option>
-                                    <option value="30">30 минут</option>
-                                </select>
-                            </div>
-                            <div class="setting-item">
-                                <label><i class="fas fa-music"></i> Звук азана:</label>
-                                <select id="azanSound">
-                                    <option value="default">Стандартный</option>
-                                    <option value="makkah">Мекканский</option>
-                                    <option value="medina">Мединский</option>
-                                </select>
-                            </div>
-                            <div class="setting-item">
-                                <label><i class="fas fa-moon"></i> Тёмная тема:</label>
-                                <label class="switch">
-                                    <input type="checkbox" id="darkModeToggle">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <!-- Вкладка 3: Геолокация -->
-                        <div id="tab-location" class="tab-pane">
-                            <h4><i class="fas fa-location-dot"></i> Определение города</h4>
-                            <p class="location-desc">Разрешите доступ к геолокации, чтобы сайт автоматически определял ваш город и показывал точное время намаза.</p>
-                            <button id="enableLocationBtn" class="location-permit-btn">
-                                <i class="fas fa-location-arrow"></i> Определить мой город
-                            </button>
-                            <div id="locationStatus" class="location-status"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Компас (скрытый блок, показывается при клике из меню) -->
-            <div id="compassPanel" class="compass-panel" style="display: none;">
-                <div class="compass-header">
-                    <h3><i class="fas fa-compass"></i> Компас Киблы</h3>
-                    <button id="closeCompass" class="close-compass">&times;</button>
-                </div>
-                <div class="compass-container">
-                    <div class="compass">
-                        <div class="needle" id="needle">
-                            <div class="needle-top"></div>
-                            <div class="needle-bottom"></div>
-                        </div>
-                        <div class="compass-mark">N</div>
-                    </div>
-                    <div class="qibla-degree" id="qiblaDegree">--°</div>
-                    <div id="compassHint" style="font-size:14px;margin-top:10px;">📍 Нажмите кнопку ниже</div>
-                    <button id="requestLocation" class="location-btn">
-                        <i class="fas fa-location-arrow"></i> Запустить компас
-                    </button>
-                </div>
-            </div>
-
+            <!-- КОНТЕЙНЕР НАМАЗОВ (уменьшенный, с пространством) -->
             <div class="prayer-grid">
                 <div class="prayer-item"><div class="prayer-info"><i class="fas fa-cloud-moon"></i><span class="prayer-name">Фаджр</span></div><span class="prayer-time" id="fajr">--:--</span></div>
                 <div class="prayer-item"><div class="prayer-info"><i class="fas fa-sun"></i><span class="prayer-name">Шурук</span></div><span class="prayer-time" id="sunrise">--:--</span></div>
                 <div class="prayer-item"><div class="prayer-info"><i class="fas fa-sun"></i><span class="prayer-name">Зухр</span></div><span class="prayer-time" id="dhuhr">--:--</span></div>
-                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-clock"></i><span class="prayer-name">Аср</span></div><span class="prayer-time"id="asr">--:--</span></div>
+                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-clock"></i><span class="prayer-name">Аср</span></div><span class="prayer-time" id="asr">--:--</span></div>
                 <div class="prayer-item"><div class="prayer-info"><i class="fas fa-moon"></i><span class="prayer-name">Магриб</span></div><span class="prayer-time" id="maghrib">--:--</span></div>
                 <div class="prayer-item"><div class="prayer-info"><i class="fas fa-star-of-life"></i><span class="prayer-name">Иша</span></div><span class="prayer-time" id="isha">--:--</span></div>
             </div>
@@ -202,7 +103,75 @@
 
             <div class="footer-note">
                 <p><i class="far fa-clock"></i> Обновлено: <span id="updateTime">сегодня</span></p>
-                <p class="method"><i class="fas fa-calculator"></i> Метод: Точное расписание для Дагестана</p>
+                <p class="method"><i class="fas fa-calculator"></i> Точное расписание для Дагестана</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПЛАВАЮЩАЯ КНОПКА КОМПАСА -->
+    <button id="floatingCompassBtn" class="floating-compass-btn">
+        <i class="fas fa-compass"></i>
+    </button>
+
+    <!-- КОМПАС НА ВЕСЬ ЭКРАН -->
+    <div id="fullscreenCompass" class="fullscreen-compass">
+        <div class="compass-full-header">
+            <h3><i class="fas fa-kaaba"></i> Направление на Киблу</h3>
+            <button id="closeFullscreenCompass" class="close-fullscreen">&times;</button>
+        </div>
+        <div class="compass-full-body">
+            <div class="compass-full">
+                <div class="needle-full" id="needleFull">
+                    <div class="needle-top-full"></div>
+                    <div class="needle-bottom-full"></div>
+                </div>
+                <div class="compass-mark-full">N</div>
+                <div class="kaaba-icon">
+                    <i class="fas fa-kaaba"></i>
+                </div>
+            </div>
+            <div class="qibla-degree-full" id="qiblaDegreeFull">--°</div>
+            <div id="compassHintFull" class="compass-hint-full">📍 Нажмите "Запустить компас" и поверните телефон</div>
+            <button id="startCompassFull" class="start-compass-btn">
+                <i class="fas fa-location-arrow"></i> Запустить компас
+            </button>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО ПРОФИЛЯ -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user"></i> Мой профиль</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-tabs">
+                <button class="modal-tab active" data-tab="auth">🔐 Вход</button>
+                <button class="modal-tab" data-tab="settings">⚙️ Настройки</button>
+                <button class="modal-tab" data-tab="location">📍 Геолокация</button>
+            </div>
+            <div class="modal-body">
+                <div id="tab-auth" class="tab-pane active">
+                    <div class="profile-avatar"><i class="fas fa-user-circle"></i></div>
+                    <div id="userInfo" class="user-info"><p>Войдите, чтобы сохранять настройки</p></div>
+                    <div class="auth-buttons">
+                        <button id="googleSignIn" class="auth-btn google-btn"><i class="fab fa-google"></i> Google</button>
+                        <div id="appleid-signin" class="auth-btn apple-btn">🍎 Apple ID</div>
+                    </div>
+                    <button id="signOutBtn" class="logout-btn" style="display: none;"><i class="fas fa-sign-out-alt"></i> Выйти</button>
+                </div>
+                <div id="tab-settings" class="tab-pane">
+                    <h4>Настройки приложения</h4>
+                    <div class="setting-item"><label><i class="fas fa-bell"></i> Уведомления за:</label><select id="notificationTime"><option value="5">5 минут</option><option value="10">10 минут</option><option value="15">15 минут</option><option value="30">30 минут</option></select></div>
+                    <div class="setting-item"><label><i class="fas fa-music"></i> Звук азана:</label><select id="azanSound"><option value="default">Стандартный</option><option value="makkah">Мекканский</option><option value="medina">Мединский</option></select></div>
+                    <div class="setting-item"><label><i class="fas fa-moon"></i> Тёмная тема:</label><label class="switch"><input type="checkbox" id="darkModeToggle"><span class="slider"></span></label></div>
+                </div>
+                <div id="tab-location" class="tab-pane">
+                    <h4><i class="fas fa-location-dot"></i> Определение города</h4>
+                    <p class="location-desc">Разрешите доступ к геолокации, чтобы сайт автоматически определял ваш город.</p>
+                    <button id="enableLocationBtn" class="location-permit-btn"><i class="fas fa-location-arrow"></i> Определить мой город</button>
+                    <div id="locationStatus" class="location-status"></div>
+                </div>
             </div>
         </div>
     </div>

@@ -63,7 +63,6 @@ body {
     transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* ШАПКА */
 .header-top {
     display: flex;
     justify-content: space-between;
@@ -114,7 +113,6 @@ body {
     cursor: pointer;
 }
 
-/* СЕТКА НАМАЗОВ */
 .prayer-grid {
     display: flex;
     flex-direction: column;
@@ -182,7 +180,6 @@ body {
     50% { box-shadow: 0 0 0 8px rgba(76, 175, 80, 0); }
 }
 
-/* ФУТЕР */
 .footer-note {
     text-align: center;
     padding-top: 16px;
@@ -191,7 +188,6 @@ body {
     opacity: 0.6;
 }
 
-/* ВЫПАДАЮЩЕЕ МЕНЮ */
 .dropdown {
     position: relative;
     display: inline-block;
@@ -247,6 +243,61 @@ body {
     font-size: 16px;
 }
 
+/* ПЛАВАЮЩАЯ КНОПКА КОМПАСА */
+.floating-compass-btn {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 56px;
+    background: var(--accent);
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 100;
+    transition: transform 0.2s, background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.floating-compass-btn:active {
+    transform: scale(0.95);
+}
+
+.floating-quran-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--accent);
+    border: none;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 100;
+    transition: transform 0.2s, background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 48px;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.floating-quran-btn i {
+    font-size: 18px;
+}
+
+.floating-quran-btn:active {
+    transform: scale(0.97);
+}
+
 /* ПОЛНОЭКРАННЫЙ КОМПАС */
 .fullscreen-compass {
     position: fixed;
@@ -292,7 +343,7 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 30px;
+    gap: 24px;
 }
 
 .compass-full {
@@ -314,6 +365,7 @@ body {
     transform-origin: center center;
     transform: translate(-50%, -50%) rotate(0deg);
     transition: transform 0.1s linear;
+    z-index: 2;
 }
 
 .needle-top-full {
@@ -344,16 +396,25 @@ body {
     font-weight: bold;
     color: var(--accent);
     font-size: 18px;
+    z-index: 1;
 }
 
-.kaaba-icon {
+.kaaba-icon-full {
     position: absolute;
-    bottom: 30px;
+    top: 50%;
     left: 50%;
-    transform: translateX(-50%);
-    font-size: 28px;
+    transform: translate(-50%, -50%);
+    font-size: 48px;
     color: var(--accent);
-    opacity: 0.6;
+    z-index: 3;
+    opacity: 0.8;
+    transition: all 0.1s linear;
+}
+
+.kaaba-icon-full.correct {
+    color: #4CAF50;
+    text-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+    transform: translate(-50%, -50%) scale(1.1);
 }
 
 .qibla-degree-full {
@@ -366,6 +427,9 @@ body {
     font-size: 14px;
     color: var(--text-secondary);
     text-align: center;
+    padding: 8px 16px;
+    border-radius: 40px;
+    background: var(--accent-light);
 }
 
 .start-compass-btn {
@@ -378,6 +442,10 @@ body {
     font-size: 16px;
     cursor: pointer;
     transition: transform 0.2s;
+}
+
+.start-compass-btn:active {
+    transform: scale(0.97);
 }
 
 /* МОДАЛЬНОЕ ОКНО */
@@ -480,140 +548,26 @@ input:checked + .slider:before { transform: translateX(24px); }
     cursor: pointer;
 }
 
-/* АДАПТАЦИЯ */
 @media (max-width: 560px) {
-    .prayer-card {
-        padding: 20px 18px 28px 18px;
-        border-radius: 40px;
-    }
-    .prayer-time {
-        font-size: 17px;
-        padding: 4px 12px;
-    }
-    .prayer-name {
-        font-size: 15px;
-    }
-    .prayer-info i {
-        font-size: 18px;
-        width: 24px;
-    }
-    .compass-full {
-        width: 220px;
-        height: 220px;
-    }
-    .needle-full {
-        height: 190px;
-    }
-    .needle-top-full, .needle-bottom-full {
-        height: 95px;
-    }
+    .prayer-card { padding: 20px 18px 28px 18px; border-radius: 40px; }
+    .prayer-time { font-size: 17px; padding: 4px 12px; }
+    .prayer-name { font-size: 15px; }
+    .prayer-info i { font-size: 18px; width: 24px; }
+    .floating-compass-btn { width: 48px; height: 48px; font-size: 20px; bottom: 20px; left: 20px; }
+    .floating-quran-btn { padding: 10px 16px; font-size: 14px; bottom: 20px; right: 20px; }
+    .floating-quran-btn i { font-size: 16px; }
+    .compass-full { width: 220px; height: 220px; }
+    .needle-full { height: 190px; }
+    .needle-top-full, .needle-bottom-full { height: 95px; }
+    .kaaba-icon-full { font-size: 36px; }
 }
 
 @media (min-width: 1025px) {
-    .container {
-        max-width: 650px;
-    }
-    .compass-full {
-        width: 320px;
-        height: 320px;
-    }
-    .needle-full {
-        height: 280px;
-    }
-    .needle-top-full, .needle-bottom-full {
-        height: 140px;
-    }
-}
-/* ПЛАВАЮЩАЯ КНОПКА КОМПАСА (СЛЕВА СНИЗУ) */
-.floating-compass-btn {
-    position: fixed;
-    bottom: 24px;
-    left: 24px;
-    width: 56px;
-    height: 56px;
-    border-radius: 56px;
-    background: var(--accent);
-    border: none;
-    color: white;
-    font-size: 24px;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    z-index: 100;
-    transition: transform 0.2s, background 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.floating-compass-btn:hover {
-    transform: scale(1.05);
-    background: var(--active-border);
-}
-
-/* ПЛАВАЮЩАЯ КНОПКА КОРАНА (СПРАВА СНИЗУ) */
-.floating-quran-btn {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    background: var(--accent);
-    border: none;
-    color: white;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    z-index: 100;
-    transition: transform 0.2s, background 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 12px 20px;
-    border-radius: 48px;
-    font-size: 16px;
-    font-weight: 600;
-    text-decoration: none;
-}
-
-.floating-quran-btn i {
-    font-size: 18px;
-}
-
-.floating-quran-btn:hover {
-    transform: scale(1.02);
-    background: var(--active-border);
-}
-
-/* АДАПТАЦИЯ ДЛЯ ТЕЛЕФОНОВ */
-@media (max-width: 560px) {
-    .floating-compass-btn {
-        width: 48px;
-        height: 48px;
-        font-size: 20px;
-        bottom: 20px;
-        left: 20px;
-    }
-    .floating-quran-btn {
-        padding: 10px 16px;
-        font-size: 14px;
-        bottom: 20px;
-        right: 20px;
-    }
-    .floating-quran-btn i {
-        font-size: 16px;
-    }
-}
-
-@media (min-width: 1025px) {
-    .floating-compass-btn {
-        width: 60px;
-        height: 60px;
-        font-size: 26px;
-    }
-    .floating-quran-btn {
-        padding: 14px 24px;
-        font-size: 18px;
-        gap: 10px;
-    }
-    .floating-quran-btn i {
-        font-size: 20px;
-    }
+    .container { max-width: 650px; }
+    .floating-compass-btn { width: 60px; height: 60px; font-size: 26px; }
+    .floating-quran-btn { padding: 14px 24px; font-size: 18px; gap: 10px; }
+    .floating-quran-btn i { font-size: 20px; }
+    .compass-full { width: 320px; height: 320px; }
+    .needle-full { height: 280px; }
+    .needle-top-full, .needle-bottom-full { height: 140px; }
 }

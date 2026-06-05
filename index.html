@@ -4,10 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>Намаз Дагестан</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://api.alquran.cloud">
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <!-- Шрифты и стили -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
@@ -17,72 +14,52 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Намаз Дагестан">
     <meta name="theme-color" content="#1a1a1a">
-    
-    <!-- Firebase SDK -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        
-        const firebaseConfig = {
-            apiKey: "AIzaSyB4K7cR3X5n9Q2wE8tY7uI6oP5aD3fG1hJ2k",
-            authDomain: "namaz-dagestan.firebaseapp.com",
-            projectId: "namaz-dagestan",
-            storageBucket: "namaz-dagestan.appspot.com",
-            messagingSenderId: "123456789012",
-            appId: "1:123456789012:web:abc123def456"
-        };
-        
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
-        
-        window.auth = auth;
-        window.provider = provider;
-        window.signOut = signOut;
-        window.signInWithPopup = signInWithPopup;
-    </script>
 </head>
 <body data-theme="dark">
     <div class="container">
         <div class="prayer-card">
             <div class="header">
-               
                 <div class="header-top">
+                    <!-- КНОПКА ПРОФИЛЯ (СЛЕВА) -->
                     <div class="left-buttons">
-                        <h1>🕌 Время намаза</h1>
                         <button id="profileBtn" class="profile-btn">
                             <i class="fas fa-user-circle"></i>
                         </button>
                     </div>
+                    
+                    <!-- ВЫБОР ГОРОДА (ЦЕНТР) -->
                     <div class="center-controls">
                         <div class="location-badge">
                             <i class="fas fa-map-marker-alt"></i>
                             <select id="citySelect">
-                                <option value="42.9849,47.5046">Махачкала</option>
-                                <option value="42.0569,48.2885">Дербент</option>
-                                <option value="43.2500,46.5833">Хасавюрт</option>
-                                <option value="42.8167,47.1167">Буйнакск</option>
-                                <option value="42.5654,47.8634">Избербаш</option>
-                                <option value="43.8485,46.7199">Кизляр</option>
-                                <option value="42.8819,47.6372">Каспийск</option>
+                                <option value="Махачкала">Махачкала</option>
+                                <option value="Дербент">Дербент</option>
+                                <option value="Хасавюрт">Хасавюрт</option>
+                                <option value="Буйнакск">Буйнакск</option>
+                                <option value="Избербаш">Избербаш</option>
+                                <option value="Кизляр">Кизляр</option>
+                                <option value="Каспийск">Каспийск</option>
                             </select>
                         </div>
                     </div>
+
+                    <!-- КНОПКА МЕНЮ (СПРАВА) -->
                     <div class="right-buttons">
                         <div class="dropdown">
                             <button id="menuToggle" class="menu-toggle">
                                 <i class="fas fa-ellipsis-h"></i>
                             </button>
                             <div id="dropdownMenu" class="dropdown-content">
-                                <a href="#" id="aboutMenuItem">
-                                    <i class="fas fa-info-circle"></i> О приложении
-                                </a>
+                                <a href="#" id="aboutMenuItem">📖 О приложении</a>
                             </div>
                         </div>
                     </div>
                 </div>
+                <!-- ЗАГОЛОВОК -->
+                <h1>🕌 Время намаза</h1>
             </div>
 
+            <!-- СЕТКА НАМАЗОВ -->
             <div class="prayer-grid">
                 <div class="prayer-item"><div class="prayer-info"><i class="fas fa-cloud-moon"></i><span class="prayer-name">Фаджр</span></div><span class="prayer-time" id="fajr">--:--</span></div>
                 <div class="prayer-item"><div class="prayer-info"><i class="fas fa-sun"></i><span class="prayer-name">Шурук</span></div><span class="prayer-time" id="sunrise">--:--</span></div>
@@ -98,238 +75,93 @@
         </div>
     </div>
 
-    <!-- ПЛАВАЮЩАЯ КНОПКА КОМПАСА -->
+    <!-- ==================== ПЛАВАЮЩИЕ КНОПКИ ==================== -->
+    <!-- КОМПАС (СЛЕВА) -->
     <button id="floatingCompassBtn" class="floating-compass-btn">
         <i class="fas fa-compass"></i>
     </button>
-
-    <!-- ПЛАВАЮЩАЯ КНОПКА КОРАНА -->
+    <!-- КОРАН (СПРАВА) -->
     <a href="quran.html" id="floatingQuranBtn" class="floating-quran-btn">
-        <i class="fas fa-book-quran"></i>
-        <span>Коран</span>
+        <i class="fas fa-book-quran"></i> Коран
     </a>
 
-    <!-- КОМПАС НА ВЕСЬ ЭКРАН -->
-    <div id="fullscreenCompass" class="fullscreen-compass">
-        <div class="compass-full-header">
-            <h3><i class="fas fa-kaaba"></i> Направление на Киблу</h3>
-            <button id="closeFullscreenCompass" class="close-fullscreen">&times;</button>
-        </div>
-        <div class="compass-full-body">
-            <div class="compass-full">
-                <div class="needle-full" id="needleFull">
-                    <div class="needle-top-full"></div>
-                    <div class="needle-bottom-full"></div>
-                </div>
-                <div class="compass-mark-full">N</div>
-                <div class="kaaba-icon-full" id="kaabaIcon">
-                    <i class="fas fa-kaaba"></i>
-                </div>
-            </div>
-            <div class="qibla-degree-full" id="qiblaDegreeFull">--°</div>
-            <div id="compassHintFull" class="compass-hint-full">📍 Нажмите "Запустить компас" и поверните телефон</div>
-            <button id="startCompassFull" class="start-compass-btn">
-                <i class="fas fa-location-arrow"></i> Запустить компас
-            </button>
-        </div>
-    </div>
-
-    <!-- ПОЛНОЭКРАННЫЙ ПРОФИЛЬ -->
+    <!-- ==================== МОДАЛЬНЫЕ ОКНА ==================== -->
+    <!-- ОКНО ПРОФИЛЯ -->
     <div id="fullscreenProfile" class="fullscreen-profile">
         <div class="profile-full-header">
             <button id="closeProfile" class="close-profile">&times;</button>
-            <h2>Профиль</h2>
+            <h2>Профиль и настройки</h2>
             <div style="width: 44px;"></div>
         </div>
-        
         <div class="profile-tabs">
-            <button class="profile-tab active" data-profile-tab="account">👤 Аккаунт</button>
-            <button class="profile-tab" data-profile-tab="notifications">🔔 Уведомления</button>
-            <button class="profile-tab" data-profile-tab="language">🌐 Язык</button>
+            <button class="profile-tab active" data-profile-tab="notifications">🔔 Уведомления</button>
             <button class="profile-tab" data-profile-tab="appearance">🎨 Оформление</button>
         </div>
-
         <div class="profile-content">
-            <!-- Вкладка Аккаунт -->
-            <div id="profile-tab-account" class="profile-pane active">
-                <div class="account-avatar">
-                    <i class="fas fa-user-circle"></i>
-                </div>
-                <div id="profileUserInfo" class="profile-user-info">
-                    <p>Войдите, чтобы сохранять настройки</p>
-                </div>
-                <div class="profile-auth-buttons">
-                    <button id="profileGoogleSignIn" class="profile-auth-btn google-btn">
-                        <i class="fab fa-google"></i> Войти через Google
-                    </button>
-                </div>
-                <button id="profileSignOutBtn" class="profile-logout-btn" style="display: none;">
-                    <i class="fas fa-sign-out-alt"></i> Выйти
-                </button>
-            </div>
-
             <!-- Вкладка Уведомления -->
-            <div id="profile-tab-notifications" class="profile-pane">
+            <div id="profile-tab-notifications" class="profile-pane active">
                 <div class="settings-group">
                     <div class="settings-item">
                         <div class="settings-info">
                             <i class="fas fa-bell"></i>
-                            <div>
-                                <h4>Уведомления о намазах</h4>
-                                <p>Получать напоминания о времени намаза</p>
-                            </div>
+                            <div><h4>Уведомления о намазах</h4><p>Получать напоминания</p></div>
                         </div>
-                        <label class="switch">
-                            <input type="checkbox" id="notificationsToggle" checked>
-                            <span class="slider"></span>
-                        </label>
+                        <label class="switch"><input type="checkbox" id="notificationsToggle"><span class="slider"></span></label>
                     </div>
-
                     <div class="settings-item">
                         <div class="settings-info">
                             <i class="fas fa-clock"></i>
-                            <div>
-                                <h4>Напоминать за</h4>
-                                <p>За сколько минут до намаза приходит уведомление</p>
-                            </div>
+                            <div><h4>Напоминать за</h4><p>За сколько минут</p></div>
                         </div>
-                        <select id="notificationTimeSelect" class="settings-select">
-                            <option value="5">5 минут</option>
-                            <option value="10">10 минут</option>
-                            <option value="15">15 минут</option>
-                            <option value="30">30 минут</option>
-                        </select>
+                        <select id="notificationTimeSelect"><option value="5">5 минут</option><option value="10">10 минут</option><option value="15">15 минут</option><option value="30">30 минут</option></select>
                     </div>
-
                     <div class="settings-item">
                         <div class="settings-info">
                             <i class="fas fa-music"></i>
-                            <div>
-                                <h4>Звук азана</h4>
-                                <p>Выберите мелодию азана</p>
-                            </div>
+                            <div><h4>Звук азана</h4></div>
                         </div>
-                        <select id="azanSoundSelect" class="settings-select">
-                            <option value="makkah">Мекканский азан</option>
-                            <option value="medina">Мединский азан</option>
-                            <option value="fajr">Утренний азан</option>
-                        </select>
+                        <select id="azanSoundSelect"><option value="makkah">Мекканский азан</option><option value="medina">Мединский азан</option></select>
                     </div>
-
                     <div class="settings-item">
-                        <div class="settings-info">
-                            <i class="fas fa-volume-up"></i>
-                            <div>
-                                <h4>Пробный азан</h4>
-                                <p>Проверить как звучит выбранная мелодия</p>
-                            </div>
-                        </div>
-                        <button id="testAzanBtn" class="test-sound-btn">
-                            <i class="fas fa-play"></i> Тест
-                        </button>
+                        <button id="testAzanBtn" class="test-sound-btn">🎵 Тест азана</button>
                     </div>
                 </div>
             </div>
-
-            <!-- Вкладка Язык -->
-            <div id="profile-tab-language" class="profile-pane">
-                <div class="language-list">
-                    <button class="language-item active" data-lang="ru">
-                        <i class="fas fa-flag"></i>
-                        <span>Русский</span>
-                        <i class="fas fa-check-circle"></i>
-                    </button>
-                    <button class="language-item" data-lang="en">
-                        <i class="fas fa-flag"></i>
-                        <span>English</span>
-                        <i class="fas fa-check-circle"></i>
-                    </button>
-                    <button class="language-item" data-lang="ar">
-                        <i class="fas fa-flag"></i>
-                        <span>العربية</span>
-                        <i class="fas fa-check-circle"></i>
-                    </button>
-                    <button class="language-item" data-lang="kk">
-                        <i class="fas fa-flag"></i>
-                        <span>Қазақша</span>
-                        <i class="fas fa-check-circle"></i>
-                    </button>
-                    <button class="language-item" data-lang="tr">
-                        <i class="fas fa-flag"></i>
-                        <span>Türkçe</span>
-                        <i class="fas fa-check-circle"></i>
-                    </button>
-                    <button class="language-item" data-lang="uz">
-                        <i class="fas fa-flag"></i>
-                        <span>Oʻzbekcha</span>
-                        <i class="fas fa-check-circle"></i>
-                    </button>
-                    <button class="language-item" data-lang="tt">
-                        <i class="fas fa-flag"></i>
-                        <span>Татарча</span>
-                        <i class="fas fa-check-circle"></i>
-                    </button>
-                    <button class="language-item" data-lang="ky">
-                        <i class="fas fa-flag"></i>
-                        <span>Кыргызча</span>
-                        <i class="fas fa-check-circle"></i>
-                    </button>
-                    <button class="language-item" data-lang="hi">
-                        <i class="fas fa-flag"></i>
-                        <span>हिन्दी</span>
-                        <i class="fas fa-check-circle"></i>
-                    </button>
-                    <button class="language-item" data-lang="es">
-                        <i class="fas fa-flag"></i>
-                        <span>Español</span>
-                        <i class="fas fa-check-circle"></i>
-                    </button>
-                </div>
-            </div>
-
             <!-- Вкладка Оформление -->
             <div id="profile-tab-appearance" class="profile-pane">
                 <div class="settings-group">
                     <div class="settings-item">
-                        <div class="settings-info">
-                            <i class="fas fa-moon"></i>
-                            <div>
-                                <h4>Тёмная тема</h4>
-                                <p>Включить тёмное оформление</p>
-                            </div>
-                        </div>
-                        <label class="switch">
-                            <input type="checkbox" id="profileDarkModeToggle" checked>
-                            <span class="slider"></span>
-                        </label>
+                        <div class="settings-info"><i class="fas fa-moon"></i><div><h4>Тёмная тема</h4></div></div>
+                        <label class="switch"><input type="checkbox" id="profileDarkModeToggle" checked><span class="slider"></span></label>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- АУДИО С РАБОЧИМИ ССЫЛКАМИ -->
+    <!-- ОКНО КОМПАСА -->
+    <div id="fullscreenCompass" class="fullscreen-compass">
+        <div class="compass-full-header">
+            <h3>🧭 Направление на Киблу</h3>
+            <button id="closeFullscreenCompass" class="close-fullscreen">&times;</button>
+        </div>
+        <div class="compass-full-body">
+            <div class="compass-full">
+                <div class="needle-full" id="needleFull"><div class="needle-top-full"></div><div class="needle-bottom-full"></div></div>
+                <div class="compass-mark-full">N</div>
+                <div class="kaaba-icon-full" id="kaabaIcon"><i class="fas fa-kaaba"></i></div>
+            </div>
+            <div class="qibla-degree-full" id="qiblaDegreeFull">--°</div>
+            <div id="compassHintFull" class="compass-hint-full">📍 Нажмите "Запустить компас"</div>
+            <button id="startCompassFull" class="start-compass-btn">▶ Запустить компас</button>
+        </div>
+    </div>
+
+    <!-- АУДИО -->
     <audio id="azanAudio" preload="auto">
-         <source id="azanSource" src="https://github.com/sadusaduev2006-alt/namaz-time/blob/main/audio/AZAN_-_AHMAD_ALNUFAIS_74996900.mp3" type="audio/mpeg">
+        <source id="azanSource" src="https://cdn.islamic.network/audio/adhan/ar-makkah.mp3" type="audio/mpeg">
     </audio>
-    
-    <audio id="notificationSound" preload="auto">
-        <source src="https://github.com/sadusaduev2006-alt/namaz-time/blob/main/audio/AZAN_-_AHMAD_ALNUFAIS_74996900.mp3" type="audio/mpeg">
-    </audio>
-    
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/namaz-time/sw.js')
-                .then(reg => console.log('Service Worker зарегистрирован', reg))
-                .catch(err => console.log('Ошибка регистрации SW:', err));
-        }
-        
-        setTimeout(function() {
-            if (Notification && Notification.permission === 'default') {
-                Notification.requestPermission();
-            }
-        }, 2000);
-    </script>
+
     <script src="script.js"></script>
 </body>
 </html>

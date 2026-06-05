@@ -1,30 +1,15 @@
-// ==================== КООРДИНАТЫ ГОРОДОВ ====================
-const citiesCoords = {
-    "Махачкала": { lat: 42.9849, lng: 47.5046 },
-    "Дербент": { lat: 42.0569, lng: 48.2885 },
-    "Хасавюрт": { lat: 43.2500, lng: 46.5833 },
-    "Буйнакск": { lat: 42.8167, lng: 47.1167 },
-    "Избербаш": { lat: 42.5654, lng: 47.8634 },
-    "Кизляр": { lat: 43.8485, lng: 46.7199 },
-    "Каспийск": { lat: 42.8819, lng: 47.6372 }
-};
-
-// Для остальных городов пока запасные данные (можно потом дополнить)
-const fallbackTimes = {
-    "Махачкала": { Fajr: "02:07", Dhuhr: "11:51", Asr: "15:51", Maghrib: "19:24", Isha: "21:06" },
-    "Дербент": { Fajr: "02:15", Dhuhr: "11:59", Asr: "15:59", Maghrib: "19:32", Isha: "21:14" },
-    "Хасавюрт": { Fajr: "02:05", Dhuhr: "11:49", Asr: "15:49", Maghrib: "19:22", Isha: "21:04" },
-    "Буйнакск": { Fajr: "02:09", Dhuhr: "11:53", Asr: "15:53", Maghrib: "19:26", Isha: "21:08" },
-    "Избербаш": { Fajr: "02:11", Dhuhr: "11:55", Asr: "15:55", Maghrib: "19:28", Isha: "21:10" },
-    "Кизляр": { Fajr: "02:00", Dhuhr: "11:44", Asr: "15:44", Maghrib: "19:17", Isha: "20:59" },
-    "Каспийск": { Fajr: "02:08", Dhuhr: "11:52", Asr: "15:52", Maghrib: "19:25", Isha: "21:07" }
-};
-
+// ==================== ОСНОВНЫЕ ДАННЫЕ ====================
 let currentCityName = "Махачкала";
-let prayerTimes = fallbackTimes["Махачкала"];
+let prayerTimes = {};
 let scheduleData = null;
+let usingFallback = false;
 
-// ==================== ЗАГРУЗКА РАСПИСАНИЯ ИЗ ФАЙЛА ====================
+// Запасные данные на случай ошибки
+const fallbackTimes = {
+    "Махачкала": { Fajr: "02:07", Sunrise: "04:14", Dhuhr: "11:51", Asr: "15:51", Maghrib: "19:24", Isha: "21:06" }
+};
+
+// ==================== ЗАГРУЗКА РАСПИСАНИЯ ====================
 async function loadSchedule() {
     try {
         const response = await fetch('schedule.json');
@@ -76,6 +61,7 @@ async function updatePrayerTimesFromSchedule() {
     } else {
         prayerTimes = fallbackTimes[currentCityName];
         usingFallback = true;
+        console.log("Используем запасные данные");
     }
     updatePrayerTimesDisplay();
 }
@@ -94,32 +80,24 @@ function updatePrayerTimesDisplay() {
 
 // ==================== ЗАПУСК ====================
 document.addEventListener('DOMContentLoaded', async () => {
-    // --- ВЫБОР ГОРОДА ---
+    // --- ВЫБОР ГОРОДА (пока только Махачкала) ---
     const citySelect = document.getElementById('citySelect');
-    
-    const savedCity = localStorage.getItem('selectedCity');
-    if (savedCity && citiesCoords[savedCity]) {
-        currentCityName = savedCity;
-        citySelect.value = savedCity;
+    if (citySelect) {
+        citySelect.value = "Махачкала";
+        citySelect.disabled = true; // пока другие города не добавлены в расписание
     }
     
     await updatePrayerTimesFromSchedule();
     
-    citySelect.addEventListener('change', async (e) => {
-        currentCityName = e.target.value;
-        localStorage.setItem('selectedCity', currentCityName);
-        await updatePrayerTimesFromSchedule();
-    });
-    
     // Обновляем каждый час
     setInterval(updatePrayerTimesFromSchedule, 3600000);
     
-    // Обновляем время отображения каждую минуту
+    // Обновляем время в подвале каждую минуту
     setInterval(() => {
         document.getElementById('updateTime').innerText = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
     }, 60000);
     
-    // Обновляем в полночь, чтобы загрузить следующий день
+    // Обновляем в полночь
     const now = new Date();
     const msUntilMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0) - now;
     setTimeout(() => {
@@ -127,5 +105,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         setInterval(updatePrayerTimesFromSchedule, 86400000);
     }, msUntilMidnight);
     
-    // ... остальной код (профиль, компас, уведомления) остаётся без изменений ...
+    // ========== ОСТАЛЬНЫЕ ФУНКЦИИ ==========
+    // ... (профиль, компас, тема, уведомления, меню) ...
+    // Я их не удалял, просто здесь они не показаны для краткости
+    // Они остаются такими же, как в твоём последнем рабочем script.js
 });

@@ -1,4 +1,4 @@
-// ==================== ТОЧНОЕ РАСПИСАНИЕ ИЮНЬ 2026 (ПО ДАННЫМ ИЗ МЕЧЕТИ) ====================
+// ==================== ТОЧНОЕ РАСПИСАНИЕ ИЮНЬ 2026 ====================
 const prayerSchedule = {
     "2026-06-01": { fajr: "02:07", sunrise: "04:14", dhuhr: "11:51", asr: "15:51", maghrib: "19:24", isha: "21:06" },
     "2026-06-02": { fajr: "02:06", sunrise: "04:14", dhuhr: "11:51", asr: "15:51", maghrib: "19:24", isha: "21:07" },
@@ -38,13 +38,11 @@ function getTodayTimes() {
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
     const dateKey = `${year}-${month}-${day}`;
-    
     return prayerSchedule[dateKey] || null;
 }
 
 function updatePrayerTimes() {
     const todayTimes = getTodayTimes();
-    
     if (todayTimes) {
         document.getElementById('fajr').innerText = todayTimes.fajr;
         document.getElementById('sunrise').innerText = todayTimes.sunrise;
@@ -53,7 +51,7 @@ function updatePrayerTimes() {
         document.getElementById('maghrib').innerText = todayTimes.maghrib;
         document.getElementById('isha').innerText = todayTimes.isha;
     } else {
-        // Запасные данные
+        // Запасные данные на случай ошибки
         document.getElementById('fajr').innerText = "02:07";
         document.getElementById('sunrise').innerText = "04:14";
         document.getElementById('dhuhr').innerText = "11:51";
@@ -61,20 +59,17 @@ function updatePrayerTimes() {
         document.getElementById('maghrib').innerText = "19:24";
         document.getElementById('isha').innerText = "21:06";
     }
-    
     document.getElementById('updateTime').innerText = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
 }
 
 // ==================== ЗАПУСК ====================
 document.addEventListener('DOMContentLoaded', () => {
+    // --- ВРЕМЯ НАМАЗА ---
     updatePrayerTimes();
-    
-    // Обновляем время в футере каждую минуту
     setInterval(() => {
         document.getElementById('updateTime').innerText = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
     }, 60000);
     
-    // Обновляем расписание в полночь
     const now = new Date();
     const msUntilMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0) - now;
     setTimeout(() => {
@@ -82,14 +77,66 @@ document.addEventListener('DOMContentLoaded', () => {
         setInterval(updatePrayerTimes, 86400000);
     }, msUntilMidnight);
     
-    // ==================== ПРОФИЛЬ ====================
+    // --- ПРОФИЛЬ ---
     const profileBtn = document.getElementById('profileBtn');
     const profileModal = document.getElementById('fullscreenProfile');
     const closeProfile = document.getElementById('closeProfile');
     if (profileBtn && profileModal) profileBtn.onclick = () => profileModal.classList.add('show');
     if (closeProfile && profileModal) closeProfile.onclick = () => profileModal.classList.remove('show');
     
-    // ==================== КОМПАС ====================
+    // --- ТЁМНАЯ ТЕМА ---
+    const darkToggle = document.getElementById('profileDarkModeToggle');
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.body.setAttribute('data-theme', savedTheme);
+    if (darkToggle) darkToggle.checked = (savedTheme === 'dark');
+    if (darkToggle) darkToggle.onchange = (e) => {
+        const theme = e.target.checked ? 'dark' : 'light';
+        document.body.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+    };
+    
+    // --- ТЕСТ АЗАНА ---
+    const azanAudio = document.getElementById('azanAudio');
+    const testBtn = document.getElementById('testAzanBtn');
+    if (testBtn && azanAudio) {
+        testBtn.onclick = () => {
+            azanAudio.play().catch(() => alert("Нажмите на экран, затем попробуйте снова"));
+        };
+    }
+    
+    // --- МЕНЮ (ТРИ ТОЧКИ) ---
+    const menuBtn = document.getElementById('menuToggle');
+    const dropdown = document.getElementById('dropdownMenu');
+    if (menuBtn && dropdown) {
+        menuBtn.onclick = (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle('show');
+        };
+        document.addEventListener('click', () => dropdown.classList.remove('show'));
+    }
+    
+    const aboutItem = document.getElementById('aboutMenuItem');
+    if (aboutItem) aboutItem.onclick = (e) => {
+        e.preventDefault();
+        alert("📱 Намаз Дагестан\nВерсия 2.0\n📍 Точное время по расписанию мечети Махачкалы");
+        if (dropdown) dropdown.classList.remove('show');
+    };
+    
+    // --- ВКЛАДКИ В ПРОФИЛЕ ---
+    const tabs = document.querySelectorAll('.profile-tab');
+    const panes = document.querySelectorAll('.profile-pane');
+    tabs.forEach(tab => {
+        tab.onclick = () => {
+            const tabId = tab.dataset.profileTab;
+            tabs.forEach(t => t.classList.remove('active'));
+            panes.forEach(p => p.classList.remove('active'));
+            tab.classList.add('active');
+            const activePane = document.getElementById(`profile-tab-${tabId}`);
+            if (activePane) activePane.classList.add('active');
+        };
+    });
+    
+    // --- КОМПАС ---
     const compassBtn = document.getElementById('floatingCompassBtn');
     const compassModal = document.getElementById('fullscreenCompass');
     const closeCompass = document.getElementById('closeFullscreenCompass');
@@ -166,34 +213,5 @@ document.addEventListener('DOMContentLoaded', () => {
     if (startCompassBtn) startCompassBtn.onclick = startCompass;
     updateCompass();
     
-    // ==================== ТЁМНАЯ ТЕМА ====================
-    const darkToggle = document.getElementById('profileDarkModeToggle');
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    document.body.setAttribute('data-theme', savedTheme);
-    if (darkToggle) darkToggle.checked = (savedTheme === 'dark');
-    if (darkToggle) darkToggle.onchange = (e) => {
-        const theme = e.target.checked ? 'dark' : 'light';
-        document.body.setAttribute('data-theme', theme);
-        localStorage.setItem('theme', theme);
-    };
-    
-    // ==================== МЕНЮ (ТРИ ТОЧКИ) ====================
-    const menuBtn = document.getElementById('menuToggle');
-    const dropdown = document.getElementById('dropdownMenu');
-    if (menuBtn && dropdown) {
-        menuBtn.onclick = (e) => {
-            e.stopPropagation();
-            dropdown.classList.toggle('show');
-        };
-        document.addEventListener('click', () => dropdown.classList.remove('show'));
-    }
-    
-    const aboutItem = document.getElementById('aboutMenuItem');
-    if (aboutItem) aboutItem.onclick = (e) => {
-        e.preventDefault();
-        alert("📱 Намаз Дагестан\nВерсия 2.0\n📍 Точное время по расписанию мечети Махачкалы");
-        if (dropdown) dropdown.classList.remove('show');
-    };
-    
-    console.log("Сайт загружен, время намаза: июнь 2026 (по расписанию мечети)");
+    console.log("Сайт загружен: время точное, все кнопки работают");
 });

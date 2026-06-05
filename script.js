@@ -1,4 +1,16 @@
-const citiesData = {
+// ==================== КООРДИНАТЫ ГОРОДОВ ====================
+const citiesCoords = {
+    "Махачкала": { lat: 42.9849, lng: 47.5046 },
+    "Дербент": { lat: 42.0569, lng: 48.2885 },
+    "Хасавюрт": { lat: 43.2500, lng: 46.5833 },
+    "Буйнакск": { lat: 42.8167, lng: 47.1167 },
+    "Избербаш": { lat: 42.5654, lng: 47.8634 },
+    "Кизляр": { lat: 43.8485, lng: 46.7199 },
+    "Каспийск": { lat: 42.8819, lng: 47.6372 }
+};
+
+// Запасные данные (если API не ответит)
+const fallbackTimes = {
     "Махачкала": { Fajr: "02:07", Sunrise: "04:14", Dhuhr: "11:51", Asr: "15:51", Maghrib: "19:24", Isha: "21:06" },
     "Дербент": { Fajr: "02:15", Sunrise: "04:22", Dhuhr: "11:59", Asr: "15:59", Maghrib: "19:32", Isha: "21:14" },
     "Хасавюрт": { Fajr: "02:05", Sunrise: "04:12", Dhuhr: "11:49", Asr: "15:49", Maghrib: "19:22", Isha: "21:04" },
@@ -9,56 +21,122 @@ const citiesData = {
 };
 
 let currentCityName = "Махачкала";
-let prayerTimes = citiesData[currentCityName];
+let prayerTimes = fallbackTimes["Махачкала"];
+let usingFallback = false;
 
-function updatePrayerTimes() {
-    document.getElementById('fajr').innerText = prayerTimes.Fajr;
-    document.getElementById('sunrise').innerText = prayerTimes.Sunrise;
-    document.getElementById('dhuhr').innerText = prayerTimes.Dhuhr;
-    document.getElementById('asr').innerText = prayerTimes.Asr;
-    document.getElementById('maghrib').innerText = prayerTimes.Maghrib;
-    document.getElementById('isha').innerText = prayerTimes.Isha;
+// ==================== ФУНКЦИЯ ЗАГРУЗКИ ВРЕМЕНИ С API ====================
+async function fetchPrayerTimes() {
+    const coords = citiesCoords[currentCityName];
+    if (!coords) return;
+    
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const date = `${year}-${month}-${day}`;
+    
+    // Метод 16 = ДУМ РФ (подходит для Дагестана)
+    const url = `https://api.aladhan.com/v1/timings/${date}?latitude=${coords.lat}&longitude=${coords.lng}&method=16&timezone=Europe/Moscow`;
+    
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.code === 200) {
+            prayerTimes = data.data.timings;
+            usingFallback = false;
+            updatePrayerTimesDisplay();
+            console.log("Время загружено из API");
+        } else {
+            useFallbackData();
+        }
+    } catch (error) {
+        console.error("Ошибка API:", error);
+        useFallbackData();
+    }
+}
+
+// Использовать запасные данные
+function useFallbackData() {
+    if (!usingFallback) {
+        prayerTimes = fallbackTimes[currentCityName];
+        usingFallback = true;
+        updatePrayerTimesDisplay();
+        console.log("Используются запасные данные");
+        
+        // Показать предупреждение в подвале
+        const footer = document.querySelector('.footer-note p');
+        if (footer && !document.querySelector('.api-warning')) {
+            const warning = document.createElement('span');
+            warning.className = 'api-warning';
+            warning.style.color = '#ff9800';
+            warning.style.fontSize = '10px';
+            warning.style.marginLeft = '8px';
+            warning.innerHTML = '⚠️ Офлайн-режим';
+            footer.appendChild(warning);
+        }
+    }
+}
+
+// Отображение времени намаза
+function updatePrayerTimesDisplay() {
+    if (prayerTimes) {
+        document.getElementById('fajr').innerText = prayerTimes.Fajr || "--:--";
+        document.getElementById('sunrise').innerText = prayerTimes.Sunrise || "--:--";
+        document.getElementById('dhuhr').innerText = prayerTimes.Dhuhr || "--:--";
+        document.getElementById('asr').innerText = prayerTimes.Asr || "--:--";
+        document.getElementById('maghrib').innerText = prayerTimes.Maghrib || "--:--";
+        document.getElementById('isha').innerText = prayerTimes.Isha || "--:--";
+    }
     document.getElementById('updateTime').innerText = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    updatePrayerTimes();
-
-    // ВЫБОР ГОРОДА
+// ==================== ЗАПУСК ПРИ ЗАГРУЗКЕ ====================
+document.addEventListener('DOMContentLoaded', async () => {
+    // --- ВЫБОР ГОРОДА ---
     const citySelect = document.getElementById('citySelect');
-    citySelect.addEventListener('change', (e) => {
-        currentCityName = e.target.value;
-        prayerTimes = citiesData[currentCityName];
-        updatePrayerTimes();
-        localStorage.setItem('selectedCity', currentCityName);
-    });
+    
+    // Восстанавливаем сохранённый город
     const savedCity = localStorage.getItem('selectedCity');
-    if (savedCity && citiesData[savedCity]) {
+    if (savedCity && citiesCoords[savedCity]) {
         currentCityName = savedCity;
-        prayerTimes = citiesData[currentCityName];
         citySelect.value = savedCity;
-        updatePrayerTimes();
     }
+    
+    // Загружаем время для текущего города
+    await fetchPrayerTimes();
+    
+    // При смене города
+    citySelect.addEventListener('change', async (e) => {
+        currentCityName = e.target.value;
+        localStorage.setItem('selectedCity', currentCityName);
+        await fetchPrayerTimes();
+    });
+    
+    // Обновляем время каждые 60 минут
+    setInterval(fetchPrayerTimes, 3600000);
 
-    // ПРОФИЛЬ
+    // ==================== ПРОФИЛЬ ====================
     const profileBtn = document.getElementById('profileBtn');
     const profileModal = document.getElementById('fullscreenProfile');
     const closeProfile = document.getElementById('closeProfile');
     if (profileBtn) profileBtn.onclick = () => profileModal.classList.add('show');
     if (closeProfile) closeProfile.onclick = () => profileModal.classList.remove('show');
 
-    // ТЁМНАЯ ТЕМА
+    // ==================== ТЁМНАЯ ТЕМА ====================
     const darkToggle = document.getElementById('profileDarkModeToggle');
     const savedTheme = localStorage.getItem('theme') || 'dark';
     document.body.setAttribute('data-theme', savedTheme);
     if (darkToggle) darkToggle.checked = (savedTheme === 'dark');
-    if (darkToggle) darkToggle.onchange = (e) => {
-        const theme = e.target.checked ? 'dark' : 'light';
-        document.body.setAttribute('data-theme', theme);
-        localStorage.setItem('theme', theme);
-    };
+    if (darkToggle) {
+        darkToggle.onchange = (e) => {
+            const theme = e.target.checked ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+        };
+    }
 
-    // УВЕДОМЛЕНИЯ
+    // ==================== УВЕДОМЛЕНИЯ ====================
     const notifToggle = document.getElementById('notificationsToggle');
     const notifTime = document.getElementById('notificationTimeSelect');
     if (notifToggle) {
@@ -73,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
         notifTime.onchange = (e) => localStorage.setItem('notificationTime', e.target.value);
     }
 
-    // ТЕСТ АЗАНА
+    // ==================== ТЕСТ АЗАНА ====================
     const azanAudio = document.getElementById('azanAudio');
     const testBtn = document.getElementById('testAzanBtn');
     const soundSelect = document.getElementById('azanSoundSelect');
@@ -91,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // МЕНЮ (ТРИ ТОЧКИ)
+    // ==================== МЕНЮ (ТРИ ТОЧКИ) ====================
     const menuBtn = document.getElementById('menuToggle');
     const dropdown = document.getElementById('dropdownMenu');
     if (menuBtn && dropdown) {
@@ -104,11 +182,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const aboutItem = document.getElementById('aboutMenuItem');
     if (aboutItem) aboutItem.onclick = (e) => {
         e.preventDefault();
-        alert("📱 Намаз Дагестан\nВерсия 2.0");
+        alert("📱 Намаз Дагестан\nВерсия 2.0\n📍 Точное время намазов через API");
         if (dropdown) dropdown.classList.remove('show');
     };
 
-    // ВКЛАДКИ
+    // ==================== ВКЛАДКИ В ПРОФИЛЕ ====================
     const tabs = document.querySelectorAll('.profile-tab');
     const panes = document.querySelectorAll('.profile-pane');
     tabs.forEach(tab => {
@@ -131,6 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const degreeSpan = document.getElementById('qiblaDegreeFull');
     const hintSpan = document.getElementById('compassHintFull');
     
+    // Угол Киблы для Махачкалы (рассчитан точно)
     const QIBLA_ANGLE = 203;
     let currentHeading = 0;
     let compassActive = false;
@@ -182,11 +261,54 @@ document.addEventListener('DOMContentLoaded', () => {
                         compassActive = true;
                         alert('✅ Компас включён! Поворачивайте телефон');
                         updateCompass();
-                    } else alert('❌ Доступ не разрешён');
+                    } else alert('❌ Доступ не разрешён. Разрешите в настройках Safari → Конфиденциальность → Движение и фитнес');
                 })
                 .catch(() => alert('❌ Ошибка доступа'));
         } else {
             window.addEventListener('deviceorientation', handleOrientation);
             listenerAdded = true;
             compassActive = true;
-            alert('✅ Компас включ
+            alert('✅ Компас включён! Поворачивайте телефон');
+            updateCompass();
+        }
+    }
+    
+    if (compassBtn) compassBtn.onclick = () => compassModal.classList.add('show');
+    if (closeCompass) closeCompass.onclick = () => compassModal.classList.remove('show');
+    if (startCompassBtn) startCompassBtn.onclick = startCompass;
+    
+    updateCompass();
+
+    // ==================== НАПОМИНАНИЯ О НАМАЗАХ ====================
+    let lastNotif = "";
+    setInterval(() => {
+        if (!prayerTimes.Fajr) return;
+        
+        const now = new Date();
+        const currentMin = now.getHours() * 60 + now.getMinutes();
+        const minutesBefore = parseInt(localStorage.getItem('notificationTime')) || 5;
+        const today = now.toDateString();
+        const prayersList = [
+            { name: "Фаджр", time: prayerTimes.Fajr },
+            { name: "Зухр", time: prayerTimes.Dhuhr },
+            { name: "Аср", time: prayerTimes.Asr },
+            { name: "Магриб", time: prayerTimes.Maghrib },
+            { name: "Иша", time: prayerTimes.Isha }
+        ];
+        const target = prayersList.find(p => {
+            if (!p.time) return false;
+            const [h, m] = p.time.split(':').map(Number);
+            const prayMin = h * 60 + m;
+            return (prayMin - minutesBefore) === currentMin;
+        });
+        if (target && Notification.permission === 'granted' && 
+            localStorage.getItem('notificationsEnabled') === 'true' && 
+            lastNotif !== today + target.name) {
+            new Notification(`🕌 Скоро намаз ${target.name}`, {
+                body: `Осталось ${minutesBefore} минут`,
+                icon: 'https://cdn-icons-png.flaticon.com/512/3069/3069175.png'
+            });
+            lastNotif = today + target.name;
+        }
+    }, 60000);
+});

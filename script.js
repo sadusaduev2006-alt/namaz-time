@@ -24,6 +24,7 @@ function updatePrayerTimes() {
 document.addEventListener('DOMContentLoaded', () => {
     updatePrayerTimes();
 
+    // ВЫБОР ГОРОДА
     const citySelect = document.getElementById('citySelect');
     citySelect.addEventListener('change', (e) => {
         currentCityName = e.target.value;
@@ -39,14 +40,14 @@ document.addEventListener('DOMContentLoaded', () => {
         updatePrayerTimes();
     }
 
-    // --- ПРОФИЛЬ ---
+    // ПРОФИЛЬ
     const profileBtn = document.getElementById('profileBtn');
     const profileModal = document.getElementById('fullscreenProfile');
     const closeProfile = document.getElementById('closeProfile');
     if (profileBtn) profileBtn.onclick = () => profileModal.classList.add('show');
     if (closeProfile) closeProfile.onclick = () => profileModal.classList.remove('show');
 
-    // --- ТЕМА ---
+    // ТЁМНАЯ ТЕМА
     const darkToggle = document.getElementById('profileDarkModeToggle');
     const savedTheme = localStorage.getItem('theme') || 'dark';
     document.body.setAttribute('data-theme', savedTheme);
@@ -57,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('theme', theme);
     };
 
-    // --- УВЕДОМЛЕНИЯ ---
+    // УВЕДОМЛЕНИЯ
     const notifToggle = document.getElementById('notificationsToggle');
     const notifTime = document.getElementById('notificationTimeSelect');
     if (notifToggle) {
@@ -72,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
         notifTime.onchange = (e) => localStorage.setItem('notificationTime', e.target.value);
     }
 
-    // --- ТЕСТ АЗАНА ---
+    // ТЕСТ АЗАНА
     const azanAudio = document.getElementById('azanAudio');
     const testBtn = document.getElementById('testAzanBtn');
     const soundSelect = document.getElementById('azanSoundSelect');
@@ -90,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // --- МЕНЮ ---
+    // МЕНЮ (ТРИ ТОЧКИ)
     const menuBtn = document.getElementById('menuToggle');
     const dropdown = document.getElementById('dropdownMenu');
     if (menuBtn && dropdown) {
@@ -107,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (dropdown) dropdown.classList.remove('show');
     };
 
-    // --- ВКЛАДКИ ---
+    // ВКЛАДКИ
     const tabs = document.querySelectorAll('.profile-tab');
     const panes = document.querySelectorAll('.profile-pane');
     tabs.forEach(tab => {
@@ -181,50 +182,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         compassActive = true;
                         alert('✅ Компас включён! Поворачивайте телефон');
                         updateCompass();
-                    } else alert('❌ Доступ не разрешён. Разрешите в настройках Safari → Конфиденциальность → Движение и фитнес');
+                    } else alert('❌ Доступ не разрешён');
                 })
                 .catch(() => alert('❌ Ошибка доступа'));
         } else {
             window.addEventListener('deviceorientation', handleOrientation);
             listenerAdded = true;
             compassActive = true;
-            alert('✅ Компас включён! Поворачивайте телефон');
-            updateCompass();
-        }
-    }
-    
-    if (compassBtn) compassBtn.onclick = () => compassModal.classList.add('show');
-    if (closeCompass) closeCompass.onclick = () => compassModal.classList.remove('show');
-    if (startCompassBtn) startCompassBtn.onclick = startCompass;
-    
-    updateCompass();
-
-    // --- НАПОМИНАНИЯ ---
-    let lastNotif = "";
-    setInterval(() => {
-        const now = new Date();
-        const currentMin = now.getHours() * 60 + now.getMinutes();
-        const minutesBefore = parseInt(localStorage.getItem('notificationTime')) || 5;
-        const today = now.toDateString();
-        const prayersList = [
-            { name: "Фаджр", time: prayerTimes.Fajr },
-            { name: "Зухр", time: prayerTimes.Dhuhr },
-            { name: "Аср", time: prayerTimes.Asr },
-            { name: "Магриб", time: prayerTimes.Maghrib },
-            { name: "Иша", time: prayerTimes.Isha }
-        ];
-        const target = prayersList.find(p => {
-            if (!p.time) return false;
-            const [h, m] = p.time.split(':').map(Number);
-            const prayMin = h * 60 + m;
-            return (prayMin - minutesBefore) === currentMin;
-        });
-        if (target && Notification.permission === 'granted' && localStorage.getItem('notificationsEnabled') === 'true' && lastNotif !== today + target.name) {
-            new Notification(`🕌 Скоро намаз ${target.name}`, {
-                body: `Осталось ${minutesBefore} минут`,
-                icon: 'https://cdn-icons-png.flaticon.com/512/3069/3069175.png'
-            });
-            lastNotif = today + target.name;
-        }
-    }, 60000);
-});
+            alert('✅ Компас включ

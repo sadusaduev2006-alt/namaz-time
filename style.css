@@ -52,16 +52,17 @@ body {
     box-shadow: var(--shadow);
 }
 
-/* ===== ШАПКА ===== */
+/* ===== ШАПКА (КНОПКИ НЕ СЪЕЗЖАЮТ) ===== */
 .header-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 24px;
-    gap: 10px;
+    gap: 15px;
 }
 .left-buttons, .right-buttons {
-    min-width: 44px;
+    flex-shrink: 0;
+    width: 44px;
 }
 .icon-btn {
     background: var(--accent-light);
@@ -73,6 +74,9 @@ body {
     color: var(--accent);
     font-size: 20px;
     transition: transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .icon-btn:active {
     transform: scale(0.95);
@@ -162,6 +166,9 @@ h1 {
     cursor: pointer;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .floating-quran-btn {
     position: fixed;
@@ -183,7 +190,7 @@ h1 {
     transform: scale(0.95);
 }
 
-/* ===== МЕНЮ (ТРИ ТОЧКИ) ===== */
+/* ===== МЕНЮ ===== */
 .dropdown {
     position: relative;
 }
@@ -256,6 +263,7 @@ h1 {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
+    flex-wrap: wrap;
 }
 .profile-tab {
     background: var(--accent-light);
@@ -281,12 +289,15 @@ h1 {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 .switch {
     position: relative;
     display: inline-block;
     width: 50px;
     height: 24px;
+    flex-shrink: 0;
 }
 .switch input {
     opacity: 0;
@@ -396,8 +407,8 @@ input:checked + .slider:before {
     opacity: 0.8;
 }
 .qibla-degree-full {
-    font-size: 24px;
-    font-weight: 700;
+    font-size: 20px;
+    font-weight: 600;
     text-align: center;
     color: var(--accent);
     background: var(--accent-light);
@@ -436,5 +447,17 @@ input:checked + .slider:before {
     }
     .prayer-name {
         font-size: 15px;
+    }
+    .left-buttons, .right-buttons {
+        width: 40px;
+    }
+    .icon-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+    .start-compass-btn {
+        font-size: 14px;
+        padding: 12px 20px;
     }
 }

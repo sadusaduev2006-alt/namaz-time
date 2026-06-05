@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>Намаз Дагестан</title>
-    <!-- Шрифты и стили -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
@@ -20,9 +19,9 @@
         <div class="prayer-card">
             <div class="header">
                 <div class="header-top">
-                    <!-- КНОПКА ПРОФИЛЯ (СЛЕВА) -->
+                    <!-- ПРОФИЛЬ (СЛЕВА) -->
                     <div class="left-buttons">
-                        <button id="profileBtn" class="profile-btn">
+                        <button id="profileBtn" class="icon-btn">
                             <i class="fas fa-user-circle"></i>
                         </button>
                     </div>
@@ -43,10 +42,10 @@
                         </div>
                     </div>
 
-                    <!-- КНОПКА МЕНЮ (СПРАВА) -->
+                    <!-- МЕНЮ (СПРАВА) -->
                     <div class="right-buttons">
                         <div class="dropdown">
-                            <button id="menuToggle" class="menu-toggle">
+                            <button id="menuToggle" class="icon-btn">
                                 <i class="fas fa-ellipsis-h"></i>
                             </button>
                             <div id="dropdownMenu" class="dropdown-content">
@@ -55,7 +54,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- ЗАГОЛОВОК -->
                 <h1>🕌 Время намаза</h1>
             </div>
 
@@ -76,11 +74,9 @@
     </div>
 
     <!-- ==================== ПЛАВАЮЩИЕ КНОПКИ ==================== -->
-    <!-- КОМПАС (СЛЕВА) -->
     <button id="floatingCompassBtn" class="floating-compass-btn">
         <i class="fas fa-compass"></i>
     </button>
-    <!-- КОРАН (СПРАВА) -->
     <a href="quran.html" id="floatingQuranBtn" class="floating-quran-btn">
         <i class="fas fa-book-quran"></i> Коран
     </a>
@@ -90,7 +86,7 @@
     <div id="fullscreenProfile" class="fullscreen-profile">
         <div class="profile-full-header">
             <button id="closeProfile" class="close-profile">&times;</button>
-            <h2>Профиль и настройки</h2>
+            <h2>Настройки</h2>
             <div style="width: 44px;"></div>
         </div>
         <div class="profile-tabs">
@@ -98,36 +94,23 @@
             <button class="profile-tab" data-profile-tab="appearance">🎨 Оформление</button>
         </div>
         <div class="profile-content">
-            <!-- Вкладка Уведомления -->
             <div id="profile-tab-notifications" class="profile-pane active">
                 <div class="settings-group">
                     <div class="settings-item">
-                        <div class="settings-info">
-                            <i class="fas fa-bell"></i>
-                            <div><h4>Уведомления о намазах</h4><p>Получать напоминания</p></div>
-                        </div>
+                        <div class="settings-info"><i class="fas fa-bell"></i><div><h4>Уведомления</h4><p>Напоминания о намазах</p></div></div>
                         <label class="switch"><input type="checkbox" id="notificationsToggle"><span class="slider"></span></label>
                     </div>
                     <div class="settings-item">
-                        <div class="settings-info">
-                            <i class="fas fa-clock"></i>
-                            <div><h4>Напоминать за</h4><p>За сколько минут</p></div>
-                        </div>
+                        <div class="settings-info"><i class="fas fa-clock"></i><div><h4>Напоминать за</h4></div></div>
                         <select id="notificationTimeSelect"><option value="5">5 минут</option><option value="10">10 минут</option><option value="15">15 минут</option><option value="30">30 минут</option></select>
                     </div>
                     <div class="settings-item">
-                        <div class="settings-info">
-                            <i class="fas fa-music"></i>
-                            <div><h4>Звук азана</h4></div>
-                        </div>
+                        <div class="settings-info"><i class="fas fa-music"></i><div><h4>Звук азана</h4></div></div>
                         <select id="azanSoundSelect"><option value="makkah">Мекканский азан</option><option value="medina">Мединский азан</option></select>
                     </div>
-                    <div class="settings-item">
-                        <button id="testAzanBtn" class="test-sound-btn">🎵 Тест азана</button>
-                    </div>
+                    <button id="testAzanBtn" class="test-sound-btn">🎵 Тест азана</button>
                 </div>
             </div>
-            <!-- Вкладка Оформление -->
             <div id="profile-tab-appearance" class="profile-pane">
                 <div class="settings-group">
                     <div class="settings-item">
@@ -142,22 +125,25 @@
     <!-- ОКНО КОМПАСА -->
     <div id="fullscreenCompass" class="fullscreen-compass">
         <div class="compass-full-header">
-            <h3>🧭 Направление на Киблу</h3>
             <button id="closeFullscreenCompass" class="close-fullscreen">&times;</button>
+            <h3>🧭 Кибла (Мекка)</h3>
+            <div style="width: 44px;"></div>
         </div>
         <div class="compass-full-body">
             <div class="compass-full">
-                <div class="needle-full" id="needleFull"><div class="needle-top-full"></div><div class="needle-bottom-full"></div></div>
+                <div class="needle-full" id="needleFull">
+                    <div class="needle-top-full"></div>
+                    <div class="needle-bottom-full"></div>
+                </div>
                 <div class="compass-mark-full">N</div>
-                <div class="kaaba-icon-full" id="kaabaIcon"><i class="fas fa-kaaba"></i></div>
+                <div class="kaaba-icon-full"><i class="fas fa-kaaba"></i></div>
             </div>
             <div class="qibla-degree-full" id="qiblaDegreeFull">--°</div>
-            <div id="compassHintFull" class="compass-hint-full">📍 Нажмите "Запустить компас"</div>
-            <button id="startCompassFull" class="start-compass-btn">▶ Запустить компас</button>
+            <div id="compassHintFull" class="compass-hint-full">📍 Нажмите кнопку ниже</div>
+            <button id="startCompassFull" class="start-compass-btn">🚀 ЗАПУСТИТЬ КОМПАС</button>
         </div>
     </div>
 
-    <!-- АУДИО -->
     <audio id="azanAudio" preload="auto">
         <source id="azanSource" src="https://cdn.islamic.network/audio/adhan/ar-makkah.mp3" type="audio/mpeg">
     </audio>

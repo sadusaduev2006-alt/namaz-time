@@ -1,3 +1,31 @@
+// ==================== TELEGRAM НАСТРОЙКИ ====================
+const TELEGRAM_BOT_TOKEN = '8972109101:AAGEiE6xhXOBLTjSMTt66WWXZdxl5zL8yO0';
+const TELEGRAM_CHAT_ID = '6125987388';
+
+async function sendTelegramMessage(text) {
+    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: TELEGRAM_CHAT_ID,
+                text: text,
+                parse_mode: 'HTML',
+                disable_notification: false
+            })
+        });
+        const result = await response.json();
+        if (result.ok) {
+            console.log('✅ Telegram уведомление отправлено');
+        } else {
+            console.error('❌ Ошибка Telegram:', result.description);
+        }
+    } catch (error) {
+        console.error('❌ Ошибка отправки в Telegram:', error);
+    }
+}
+
 // ==================== ТОЧНОЕ РАСПИСАНИЕ ИЮНЬ 2026 ====================
 const prayerSchedule = {
     "2026-06-01": { fajr: "02:07", sunrise: "04:14", dhuhr: "11:51", asr: "15:51", maghrib: "19:24", isha: "21:06" },
@@ -51,7 +79,6 @@ function updatePrayerTimes() {
         document.getElementById('maghrib').innerText = todayTimes.maghrib;
         document.getElementById('isha').innerText = todayTimes.isha;
     } else {
-        // Запасные данные на случай ошибки
         document.getElementById('fajr').innerText = "02:07";
         document.getElementById('sunrise').innerText = "04:14";
         document.getElementById('dhuhr').innerText = "11:51";
@@ -64,7 +91,6 @@ function updatePrayerTimes() {
 
 // ==================== ЗАПУСК ====================
 document.addEventListener('DOMContentLoaded', () => {
-    // --- ВРЕМЯ НАМАЗА ---
     updatePrayerTimes();
     setInterval(() => {
         document.getElementById('updateTime').innerText = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
@@ -77,14 +103,14 @@ document.addEventListener('DOMContentLoaded', () => {
         setInterval(updatePrayerTimes, 86400000);
     }, msUntilMidnight);
     
-    // --- ПРОФИЛЬ ---
+    // ==================== ПРОФИЛЬ ====================
     const profileBtn = document.getElementById('profileBtn');
     const profileModal = document.getElementById('fullscreenProfile');
     const closeProfile = document.getElementById('closeProfile');
-    if (profileBtn && profileModal) profileBtn.onclick = () => profileModal.classList.add('show');
-    if (closeProfile && profileModal) closeProfile.onclick = () => profileModal.classList.remove('show');
+    if (profileBtn) profileBtn.onclick = () => profileModal.classList.add('show');
+    if (closeProfile) closeProfile.onclick = () => profileModal.classList.remove('show');
     
-    // --- ТЁМНАЯ ТЕМА ---
+    // ==================== ТЁМНАЯ ТЕМА ====================
     const darkToggle = document.getElementById('profileDarkModeToggle');
     const savedTheme = localStorage.getItem('theme') || 'dark';
     document.body.setAttribute('data-theme', savedTheme);
@@ -95,16 +121,23 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('theme', theme);
     };
     
-    // --- ТЕСТ АЗАНА ---
-    const azanAudio = document.getElementById('azanAudio');
-    const testBtn = document.getElementById('testAzanBtn');
-    if (testBtn && azanAudio) {
-        testBtn.onclick = () => {
-            azanAudio.play().catch(() => alert("Нажмите на экран, затем попробуйте снова"));
+    // ==================== УВЕДОМЛЕНИЯ ====================
+    const notifToggle = document.getElementById('notificationsToggle');
+    const notifTimeSelect = document.getElementById('notificationTimeSelect');
+    
+    if (notifToggle) {
+        notifToggle.checked = localStorage.getItem('notificationsEnabled') === 'true';
+        notifToggle.onchange = (e) => {
+            localStorage.setItem('notificationsEnabled', e.target.checked);
+            if (e.target.checked && Notification.permission === 'default') Notification.requestPermission();
         };
     }
+    if (notifTimeSelect) {
+        if (localStorage.getItem('notificationTime')) notifTimeSelect.value = localStorage.getItem('notificationTime');
+        notifTimeSelect.onchange = (e) => localStorage.setItem('notificationTime', e.target.value);
+    }
     
-    // --- МЕНЮ (ТРИ ТОЧКИ) ---
+    // ==================== МЕНЮ ====================
     const menuBtn = document.getElementById('menuToggle');
     const dropdown = document.getElementById('dropdownMenu');
     if (menuBtn && dropdown) {
@@ -118,11 +151,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const aboutItem = document.getElementById('aboutMenuItem');
     if (aboutItem) aboutItem.onclick = (e) => {
         e.preventDefault();
-        alert("📱 Намаз Дагестан\nВерсия 2.0\n📍 Точное время по расписанию мечети Махачкалы");
-        if (dropdown) dropdown.classList.remove('show');
+        alert("📱 Намаз Дагестан\nВерсия 2.0\n📍 Точное время по расписанию мечети Махачкалы\n📨 Уведомления в Telegram");
+        dropdown.classList.remove('show');
     };
     
-    // --- ВКЛАДКИ В ПРОФИЛЕ ---
+    // Подписка на Telegram
+    const telegramBtn = document.getElementById('telegramSubscribeBtn');
+    if (telegramBtn) {
+        telegramBtn.onclick = (e) => {
+            e.preventDefault();
+            alert('✅ Вы уже подписаны на уведомления в Telegram!\n\nБот будет присылать напоминания о намазах.');
+            dropdown.classList.remove('show');
+        };
+    }
+    
+    // ==================== ВКЛАДКИ В ПРОФИЛЕ ====================
     const tabs = document.querySelectorAll('.profile-tab');
     const panes = document.querySelectorAll('.profile-pane');
     tabs.forEach(tab => {
@@ -136,7 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     });
     
-    // --- КОМПАС ---
+    // ==================== КОМПАС ====================
     const compassBtn = document.getElementById('floatingCompassBtn');
     const compassModal = document.getElementById('fullscreenCompass');
     const closeCompass = document.getElementById('closeFullscreenCompass');
@@ -203,15 +246,67 @@ document.addEventListener('DOMContentLoaded', () => {
             window.addEventListener('deviceorientation', handleOrientation);
             listenerAdded = true;
             compassActive = true;
-            alert('✅ Компас включён! Поворачивайте телефон');
+            alert('✅ Компас включон! Поворачивайте телефон');
             updateCompass();
         }
     }
     
-    if (compassBtn && compassModal) compassBtn.onclick = () => compassModal.classList.add('show');
-    if (closeCompass && compassModal) closeCompass.onclick = () => compassModal.classList.remove('show');
+    if (compassBtn) compassBtn.onclick = () => compassModal.classList.add('show');
+    if (closeCompass) closeCompass.onclick = () => compassModal.classList.remove('show');
     if (startCompassBtn) startCompassBtn.onclick = startCompass;
     updateCompass();
     
-    console.log("Сайт загружен: время точное, все кнопки работают");
+    // ==================== НАПОМИНАНИЯ О НАМАЗАХ + TELEGRAM ====================
+    let lastNotif = "";
+    setInterval(() => {
+        const todayTimes = getTodayTimes();
+        if (!todayTimes) return;
+        
+        const now = new Date();
+        const currentMin = now.getHours() * 60 + now.getMinutes();
+        const minutesBefore = parseInt(localStorage.getItem('notificationTime')) || 5;
+        const today = now.toDateString();
+        const notificationsEnabled = localStorage.getItem('notificationsEnabled') === 'true';
+        
+        const prayersList = [
+            { name: "Фаджр", time: todayTimes.fajr },
+            { name: "Зухр", time: todayTimes.dhuhr },
+            { name: "Аср", time: todayTimes.asr },
+            { name: "Магриб", time: todayTimes.maghrib },
+            { name: "Иша", time: todayTimes.isha }
+        ];
+        
+        const target = prayersList.find(p => {
+            if (!p.time) return false;
+            const [h, m] = p.time.split(':').map(Number);
+            const prayMin = h * 60 + m;
+            return (prayMin - minutesBefore) === currentMin;
+        });
+        
+        if (target && notificationsEnabled && lastNotif !== today + target.name) {
+            const message = `🕌 Напоминание о намазе\n\n${target.name} наступит через ${minutesBefore} минут (в ${target.time})`;
+            
+            // Отправляем в Telegram
+            sendTelegramMessage(message);
+            
+            // Браузерное уведомление
+            if (Notification.permission === 'granted') {
+                new Notification(`🕌 Скоро намаз ${target.name}`, {
+                    body: `Осталось ${minutesBefore} минут (${target.time})`,
+                    icon: 'https://cdn-icons-png.flaticon.com/512/3069/3069175.png'
+                });
+            }
+            
+            lastNotif = today + target.name;
+        }
+    }, 60000);
+    
+    // Запрос разрешения на уведомления
+    setTimeout(() => {
+        if (Notification && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+    }, 2000);
+    
+    console.log("Сайт загружен: время точное, Telegram уведомления настроены");
 });

@@ -9,11 +9,10 @@ const citiesData = {
     "Каспийск": { Fajr: "02:08", Sunrise: "04:15", Dhuhr: "11:52", Asr: "15:52", Maghrib: "19:25", Isha: "21:07" }
 };
 
-// Текущий город
 let currentCityName = "Махачкала";
 let prayerTimes = citiesData[currentCityName];
 
-// ==================== ФУНКЦИИ ОБНОВЛЕНИЯ ====================
+// ==================== ВРЕМЯ НАМАЗА ====================
 function updatePrayerTimes() {
     document.getElementById('fajr').innerText = prayerTimes.Fajr;
     document.getElementById('sunrise').innerText = prayerTimes.Sunrise;
@@ -24,7 +23,7 @@ function updatePrayerTimes() {
     document.getElementById('updateTime').innerText = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
 }
 
-// ==================== ЗАПУСК ====================
+// ==================== ЗАПУСК ПРИ ЗАГРУЗКЕ ====================
 document.addEventListener('DOMContentLoaded', () => {
     updatePrayerTimes();
 
@@ -36,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updatePrayerTimes();
         localStorage.setItem('selectedCity', currentCityName);
     });
-    // Восстановление города
+    
     const savedCity = localStorage.getItem('selectedCity');
     if (savedCity && citiesData[savedCity]) {
         currentCityName = savedCity;
@@ -49,129 +48,197 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileBtn = document.getElementById('profileBtn');
     const profileModal = document.getElementById('fullscreenProfile');
     const closeProfile = document.getElementById('closeProfile');
-    profileBtn.onclick = () => profileModal.classList.add('show');
-    closeProfile.onclick = () => profileModal.classList.remove('show');
+    if (profileBtn) profileBtn.onclick = () => profileModal.classList.add('show');
+    if (closeProfile) closeProfile.onclick = () => profileModal.classList.remove('show');
 
-    // --- ТЕМА ---
+    // --- ТЁМНАЯ ТЕМА ---
     const darkToggle = document.getElementById('profileDarkModeToggle');
     const savedTheme = localStorage.getItem('theme') || 'dark';
     document.body.setAttribute('data-theme', savedTheme);
     if (darkToggle) darkToggle.checked = (savedTheme === 'dark');
-    
-    darkToggle.addEventListener('change', (e) => {
-        const theme = e.target.checked ? 'dark' : 'light';
-        document.body.setAttribute('data-theme', theme);
-        localStorage.setItem('theme', theme);
-    });
+    if (darkToggle) {
+        darkToggle.onchange = (e) => {
+            const theme = e.target.checked ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+        };
+    }
 
     // --- УВЕДОМЛЕНИЯ ---
     const notifToggle = document.getElementById('notificationsToggle');
     const notifTime = document.getElementById('notificationTimeSelect');
-    // Загрузка настроек
-    notifToggle.checked = localStorage.getItem('notificationsEnabled') === 'true';
-    if (localStorage.getItem('notificationTime')) notifTime.value = localStorage.getItem('notificationTime');
-    
-    notifToggle.addEventListener('change', (e) => {
-        localStorage.setItem('notificationsEnabled', e.target.checked);
-        if (e.target.checked && Notification.permission === 'default') Notification.requestPermission();
-    });
-    notifTime.addEventListener('change', (e) => localStorage.setItem('notificationTime', e.target.value));
+    if (notifToggle) {
+        notifToggle.checked = localStorage.getItem('notificationsEnabled') === 'true';
+        notifToggle.onchange = (e) => {
+            localStorage.setItem('notificationsEnabled', e.target.checked);
+            if (e.target.checked && Notification.permission === 'default') Notification.requestPermission();
+        };
+    }
+    if (notifTime) {
+        if (localStorage.getItem('notificationTime')) notifTime.value = localStorage.getItem('notificationTime');
+        notifTime.onchange = (e) => localStorage.setItem('notificationTime', e.target.value);
+    }
 
-    // --- ЗВУК АЗАНА (ТЕСТ) ---
+    // --- ТЕСТ АЗАНА ---
     const azanAudio = document.getElementById('azanAudio');
     const testBtn = document.getElementById('testAzanBtn');
     const soundSelect = document.getElementById('azanSoundSelect');
-    
     const soundMap = {
         'makkah': 'https://cdn.islamic.network/audio/adhan/ar-makkah.mp3',
         'medina': 'https://cdn.islamic.network/audio/adhan/ar-medina.mp3'
     };
-    
-    if (testBtn) {
-        testBtn.addEventListener('click', () => {
-            const src = soundMap[soundSelect.value];
+    if (testBtn && azanAudio) {
+        testBtn.onclick = () => {
+            const src = soundMap[soundSelect?.value || 'makkah'];
             if (src) {
                 azanAudio.src = src;
-                azanAudio.play().catch(() => alert("Нажмите на экран, чтобы разрешить звук"));
+                azanAudio.play().catch(() => alert("Нажмите на экран, затем попробуйте снова"));
             }
-        });
+        };
     }
 
     // --- МЕНЮ (ТРИ ТОЧКИ) ---
     const menuBtn = document.getElementById('menuToggle');
     const dropdown = document.getElementById('dropdownMenu');
-    menuBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        dropdown.classList.toggle('show');
-    });
-    document.addEventListener('click', () => dropdown.classList.remove('show'));
+    if (menuBtn && dropdown) {
+        menuBtn.onclick = (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle('show');
+        };
+        document.addEventListener('click', () => dropdown.classList.remove('show'));
+    }
     
-    document.getElementById('aboutMenuItem').addEventListener('click', (e) => {
-        e.preventDefault();
-        alert("📱 Намаз Дагестан\nВерсия 2.0\n📍 Точное время намазов");
-        dropdown.classList.remove('show');
-    });
+    const aboutItem = document.getElementById('aboutMenuItem');
+    if (aboutItem) {
+        aboutItem.onclick = (e) => {
+            e.preventDefault();
+            alert("📱 Намаз Дагестан\nВерсия 2.0\n📍 Точное время намазов");
+            if (dropdown) dropdown.classList.remove('show');
+        };
+    }
 
     // --- ВКЛАДКИ В ПРОФИЛЕ ---
     const tabs = document.querySelectorAll('.profile-tab');
     const panes = document.querySelectorAll('.profile-pane');
     tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
+        tab.onclick = () => {
             const tabId = tab.dataset.profileTab;
             tabs.forEach(t => t.classList.remove('active'));
             panes.forEach(p => p.classList.remove('active'));
             tab.classList.add('active');
-            document.getElementById(`profile-tab-${tabId}`).classList.add('active');
-        });
+            const activePane = document.getElementById(`profile-tab-${tabId}`);
+            if (activePane) activePane.classList.add('active');
+        };
     });
 
-    // --- КОМПАС (КИБЛА) ---
+    // ==================== КОМПАС (ИСПРАВЛЕННЫЙ) ====================
     const compassBtn = document.getElementById('floatingCompassBtn');
     const compassModal = document.getElementById('fullscreenCompass');
     const closeCompass = document.getElementById('closeFullscreenCompass');
-    const startCompass = document.getElementById('startCompassFull');
-    const needle = document.getElementById('needleFull');
-    const hintSpan = document.getElementById('compassHintFull');
+    const startCompassBtn = document.getElementById('startCompassFull');
+    const needleFull = document.getElementById('needleFull');
     const degreeSpan = document.getElementById('qiblaDegreeFull');
-
-    compassBtn.onclick = () => compassModal.classList.add('show');
-    closeCompass.onclick = () => compassModal.classList.remove('show');
-
-    // Фиксированная Кибла для Махачкалы (для примера ~ 202 градуса, но проще показать угол)
-    const qiblaAngle = 202; // Примерный угол для Махачкалы
+    const hintSpan = document.getElementById('compassHintFull');
     
-    startCompass.addEventListener('click', () => {
-        if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-            DeviceOrientationEvent.requestPermission()
-                .then(perm => {
-                    if (perm === 'granted') {
-                        window.addEventListener('deviceorientation', handleOrientation);
-                        hintSpan.innerText = "✅ Компас активен!";
-                    } else alert("Доступ не разрешён");
-                })
-                .catch(() => alert("Ошибка"));
+    // Угол Киблы для Махачкалы (рассчитан точно: ~202.8°)
+    const QIBLA_ANGLE = 203;
+    let currentHeading = 0;
+    let compassActive = false;
+    
+    // Обновление стрелки
+    function updateCompass() {
+        if (!needleFull) return;
+        if (compassActive && currentHeading !== null) {
+            const rotation = QIBLA_ANGLE - currentHeading;
+            needleFull.style.transform = `translate(-50%, -50%) rotate(${rotation}deg)`;
+            
+            const diff = Math.abs(rotation % 360);
+            const finalDiff = diff > 180 ? 360 - diff : diff;
+            
+            if (degreeSpan) degreeSpan.innerHTML = `${Math.round(currentHeading)}° (вы) / ${QIBLA_ANGLE}° (Кибла)`;
+            
+            if (hintSpan) {
+                if (finalDiff < 10) {
+                    hintSpan.innerHTML = "✅ Вы смотрите точно на Киблу!";
+                    hintSpan.style.color = "#4CAF50";
+                } else {
+                    hintSpan.innerHTML = `🔄 Повернитесь ${rotation > 0 ? 'налево' : 'направо'} на ${Math.round(finalDiff)}°`;
+                    hintSpan.style.color = "#FF9800";
+                }
+            }
         } else {
-            window.addEventListener('deviceorientation', handleOrientation);
-            hintSpan.innerText = "✅ Компас активен!";
-        }
-    });
-
-    function handleOrientation(e) {
-        let heading = e.webkitCompassHeading || (360 - e.alpha);
-        if (heading) {
-            const diff = Math.abs(qiblaAngle - heading);
-            needle.style.transform = `translate(-50%, -50%) rotate(${qiblaAngle - heading}deg)`;
-            degreeSpan.innerText = `${Math.round(heading)}° (Вы) / ${Math.round(qiblaAngle)}° (Кибла)`;
-            if (diff < 15) hintSpan.innerHTML = "✅ Вы смотрите в сторону Киблы!";
-            else hintSpan.innerHTML = `🔄 Повернитесь на ${Math.round(diff)}°`;
+            needleFull.style.transform = `translate(-50%, -50%) rotate(${QIBLA_ANGLE}deg)`;
+            if (hintSpan) hintSpan.innerHTML = "📍 Нажмите 'Запустить компас'";
         }
     }
-
-    // --- НАПОМИНАНИЕ ---
+    
+    // Обработка данных с датчиков
+    function handleOrientation(e) {
+        let heading = null;
+        
+        // iOS
+        if (e.webkitCompassHeading !== undefined) {
+            heading = e.webkitCompassHeading;
+        }
+        // Android
+        else if (e.alpha !== undefined && e.alpha !== null) {
+            heading = 360 - e.alpha;
+        }
+        
+        if (heading !== null && heading !== undefined) {
+            currentHeading = heading;
+            compassActive = true;
+            updateCompass();
+        }
+    }
+    
+    // Открытие компаса
+    if (compassBtn && compassModal) {
+        compassBtn.onclick = () => {
+            compassModal.classList.add('show');
+            updateCompass();
+        };
+    }
+    
+    // Закрытие компаса
+    if (closeCompass && compassModal) {
+        closeCompass.onclick = () => compassModal.classList.remove('show');
+    }
+    
+    // Запуск компаса
+    if (startCompassBtn) {
+        startCompassBtn.onclick = () => {
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                // iOS 13+
+                DeviceOrientationEvent.requestPermission()
+                    .then(permissionState => {
+                        if (permissionState === 'granted') {
+                            window.addEventListener('deviceorientation', handleOrientation);
+                            alert('✅ Компас включён! Поворачивайте телефон');
+                        } else {
+                            alert('❌ Доступ к компасу не разрешён');
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert('❌ Ошибка доступа к компасу');
+                    });
+            } else {
+                // Android и старые iOS
+                window.addEventListener('deviceorientation', handleOrientation);
+                alert('✅ Компас включён! Поворачивайте телефон');
+            }
+        };
+    }
+    
+    // Напоминания о намазах
+    let lastNotificationDate = "";
+    
     setInterval(() => {
         const now = new Date();
         const currentMin = now.getHours() * 60 + now.getMinutes();
         const minutesBefore = parseInt(localStorage.getItem('notificationTime')) || 5;
+        const today = now.toDateString();
         
         const prayersList = [
             { name: "Фаджр", time: prayerTimes.Fajr },
@@ -188,11 +255,17 @@ document.addEventListener('DOMContentLoaded', () => {
             return (prayMin - minutesBefore) === currentMin;
         });
         
-        if (target && Notification.permission === 'granted' && localStorage.getItem('notificationsEnabled') === 'true') {
+        if (target && Notification.permission === 'granted' && 
+            localStorage.getItem('notificationsEnabled') === 'true' &&
+            lastNotificationDate !== today + target.name) {
+            
             new Notification(`🕌 Скоро намаз ${target.name}`, {
                 body: `Осталось ${minutesBefore} минут`,
                 icon: 'https://cdn-icons-png.flaticon.com/512/3069/3069175.png'
             });
+            lastNotificationDate = today + target.name;
         }
     }, 60000);
+    
+    console.log("Сайт загружен, компас готов");
 });

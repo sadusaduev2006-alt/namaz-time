@@ -66,16 +66,6 @@
             }
         }
         
-        // Проверка авторизации и перенаправление
-        function requireAuth(callback) {
-            const user = window.auth.currentUser;
-            if (user && user.emailVerified) {
-                if (callback) callback();
-            } else {
-                redirectToAccountTab();
-            }
-        }
-        
         document.addEventListener('DOMContentLoaded', () => {
             const showLoginTab = document.getElementById('showLoginTab');
             const showRegisterTab = document.getElementById('showRegisterTab');
@@ -102,16 +92,27 @@
                 };
             }
             
-            // КНОПКА МЕНЮ (три точки) - проверяем при клике
+            // КНОПКА МЕНЮ (три точки) - работает всегда, но если не авторизован - перенаправляем
             const menuToggle = document.getElementById('menuToggle');
-            if (menuToggle) {
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            
+            if (menuToggle && dropdownMenu) {
                 menuToggle.onclick = (e) => {
+                    e.stopPropagation();
                     const user = window.auth.currentUser;
                     if (!user || !user.emailVerified) {
-                        e.stopPropagation();
+                        e.preventDefault();
                         redirectToAccountTab();
+                    } else {
+                        dropdownMenu.classList.toggle('show');
                     }
                 };
+                
+                document.addEventListener('click', function(e) {
+                    if (!menuToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                        dropdownMenu.classList.remove('show');
+                    }
+                });
             }
             
             // ВКЛАДКИ ПРОФИЛЯ
@@ -119,6 +120,7 @@
             const appearanceTab = document.querySelector('.profile-tab[data-profile-tab="appearance"]');
             
             if (notifTab) {
+                const originalClick = notifTab.onclick;
                 notifTab.onclick = (e) => {
                     const user = window.auth.currentUser;
                     if (!user || !user.emailVerified) {
@@ -335,12 +337,10 @@
         </div>
     </div>
 
-    <!-- ПЛАВАЮЩАЯ КНОПКА КОМПАСА -->
+    <!-- ПЛАВАЮЩИЕ КНОПКИ -->
     <button id="floatingCompassBtn" class="floating-compass-btn">
         <i class="fas fa-compass"></i>
     </button>
-
-    <!-- ПЛАВАЮЩАЯ КНОПКА КОРАНА -->
     <a href="quran.html" id="floatingQuranBtn" class="floating-quran-btn">
         <i class="fas fa-book-quran"></i> Коран
     </a>

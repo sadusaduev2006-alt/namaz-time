@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <style>
+        /* ... (все стили остаются без изменений) ... */
         .surah-page {
             max-width: 700px;
             margin: 0 auto;
@@ -67,8 +68,6 @@
             line-height: 1.7;
             color: var(--text-secondary);
         }
-        
-        /* АУДИО ПЛЕЕР */
         .audio-section {
             background: var(--accent-light);
             border-radius: 28px;
@@ -101,30 +100,10 @@
             margin-bottom: 16px;
             cursor: pointer;
         }
-        .play-btn {
+        audio {
             width: 100%;
-            padding: 14px;
-            background: var(--accent);
-            border: none;
-            border-radius: 48px;
-            color: white;
-            font-weight: 600;
-            font-size: 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: transform 0.2s;
-        }
-        .play-btn:active {
-            transform: scale(0.97);
-        }
-        .play-btn.playing {
-            background: #4CAF50;
-        }
-        .play-btn i {
-            font-size: 18px;
+            border-radius: 40px;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -149,11 +128,10 @@
                     <option value="husary">🎙️ Махмуд Халиль аль-Хусари</option>
                     <option value="sudais">🎙️ Абдуррахман ас-Судайс</option>
                 </select>
-                <button id="playAudioBtn" class="play-btn">
-                    <i class="fas fa-play"></i> Слушать суру
-                </button>
+                <audio id="surahAudio" controls preload="metadata" crossorigin="anonymous"></audio>
             </div>
             
+            <!-- АЯТЫ СУРЫ -->
             <div class="arabic-text-large">
                 بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ<br>
                 الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ<br>
@@ -192,10 +170,6 @@
         </div>
     </div>
 
-    <audio id="surahAudio" preload="none" crossorigin="anonymous">
-        <source id="audioSource" src="" type="audio/mpeg">
-    </audio>
-
     <script>
         // РАБОЧИЕ ССЫЛКИ НА АУДИО (mp3quran.net)
         const audioUrls = {
@@ -205,78 +179,38 @@
             sudais: 'https://server11.mp3quran.net/sudais/001.mp3'
         };
         
-        const audio = document.getElementById('surahAudio');
-        const audioSource = document.getElementById('audioSource');
-        const playBtn = document.getElementById('playAudioBtn');
+        const audioPlayer = document.getElementById('surahAudio');
         const qariSelect = document.getElementById('qariSelect');
         
-        let isPlaying = false;
-        let currentQari = 'mishari';
-        
-        // Установка источника аудио
-        function setAudioSource(qari) {
-            const url = audioUrls[qari];
-            if (url) {
-                audioSource.src = url;
-                audio.load();
+        // Функция для установки нового источника аудио
+        function setAudioSource() {
+            const selectedQari = qariSelect.value;
+            const audioSrc = audioUrls[selectedQari];
+            if (audioSrc) {
+                // Сохраняем текущее время воспроизведения и состояние, если нужно
+                const wasPlaying = !audioPlayer.paused;
+                const currentTime = audioPlayer.currentTime;
+                
+                audioPlayer.src = audioSrc;
+                audioPlayer.load(); // Перезагружаем плеер с новым источником [citation:4]
+                
+                // Если аудио до этого играло, пытаемся продолжить с того же места
+                if (wasPlaying) {
+                    audioPlayer.currentTime = currentTime;
+                    audioPlayer.play().catch(e => console.log("Автовоспроизведение заблокировано. Нажмите на кнопку play."));
+                }
             }
         }
         
-        // Воспроизведение или пауза
-        function togglePlay() {
-            if (!audioSource.src) {
-                setAudioSource(currentQari);
-            }
-            
-            if (isPlaying) {
-                audio.pause();
-                playBtn.innerHTML = '<i class="fas fa-play"></i> Слушать суру';
-                playBtn.classList.remove('playing');
-                isPlaying = false;
-            } else {
-                audio.play().catch(err => {
-                    console.log('Ошибка воспроизведения:', err);
-                    alert('Нажмите на экран, затем попробуйте снова');
-                });
-                playBtn.innerHTML = '<i class="fas fa-pause"></i> Пауза';
-                playBtn.classList.add('playing');
-                isPlaying = true;
-            }
-        }
+        // Смена чтеца
+        qariSelect.addEventListener('change', setAudioSource);
         
-        // При завершении аудио
-        audio.addEventListener('ended', () => {
-            isPlaying = false;
-            playBtn.innerHTML = '<i class="fas fa-play"></i> Слушать суру';
-            playBtn.classList.remove('playing');
-        });
-        
-        // При смене чтеца
-        qariSelect.addEventListener('change', (e) => {
-            currentQari = e.target.value;
-            const wasPlaying = isPlaying;
-            if (wasPlaying) {
-                audio.pause();
-            }
-            setAudioSource(currentQari);
-            if (wasPlaying) {
-                audio.play();
-            } else {
-                playBtn.innerHTML = '<i class="fas fa-play"></i> Слушать суру';
-                playBtn.classList.remove('playing');
-                isPlaying = false;
-            }
-        });
-        
-        // Кнопка воспроизведения
-        playBtn.addEventListener('click', togglePlay);
+        // Установка первого чтеца при загрузке страницы
+        setAudioSource();
         
         // Тёмная тема
         const savedTheme = localStorage.getItem('theme') || 'dark';
         document.body.setAttribute('data-theme', savedTheme);
-        
-        // Инициализация
-        setAudioSource('mishari');
     </script>
 </body>
 </html>

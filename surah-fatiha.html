@@ -2,17 +2,30 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>Сура Аль-Фатиха — Намаз Дагестан</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <style>
-        .surah-page {
-            max-width: 700px;
-            margin: 0 auto;
-            padding: 20px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
+        
+        body {
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            min-height: 100vh;
+            padding: 16px;
+        }
+        
+        .surah-page {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0;
+        }
+        
         .back-btn {
             display: inline-flex;
             align-items: center;
@@ -25,80 +38,135 @@
             font-weight: 500;
             color: var(--accent);
             cursor: pointer;
-            margin-bottom: 24px;
+            margin-bottom: 16px;
             transition: transform 0.2s;
         }
         .back-btn:active {
             transform: scale(0.95);
         }
+        
         .surah-card {
             background: var(--card-bg);
-            border-radius: 48px;
-            padding: 32px;
+            border-radius: 32px;
+            padding: 24px 20px;
             box-shadow: var(--shadow);
+            width: 100%;
         }
+        
         .surah-title {
             text-align: center;
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 700;
             color: var(--accent);
             margin-bottom: 20px;
         }
+        
         .arabic-text-large {
-            font-size: 28px;
-            line-height: 2.2;
+            font-size: 24px;
+            line-height: 2;
             text-align: right;
             font-family: 'Amiri', 'Times New Roman', serif;
-            margin-bottom: 30px;
+            margin-bottom: 24px;
             color: var(--text-primary);
+            word-wrap: break-word;
         }
+        
         .transliteration-block, .translation-block {
             background: var(--accent-light);
-            padding: 20px;
-            border-radius: 28px;
-            margin-bottom: 20px;
+            padding: 16px;
+            border-radius: 24px;
+            margin-bottom: 16px;
         }
+        
         .transliteration-block h4, .translation-block h4 {
             color: var(--accent);
-            margin-bottom: 12px;
-            font-size: 18px;
+            margin-bottom: 10px;
+            font-size: 16px;
         }
+        
         .transliteration-block p, .translation-block p {
-            line-height: 1.7;
+            line-height: 1.6;
             color: var(--text-secondary);
+            font-size: 14px;
         }
         
         /* АУДИО ПЛЕЕР */
         .audio-section {
             background: var(--accent-light);
-            border-radius: 28px;
-            padding: 20px;
+            border-radius: 24px;
+            padding: 16px;
             margin-bottom: 20px;
         }
+        
         .audio-header {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
+            gap: 10px;
+            margin-bottom: 12px;
         }
+        
         .audio-header i {
-            font-size: 28px;
+            font-size: 24px;
             color: var(--accent);
         }
+        
         .audio-header h3 {
-            font-size: 18px;
+            font-size: 16px;
             color: var(--text-primary);
         }
+        
         audio {
             width: 100%;
             border-radius: 40px;
-            margin-top: 10px;
+            margin-top: 8px;
         }
+        
         .info-text {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-secondary);
             text-align: center;
-            margin-top: 12px;
+            margin-top: 10px;
+        }
+        
+        /* Адаптация для очень маленьких экранов */
+        @media (max-width: 480px) {
+            body {
+                padding: 12px;
+            }
+            .surah-card {
+                padding: 18px 14px;
+                border-radius: 28px;
+            }
+            .arabic-text-large {
+                font-size: 20px;
+                line-height: 1.8;
+            }
+            .surah-title {
+                font-size: 22px;
+            }
+            .back-btn {
+                padding: 10px 16px;
+                font-size: 14px;
+                margin-bottom: 12px;
+            }
+        }
+        
+        /* Для больших экранов (планшеты и ПК) */
+        @media (min-width: 768px) {
+            .surah-page {
+                max-width: 700px;
+                margin: 0 auto;
+            }
+            .surah-card {
+                padding: 32px;
+            }
+            .arabic-text-large {
+                font-size: 28px;
+                line-height: 2.2;
+            }
+            .surah-title {
+                font-size: 28px;
+            }
         }
     </style>
 </head>

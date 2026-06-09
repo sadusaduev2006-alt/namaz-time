@@ -48,6 +48,31 @@
         window.getDoc = getDoc;
         window.sendEmailVerification = sendEmailVerification;
         
+        // Функции для отображения/скрытия контента
+        function showContentForLoggedIn() {
+            document.getElementById('mainContent').style.display = 'block';
+            document.getElementById('floatingQuranBtn').style.display = 'flex';
+            document.getElementById('menuToggle').style.display = 'flex';
+            document.getElementById('citySelect').disabled = false;
+            // Показываем вкладки Уведомления и Оформление
+            const notifTab = document.querySelector('.profile-tab[data-profile-tab="notifications"]');
+            const appearanceTab = document.querySelector('.profile-tab[data-profile-tab="appearance"]');
+            if (notifTab) notifTab.style.display = 'block';
+            if (appearanceTab) appearanceTab.style.display = 'block';
+        }
+        
+        function showContentForLoggedOut() {
+            document.getElementById('mainContent').style.display = 'block'; // Время намаза видно всем
+            document.getElementById('floatingQuranBtn').style.display = 'none';
+            document.getElementById('menuToggle').style.display = 'none';
+            document.getElementById('citySelect').disabled = false; // Выбор города доступен всем
+            // Скрываем вкладки Уведомления и Оформление
+            const notifTab = document.querySelector('.profile-tab[data-profile-tab="notifications"]');
+            const appearanceTab = document.querySelector('.profile-tab[data-profile-tab="appearance"]');
+            if (notifTab) notifTab.style.display = 'none';
+            if (appearanceTab) appearanceTab.style.display = 'none';
+        }
+        
         document.addEventListener('DOMContentLoaded', () => {
             const showLoginTab = document.getElementById('showLoginTab');
             const showRegisterTab = document.getElementById('showRegisterTab');
@@ -96,11 +121,14 @@
                 if (userNameSpan) userNameSpan.innerText = user.displayName || user.email.split('@')[0];
                 if (userEmailSpan) userEmailSpan.innerText = user.email;
                 if (userSinceSpan) userSinceSpan.innerText = `С нами с: ${new Date(user.metadata.creationTime).toLocaleDateString()}`;
+                showContentForLoggedIn();
+                if (window.updatePrayerTimes) window.updatePrayerTimes();
             }
             
             function updateUIAfterLogout() {
                 if (authForms) authForms.style.display = 'block';
                 if (userBlock) userBlock.style.display = 'none';
+                showContentForLoggedOut();
             }
             
             // РЕГИСТРАЦИЯ
@@ -126,17 +154,11 @@
                     
                     try {
                         const userCredential = await window.createUserWithEmailAndPassword(window.auth, email, password);
-                        
-                        // Отправляем письмо для подтверждения
                         await window.sendEmailVerification(userCredential.user);
-                        
                         await saveUserToFirestore(userCredential.user, name);
-                        
-                        alert('✅ Регистрация успешна!\n\nНа вашу почту отправлено письмо с подтверждением.\nПожалуйста, подтвердите email и войдите снова.');
-                        
+                        alert('✅ Регистрация успешна!\n\nНа вашу почту отправлено письмо с подтверждением.\nПодтвердите email и войдите.');
                         await window.signOut(window.auth);
                         updateUIAfterLogout();
-                        
                     } catch (error) {
                         if (error.code === 'auth/email-already-in-use') {
                             alert('Этот email уже зарегистрирован');
@@ -162,9 +184,8 @@
                         const userCredential = await window.signInWithEmailAndPassword(window.auth, email, password);
                         const user = userCredential.user;
                         
-                        // Проверяем, подтверждён ли email
                         if (!user.emailVerified) {
-                            alert('❌ Пожалуйста, подтвердите свой email.\nМы отправили письмо на ' + user.email + '\n\nПроверьте почту и нажмите на ссылку подтверждения.');
+                            alert('❌ Пожалуйста, подтвердите свой email.\nПроверьте почту и нажмите на ссылку подтверждения.');
                             await window.signOut(window.auth);
                             updateUIAfterLogout();
                             return;
@@ -201,6 +222,9 @@
                     updateUIAfterLogout();
                 }
             });
+            
+            // Инициализация (по умолчанию показываем для незарегистрированных)
+            showContentForLoggedOut();
         });
     </script>
 </head>
@@ -250,13 +274,16 @@
                 <h1>🕌 Время намаза</h1>
             </div>
 
-            <div class="prayer-grid">
-                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-cloud-moon"></i><span class="prayer-name">Фаджр</span></div><span class="prayer-time" id="fajr">--:--</span></div>
-                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-sun"></i><span class="prayer-name">Шурук</span></div><span class="prayer-time" id="sunrise">--:--</span></div>
-                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-sun"></i><span class="prayer-name">Зухр</span></div><span class="prayer-time" id="dhuhr">--:--</span></div>
-                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-clock"></i><span class="prayer-name">Аср</span></div><span class="prayer-time" id="asr">--:--</span></div>
-                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-moon"></i><span class="prayer-name">Магриб</span></div><span class="prayer-time" id="maghrib">--:--</span></div>
-                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-star-of-life"></i><span class="prayer-name">Иша</span></div><span class="prayer-time" id="isha">--:--</span></div>
+            <!-- ОСНОВНОЙ КОНТЕНТ (ВРЕМЯ НАМАЗА ВИДНО ВСЕМ) -->
+            <div id="mainContent">
+                <div class="prayer-grid">
+                    <div class="prayer-item"><div class="prayer-info"><i class="fas fa-cloud-moon"></i><span class="prayer-name">Фаджр</span></div><span class="prayer-time" id="fajr">--:--</span></div>
+                    <div class="prayer-item"><div class="prayer-info"><i class="fas fa-sun"></i><span class="prayer-name">Шурук</span></div><span class="prayer-time" id="sunrise">--:--</span></div>
+                    <div class="prayer-item"><div class="prayer-info"><i class="fas fa-sun"></i><span class="prayer-name">Зухр</span></div><span class="prayer-time" id="dhuhr">--:--</span></div>
+                    <div class="prayer-item"><div class="prayer-info"><i class="fas fa-clock"></i><span class="prayer-name">Аср</span></div><span class="prayer-time" id="asr">--:--</span></div>
+                    <div class="prayer-item"><div class="prayer-info"><i class="fas fa-moon"></i><span class="prayer-name">Магриб</span></div><span class="prayer-time" id="maghrib">--:--</span></div>
+                    <div class="prayer-item"><div class="prayer-info"><i class="fas fa-star-of-life"></i><span class="prayer-name">Иша</span></div><span class="prayer-time" id="isha">--:--</span></div>
+                </div>
             </div>
 
             <div class="footer-note">
@@ -265,11 +292,13 @@
         </div>
     </div>
 
-    <!-- ПЛАВАЮЩИЕ КНОПКИ -->
+    <!-- ПЛАВАЮЩАЯ КНОПКА КОМПАСА (ВИДНА ВСЕМ) -->
     <button id="floatingCompassBtn" class="floating-compass-btn">
         <i class="fas fa-compass"></i>
     </button>
-    <a href="quran.html" id="floatingQuranBtn" class="floating-quran-btn">
+
+    <!-- ПЛАВАЮЩАЯ КНОПКА КОРАНА (СКРЫТА ДЛЯ НЕЗАРЕГИСТРИРОВАННЫХ) -->
+    <a href="quran.html" id="floatingQuranBtn" class="floating-quran-btn" style="display: none;">
         <i class="fas fa-book-quran"></i> Коран
     </a>
 
@@ -282,8 +311,8 @@
         </div>
         <div class="profile-tabs">
             <button class="profile-tab active" data-profile-tab="account">👤 Аккаунт</button>
-            <button class="profile-tab" data-profile-tab="notifications">🔔 Уведомления</button>
-            <button class="profile-tab" data-profile-tab="appearance">🎨 Оформление</button>
+            <button class="profile-tab" data-profile-tab="notifications" style="display: none;">🔔 Уведомления</button>
+            <button class="profile-tab" data-profile-tab="appearance" style="display: none;">🎨 Оформление</button>
         </div>
         <div class="profile-content">
             <!-- АККАУНТ -->
@@ -323,7 +352,7 @@
                 </div>
             </div>
 
-            <!-- УВЕДОМЛЕНИЯ -->
+            <!-- УВЕДОМЛЕНИЯ (СКРЫТЫ ДЛЯ НЕЗАРЕГИСТРИРОВАННЫХ) -->
             <div id="profile-tab-notifications" class="profile-pane">
                 <div class="settings-group">
                     <div class="settings-item">
@@ -348,7 +377,7 @@
                 </div>
             </div>
 
-            <!-- ОФОРМЛЕНИЕ -->
+            <!-- ОФОРМЛЕНИЕ (СКРЫТО ДЛЯ НЕЗАРЕГИСТРИРОВАННЫХ) -->
             <div id="profile-tab-appearance" class="profile-pane">
                 <div class="settings-group">
                     <div class="settings-item">

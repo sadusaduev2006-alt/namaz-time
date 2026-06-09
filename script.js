@@ -1,31 +1,3 @@
-// ==================== TELEGRAM НАСТРОЙКИ ====================
-const TELEGRAM_BOT_TOKEN = '8972109101:AAGEiE6xhXOBLTjSMTt66WWXZdxl5zL8yO0';
-const TELEGRAM_CHAT_ID = '6125987388';
-
-async function sendTelegramMessage(text) {
-    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: TELEGRAM_CHAT_ID,
-                text: text,
-                parse_mode: 'HTML',
-                disable_notification: false
-            })
-        });
-        const result = await response.json();
-        if (result.ok) {
-            console.log('✅ Telegram уведомление отправлено');
-        } else {
-            console.error('❌ Ошибка Telegram:', result.description);
-        }
-    } catch (error) {
-        console.error('❌ Ошибка отправки в Telegram:', error);
-    }
-}
-
 // ==================== ТОЧНОЕ РАСПИСАНИЕ ИЮНЬ 2026 ====================
 const prayerSchedule = {
     "2026-06-01": { fajr: "02:07", sunrise: "04:14", dhuhr: "11:51", asr: "15:51", maghrib: "19:24", isha: "21:06" },
@@ -89,9 +61,131 @@ function updatePrayerTimes() {
     document.getElementById('updateTime').innerText = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
 }
 
-// ==================== ЗАПУСК ====================
+// ==================== АВТОРИЗАЦИЯ ====================
+function initAuth() {
+    const showLoginTab = document.getElementById('showLoginTab');
+    const showRegisterTab = document.getElementById('showRegisterTab');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const loginBtn = document.getElementById('loginBtn');
+    const registerBtn = document.getElementById('registerBtn');
+    const signOutBtn = document.getElementById('profileSignOutBtn');
+    const authForms = document.getElementById('authForms');
+    const userBlock = document.getElementById('userProfileBlock');
+    const userNameSpan = document.getElementById('userName');
+    const userEmailSpan = document.getElementById('userEmail');
+    const userSinceSpan = document.getElementById('userSince');
+    
+    if (showLoginTab && showRegisterTab) {
+        showLoginTab.onclick = () => {
+            showLoginTab.classList.add('active');
+            showRegisterTab.classList.remove('active');
+            if (loginForm) loginForm.style.display = 'flex';
+            if (registerForm) registerForm.style.display = 'none';
+        };
+        showRegisterTab.onclick = () => {
+            showRegisterTab.classList.add('active');
+            showLoginTab.classList.remove('active');
+            if (registerForm) registerForm.style.display = 'flex';
+            if (loginForm) loginForm.style.display = 'none';
+        };
+    }
+    
+    async function saveUserToFirestore(user, name) {
+        if (!window.db || !window.doc || !window.setDoc) return;
+        const userRef = window.doc(window.db, 'users', user.uid);
+        await window.setDoc(userRef, {
+            uid: user.uid,
+            email: user.email,
+            name: name || user.email.split('@')[0],
+            createdAt: new Date().toISOString()
+        }, { merge: true });
+    }
+    
+    function updateUIAfterLogin(user) {
+        if (authForms) authForms.style.display = 'none';
+        if (userBlock) userBlock.style.display = 'block';
+        if (userNameSpan) userNameSpan.innerText = user.displayName || user.email.split('@')[0];
+        if (userEmailSpan) userEmailSpan.innerText = user.email;
+        if (userSinceSpan) userSinceSpan.innerText = `С нами с: ${new Date(user.metadata.creationTime).toLocaleDateString()}`;
+    }
+    
+    function updateUIAfterLogout() {
+        if (authForms) authForms.style.display = 'block';
+        if (userBlock) userBlock.style.display = 'none';
+    }
+    
+    if (registerBtn) {
+        registerBtn.onclick = async () => {
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirm = document.getElementById('registerConfirmPassword').value;
+            
+            if (password !== confirm) {
+                alert('Пароли не совпадают');
+                return;
+            }
+            if (password.length < 6) {
+                alert('Пароль должен быть не менее 6 символов');
+                return;
+            }
+            
+            try {
+                const userCredential = await window.createUserWithEmailAndPassword(window.auth, email, password);
+                await saveUserToFirestore(userCredential.user, name);
+                alert('Регистрация успешна!');
+                updateUIAfterLogin(userCredential.user);
+            } catch (error) {
+                if (error.code === 'auth/email-already-in-use') {
+                    alert('Этот email уже зарегистрирован');
+                } else {
+                    alert('Ошибка: ' + error.message);
+                }
+            }
+        };
+    }
+    
+    if (loginBtn) {
+        loginBtn.onclick = async () => {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                const userCredential = await window.signInWithEmailAndPassword(window.auth, email, password);
+                await saveUserToFirestore(userCredential.user, null);
+                alert('Добро пожаловать!');
+                updateUIAfterLogin(userCredential.user);
+            } catch (error) {
+                alert('Неверный email или пароль');
+            }
+        };
+    }
+    
+    if (signOutBtn) {
+        signOutBtn.onclick = async () => {
+            await window.signOut(window.auth);
+            updateUIAfterLogout();
+            alert('Вы вышли из аккаунта');
+        };
+    }
+    
+    if (window.onAuthStateChanged) {
+        window.onAuthStateChanged(window.auth, (user) => {
+            if (user) {
+                updateUIAfterLogin(user);
+            } else {
+                updateUIAfterLogout();
+            }
+        });
+    }
+}
+
+// ==================== ОСТАЛЬНОЙ КОД ====================
 document.addEventListener('DOMContentLoaded', () => {
     updatePrayerTimes();
+    initAuth();
+    
     setInterval(() => {
         document.getElementById('updateTime').innerText = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
     }, 60000);
@@ -103,14 +197,14 @@ document.addEventListener('DOMContentLoaded', () => {
         setInterval(updatePrayerTimes, 86400000);
     }, msUntilMidnight);
     
-    // ==================== ПРОФИЛЬ ====================
+    // ПРОФИЛЬ
     const profileBtn = document.getElementById('profileBtn');
     const profileModal = document.getElementById('fullscreenProfile');
     const closeProfile = document.getElementById('closeProfile');
     if (profileBtn) profileBtn.onclick = () => profileModal.classList.add('show');
     if (closeProfile) closeProfile.onclick = () => profileModal.classList.remove('show');
     
-    // ==================== ТЁМНАЯ ТЕМА ====================
+    // ТЁМНАЯ ТЕМА
     const darkToggle = document.getElementById('profileDarkModeToggle');
     const savedTheme = localStorage.getItem('theme') || 'dark';
     document.body.setAttribute('data-theme', savedTheme);
@@ -121,10 +215,9 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('theme', theme);
     };
     
-    // ==================== УВЕДОМЛЕНИЯ ====================
+    // УВЕДОМЛЕНИЯ
     const notifToggle = document.getElementById('notificationsToggle');
     const notifTimeSelect = document.getElementById('notificationTimeSelect');
-    
     if (notifToggle) {
         notifToggle.checked = localStorage.getItem('notificationsEnabled') === 'true';
         notifToggle.onchange = (e) => {
@@ -137,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
         notifTimeSelect.onchange = (e) => localStorage.setItem('notificationTime', e.target.value);
     }
     
-    // ==================== МЕНЮ ====================
+    // МЕНЮ
     const menuBtn = document.getElementById('menuToggle');
     const dropdown = document.getElementById('dropdownMenu');
     if (menuBtn && dropdown) {
@@ -151,21 +244,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const aboutItem = document.getElementById('aboutMenuItem');
     if (aboutItem) aboutItem.onclick = (e) => {
         e.preventDefault();
-        alert("📱 Намаз Дагестан\nВерсия 2.0\n📍 Точное время по расписанию мечети Махачкалы\n📨 Уведомления в Telegram");
+        alert("📱 Намаз Дагестан\nВерсия 2.0\n📍 Точное время по расписанию мечети Махачкалы");
         dropdown.classList.remove('show');
     };
     
-    // Подписка на Telegram
-    const telegramBtn = document.getElementById('telegramSubscribeBtn');
-    if (telegramBtn) {
-        telegramBtn.onclick = (e) => {
-            e.preventDefault();
-            alert('✅ Вы уже подписаны на уведомления в Telegram!\n\nБот будет присылать напоминания о намазах.');
-            dropdown.classList.remove('show');
-        };
-    }
-    
-    // ==================== ВКЛАДКИ В ПРОФИЛЕ ====================
+    // ВКЛАДКИ ПРОФИЛЯ
     const tabs = document.querySelectorAll('.profile-tab');
     const panes = document.querySelectorAll('.profile-pane');
     tabs.forEach(tab => {
@@ -179,7 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     });
     
-    // ==================== КОМПАС ====================
+    // КОМПАС
     const compassBtn = document.getElementById('floatingCompassBtn');
     const compassModal = document.getElementById('fullscreenCompass');
     const closeCompass = document.getElementById('closeFullscreenCompass');
@@ -246,7 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
             window.addEventListener('deviceorientation', handleOrientation);
             listenerAdded = true;
             compassActive = true;
-            alert('✅ Компас включон! Поворачивайте телефон');
+            alert('✅ Компас включён! Поворачивайте телефон');
             updateCompass();
         }
     }
@@ -256,7 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (startCompassBtn) startCompassBtn.onclick = startCompass;
     updateCompass();
     
-    // ==================== НАПОМИНАНИЯ О НАМАЗАХ + TELEGRAM ====================
+    // НАПОМИНАНИЯ
     let lastNotif = "";
     setInterval(() => {
         const todayTimes = getTodayTimes();
@@ -284,29 +367,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         if (target && notificationsEnabled && lastNotif !== today + target.name) {
-            const message = `🕌 Напоминание о намазе\n\n${target.name} наступит через ${minutesBefore} минут (в ${target.time})`;
-            
-            // Отправляем в Telegram
-            sendTelegramMessage(message);
-            
-            // Браузерное уведомление
             if (Notification.permission === 'granted') {
                 new Notification(`🕌 Скоро намаз ${target.name}`, {
                     body: `Осталось ${minutesBefore} минут (${target.time})`,
                     icon: 'https://cdn-icons-png.flaticon.com/512/3069/3069175.png'
                 });
             }
-            
             lastNotif = today + target.name;
         }
     }, 60000);
     
-    // Запрос разрешения на уведомления
     setTimeout(() => {
         if (Notification && Notification.permission === 'default') {
             Notification.requestPermission();
         }
     }, 2000);
     
-    console.log("Сайт загружен: время точное, Telegram уведомления настроены");
+    console.log("Сайт загружен: время точное, авторизация настроена");
 });

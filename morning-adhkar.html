@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Утренние азкары — Намаз Дагестан</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            min-height: 100vh;
+            padding: 16px;
+        }
+        .adhkar-page {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--accent-light);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 40px;
+            font-family: inherit;
+            font-weight: 500;
+            color: var(--accent);
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: transform 0.2s;
+        }
+        .adhkar-card {
+            background: var(--card-bg);
+            border-radius: 32px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+        }
+        .adhkar-title {
+            text-align: center;
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+        .adhkar-sub {
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .azkar-item {
+            background: var(--accent-light);
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .arabic-text {
+            font-size: 22px;
+            line-height: 1.8;
+            text-align: right;
+            font-family: 'Amiri', serif;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            direction: rtl;
+        }
+        .transliteration {
+            font-size: 15px;
+            color: var(--accent);
+            margin-bottom: 8px;
+            font-style: italic;
+        }
+        .translation {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            border-top: 1px dashed var(--border-color);
+            padding-top: 10px;
+        }
+        .repeat-count {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 30px;
+            margin-bottom: 12px;
+        }
+        @media (max-width: 560px) {
+            body { padding: 12px; }
+            .adhkar-card { padding: 18px; }
+            .arabic-text { font-size: 20px; }
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <div class="adhkar-page">
+        <button onclick="window.location.href='index.html'" class="back-btn">
+            <i class="fas fa-arrow-left"></i> На главную
+        </button>
+        <div class="adhkar-card">
+            <h1 class="adhkar-title">🌅 Утренние азкары</h1>
+            <div class="adhkar-sub">Поминание Аллаха после утреннего намаза до восхода солнца</div>
+
+            <div class="azkar-item">
+                <div class="repeat-count">📿 1 раз</div>
+                <div class="arabic-text">أَعُوذُ بِاللَّهِ مِنْ الشَّيْطَانِ الرَّجِيمِ</div>
+                <div class="transliteration">А'узу билляхи минаш-шайтанир-раджим</div>
+                <div class="translation">«Прибегаю к защите Аллаха от проклятого сатаны»</div>
+            </div>
+
+            <div class="azkar-item">
+                <div class="repeat-count">📿 1 раз</div>
+                <div class="arabic-text">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+                <div class="transliteration">Бисмилляхир-рахманир-рахим</div>
+                <div class="translation">«С именем Аллаха, Милостивого, Милосердного»</div>
+            </div>
+
+            <div class="azkar-item">
+                <div class="repeat-count">📿 3 раза</div>
+                <div class="arabic-text">أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ وَالْحَمْدُ لِلَّهِ</div>
+                <div class="transliteration">Асбахна ва асбахаль-мульку лилляхи валь-хамду лилляхи</div>
+                <div class="translation">«Мы наступили утром, и всё владычество принадлежит Аллаху, и хвала Аллаху»</div>
+            </div>
+
+            <div class="azkar-item">
+                <div class="repeat-count">📿 3 раза</div>
+                <div class="arabic-text">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ</div>
+                <div class="transliteration">Субханаллахи ва бихамдихи</div>
+                <div class="translation">«Пречист Аллах и хвала Ему»</div>
+            </div>
+
+            <div class="azkar-item">
+                <div class="repeat-count">📿 3 раза</div>
+                <div class="arabic-text">لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ</div>
+                <div class="transliteration">Ля иляха илляллаху вахдаху ля шарика лях, ляхуль-мульку ва ляхуль-хамду ва хува 'аля кулли шейин кадир</div>
+                <div class="translation">«Нет божества, кроме одного лишь Аллаха, у Которого нет сотоварища. Ему принадлежит власть, Ему хвала, и Он над всем мощен»</div>
+            </div>
+
+            <div class="azkar-item">
+                <div class="repeat-count">📿 1 раз</div>
+                <div class="arabic-text">اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي الدُّنْيَا وَالْآخِرَةِ</div>
+                <div class="transliteration">Аллахумма инни ас'алюкаль-'афва валь-'афията фид-дунья валь-ахыра</div>
+                <div class="translation">«О Аллах, прошу Тебя о прощении и благополучии в этом мире и в мире вечном»</div>
+            </div>
+
+            <div class="adhkar-sub" style="margin-top: 16px; border-top: 1px solid var(--border-color); padding-top: 16px;">📖 Хадис: «Утренние азкары защищают до вечера» (Абу Давуд)</div>
+        </div>
+    </div>
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.body.setAttribute('data-theme', savedTheme);
+    </script>
+</body>
+</html>

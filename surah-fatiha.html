@@ -192,17 +192,17 @@
         </div>
     </div>
 
-    <audio id="surahAudio" preload="none">
+    <audio id="surahAudio" preload="none" crossorigin="anonymous">
         <source id="audioSource" src="" type="audio/mpeg">
     </audio>
 
     <script>
-        // Ссылки на аудио суры Аль-Фатиха от разных чтецов
+        // РАБОЧИЕ ССЫЛКИ НА АУДИО (mp3quran.net)
         const audioUrls = {
-            mishari: 'https://cdn.islamic.network/quran/audio/128/ar.mishari_al_afasy/1.mp3',
-            abdulbasit: 'https://cdn.islamic.network/quran/audio/128/ar.abdul_basit_murattal/1.mp3',
-            husary: 'https://cdn.islamic.network/quran/audio/128/ar.husary/1.mp3',
-            sudais: 'https://cdn.islamic.network/quran/audio/128/ar.sudais_and_shuraim/1.mp3'
+            mishari: 'https://server10.mp3quran.net/mishari/001.mp3',
+            abdulbasit: 'https://server11.mp3quran.net/abdul_basit/001.mp3',
+            husary: 'https://server11.mp3quran.net/husry_m/001.mp3',
+            sudais: 'https://server11.mp3quran.net/sudais/001.mp3'
         };
         
         const audio = document.getElementById('surahAudio');

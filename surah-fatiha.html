@@ -8,14 +8,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
-        }
         .surah-page {
             max-width: 700px;
             margin: 0 auto;
+            padding: 20px;
         }
         .back-btn {
             display: inline-flex;
@@ -32,8 +28,8 @@
             margin-bottom: 24px;
             transition: transform 0.2s;
         }
-        .back-btn:hover {
-            transform: scale(1.02);
+        .back-btn:active {
+            transform: scale(0.95);
         }
         .surah-card {
             background: var(--card-bg);
@@ -46,11 +42,11 @@
             font-size: 28px;
             font-weight: 700;
             color: var(--accent);
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
         .arabic-text-large {
             font-size: 28px;
-            line-height: 2;
+            line-height: 2.2;
             text-align: right;
             font-family: 'Amiri', 'Times New Roman', serif;
             margin-bottom: 30px;
@@ -71,9 +67,68 @@
             line-height: 1.7;
             color: var(--text-secondary);
         }
+        
+        /* АУДИО ПЛЕЕР */
+        .audio-section {
+            background: var(--accent-light);
+            border-radius: 28px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .audio-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .audio-header i {
+            font-size: 28px;
+            color: var(--accent);
+        }
+        .audio-header h3 {
+            font-size: 18px;
+            color: var(--text-primary);
+        }
+        .qari-select {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--card-bg);
+            border: none;
+            border-radius: 40px;
+            font-family: inherit;
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            cursor: pointer;
+        }
+        .play-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent);
+            border: none;
+            border-radius: 48px;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: transform 0.2s;
+        }
+        .play-btn:active {
+            transform: scale(0.97);
+        }
+        .play-btn.playing {
+            background: #4CAF50;
+        }
+        .play-btn i {
+            font-size: 18px;
+        }
     </style>
 </head>
-<body data-theme="light">
+<body data-theme="dark">
     <div class="surah-page">
         <button onclick="window.location.href='index.html'" class="back-btn">
             <i class="fas fa-arrow-left"></i> На главную
@@ -81,6 +136,23 @@
         
         <div class="surah-card">
             <h1 class="surah-title">📖 Сура Аль-Фатиха</h1>
+            
+            <!-- АУДИО ПЛЕЕР С ВЫБОРОМ ЧТЕЦА -->
+            <div class="audio-section">
+                <div class="audio-header">
+                    <i class="fas fa-headphones"></i>
+                    <h3>Прослушать суру</h3>
+                </div>
+                <select id="qariSelect" class="qari-select">
+                    <option value="mishari">🎙️ Мишари Рашид аль-Афаси</option>
+                    <option value="abdulbasit">🎙️ Абдуль-Басит Абдус-Самад</option>
+                    <option value="husary">🎙️ Махмуд Халиль аль-Хусари</option>
+                    <option value="sudais">🎙️ Абдуррахман ас-Судайс</option>
+                </select>
+                <button id="playAudioBtn" class="play-btn">
+                    <i class="fas fa-play"></i> Слушать суру
+                </button>
+            </div>
             
             <div class="arabic-text-large">
                 بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ<br>
@@ -106,7 +178,7 @@
             </div>
 
             <div class="translation-block">
-                <h4><i class="fas fa-book-open"></i> Перевод смысловой</h4>
+                <h4><i class="fas fa-book-open"></i> Перевод смыслов</h4>
                 <p>
                     Во имя Аллаха, Милостивого, Милосердного.<br>
                     Хвала Аллаху, Господу миров,<br>
@@ -120,9 +192,91 @@
         </div>
     </div>
 
+    <audio id="surahAudio" preload="none">
+        <source id="audioSource" src="" type="audio/mpeg">
+    </audio>
+
     <script>
-        const savedTheme = localStorage.getItem('theme') || 'light';
+        // Ссылки на аудио суры Аль-Фатиха от разных чтецов
+        const audioUrls = {
+            mishari: 'https://cdn.islamic.network/quran/audio/128/ar.mishari_al_afasy/1.mp3',
+            abdulbasit: 'https://cdn.islamic.network/quran/audio/128/ar.abdul_basit_murattal/1.mp3',
+            husary: 'https://cdn.islamic.network/quran/audio/128/ar.husary/1.mp3',
+            sudais: 'https://cdn.islamic.network/quran/audio/128/ar.sudais_and_shuraim/1.mp3'
+        };
+        
+        const audio = document.getElementById('surahAudio');
+        const audioSource = document.getElementById('audioSource');
+        const playBtn = document.getElementById('playAudioBtn');
+        const qariSelect = document.getElementById('qariSelect');
+        
+        let isPlaying = false;
+        let currentQari = 'mishari';
+        
+        // Установка источника аудио
+        function setAudioSource(qari) {
+            const url = audioUrls[qari];
+            if (url) {
+                audioSource.src = url;
+                audio.load();
+            }
+        }
+        
+        // Воспроизведение или пауза
+        function togglePlay() {
+            if (!audioSource.src) {
+                setAudioSource(currentQari);
+            }
+            
+            if (isPlaying) {
+                audio.pause();
+                playBtn.innerHTML = '<i class="fas fa-play"></i> Слушать суру';
+                playBtn.classList.remove('playing');
+                isPlaying = false;
+            } else {
+                audio.play().catch(err => {
+                    console.log('Ошибка воспроизведения:', err);
+                    alert('Нажмите на экран, затем попробуйте снова');
+                });
+                playBtn.innerHTML = '<i class="fas fa-pause"></i> Пауза';
+                playBtn.classList.add('playing');
+                isPlaying = true;
+            }
+        }
+        
+        // При завершении аудио
+        audio.addEventListener('ended', () => {
+            isPlaying = false;
+            playBtn.innerHTML = '<i class="fas fa-play"></i> Слушать суру';
+            playBtn.classList.remove('playing');
+        });
+        
+        // При смене чтеца
+        qariSelect.addEventListener('change', (e) => {
+            currentQari = e.target.value;
+            const wasPlaying = isPlaying;
+            if (wasPlaying) {
+                audio.pause();
+            }
+            setAudioSource(currentQari);
+            if (wasPlaying) {
+                audio.play();
+            } else {
+                playBtn.innerHTML = '<i class="fas fa-play"></i> Слушать суру';
+                playBtn.classList.remove('playing');
+                isPlaying = false;
+            }
+        });
+        
+        // Кнопка воспроизведения
+        playBtn.addEventListener('click', togglePlay);
+        
+        // Тёмная тема
+        const savedTheme = localStorage.getItem('theme') || 'dark';
         document.body.setAttribute('data-theme', savedTheme);
+        
+        // Инициализация
+        setAudioSource('mishari');
     </script>
 </body>
 </html>

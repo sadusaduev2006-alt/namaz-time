@@ -61,130 +61,9 @@ function updatePrayerTimes() {
     document.getElementById('updateTime').innerText = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
 }
 
-// ==================== АВТОРИЗАЦИЯ ====================
-function initAuth() {
-    const showLoginTab = document.getElementById('showLoginTab');
-    const showRegisterTab = document.getElementById('showRegisterTab');
-    const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
-    const loginBtn = document.getElementById('loginBtn');
-    const registerBtn = document.getElementById('registerBtn');
-    const signOutBtn = document.getElementById('profileSignOutBtn');
-    const authForms = document.getElementById('authForms');
-    const userBlock = document.getElementById('userProfileBlock');
-    const userNameSpan = document.getElementById('userName');
-    const userEmailSpan = document.getElementById('userEmail');
-    const userSinceSpan = document.getElementById('userSince');
-    
-    if (showLoginTab && showRegisterTab) {
-        showLoginTab.onclick = () => {
-            showLoginTab.classList.add('active');
-            showRegisterTab.classList.remove('active');
-            if (loginForm) loginForm.style.display = 'flex';
-            if (registerForm) registerForm.style.display = 'none';
-        };
-        showRegisterTab.onclick = () => {
-            showRegisterTab.classList.add('active');
-            showLoginTab.classList.remove('active');
-            if (registerForm) registerForm.style.display = 'flex';
-            if (loginForm) loginForm.style.display = 'none';
-        };
-    }
-    
-    async function saveUserToFirestore(user, name) {
-        if (!window.db || !window.doc || !window.setDoc) return;
-        const userRef = window.doc(window.db, 'users', user.uid);
-        await window.setDoc(userRef, {
-            uid: user.uid,
-            email: user.email,
-            name: name || user.email.split('@')[0],
-            createdAt: new Date().toISOString()
-        }, { merge: true });
-    }
-    
-    function updateUIAfterLogin(user) {
-        if (authForms) authForms.style.display = 'none';
-        if (userBlock) userBlock.style.display = 'block';
-        if (userNameSpan) userNameSpan.innerText = user.displayName || user.email.split('@')[0];
-        if (userEmailSpan) userEmailSpan.innerText = user.email;
-        if (userSinceSpan) userSinceSpan.innerText = `С нами с: ${new Date(user.metadata.creationTime).toLocaleDateString()}`;
-    }
-    
-    function updateUIAfterLogout() {
-        if (authForms) authForms.style.display = 'block';
-        if (userBlock) userBlock.style.display = 'none';
-    }
-    
-    if (registerBtn) {
-        registerBtn.onclick = async () => {
-            const name = document.getElementById('registerName').value;
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            const confirm = document.getElementById('registerConfirmPassword').value;
-            
-            if (password !== confirm) {
-                alert('Пароли не совпадают');
-                return;
-            }
-            if (password.length < 6) {
-                alert('Пароль должен быть не менее 6 символов');
-                return;
-            }
-            
-            try {
-                const userCredential = await window.createUserWithEmailAndPassword(window.auth, email, password);
-                await saveUserToFirestore(userCredential.user, name);
-                alert('Регистрация успешна!');
-                updateUIAfterLogin(userCredential.user);
-            } catch (error) {
-                if (error.code === 'auth/email-already-in-use') {
-                    alert('Этот email уже зарегистрирован');
-                } else {
-                    alert('Ошибка: ' + error.message);
-                }
-            }
-        };
-    }
-    
-    if (loginBtn) {
-        loginBtn.onclick = async () => {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            try {
-                const userCredential = await window.signInWithEmailAndPassword(window.auth, email, password);
-                await saveUserToFirestore(userCredential.user, null);
-                alert('Добро пожаловать!');
-                updateUIAfterLogin(userCredential.user);
-            } catch (error) {
-                alert('Неверный email или пароль');
-            }
-        };
-    }
-    
-    if (signOutBtn) {
-        signOutBtn.onclick = async () => {
-            await window.signOut(window.auth);
-            updateUIAfterLogout();
-            alert('Вы вышли из аккаунта');
-        };
-    }
-    
-    if (window.onAuthStateChanged) {
-        window.onAuthStateChanged(window.auth, (user) => {
-            if (user) {
-                updateUIAfterLogin(user);
-            } else {
-                updateUIAfterLogout();
-            }
-        });
-    }
-}
-
-// ==================== ОСТАЛЬНОЙ КОД ====================
+// ==================== ЗАПУСК ====================
 document.addEventListener('DOMContentLoaded', () => {
     updatePrayerTimes();
-    initAuth();
     
     setInterval(() => {
         document.getElementById('updateTime').innerText = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
@@ -230,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
         notifTimeSelect.onchange = (e) => localStorage.setItem('notificationTime', e.target.value);
     }
     
-    // МЕНЮ
+    // МЕНЮ (ТРИ ТОЧКИ)
     const menuBtn = document.getElementById('menuToggle');
     const dropdown = document.getElementById('dropdownMenu');
     if (menuBtn && dropdown) {
@@ -383,5 +262,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, 2000);
     
-    console.log("Сайт загружен: время точное, авторизация настроена");
+    console.log("Сайт загружен");
 });

@@ -17,12 +17,13 @@
         body {
             background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
             min-height: 100vh;
-            padding: 16px;
+            padding: 12px;
         }
         
         .surah-page {
+            width: 100%;
             max-width: 100%;
-            margin: 0 auto;
+            margin: 0;
             padding: 0;
         }
         
@@ -45,12 +46,14 @@
             transform: scale(0.95);
         }
         
+        /* ГЛАВНАЯ КАРТОЧКА — ТЕПЕРЬ НА ВСЮ ШИРИНУ */
         .surah-card {
             background: var(--card-bg);
             border-radius: 32px;
             padding: 24px 20px;
             box-shadow: var(--shadow);
             width: 100%;
+            margin: 0;
         }
         
         .surah-title {
@@ -128,17 +131,17 @@
             margin-top: 10px;
         }
         
-        /* Адаптация для очень маленьких экранов */
-        @media (max-width: 480px) {
+        /* ТЕЛЕФОНЫ — КАРТОЧКА ВО ВСЮ ШИРИНУ */
+        @media (max-width: 768px) {
             body {
-                padding: 12px;
+                padding: 8px;
             }
             .surah-card {
-                padding: 18px 14px;
+                padding: 20px 16px;
                 border-radius: 28px;
             }
             .arabic-text-large {
-                font-size: 20px;
+                font-size: 22px;
                 line-height: 1.8;
             }
             .surah-title {
@@ -151,10 +154,30 @@
             }
         }
         
-        /* Для больших экранов (планшеты и ПК) */
-        @media (min-width: 768px) {
+        /* ОЧЕНЬ МАЛЕНЬКИЕ ТЕЛЕФОНЫ */
+        @media (max-width: 480px) {
+            body {
+                padding: 6px;
+            }
+            .surah-card {
+                padding: 16px 12px;
+                border-radius: 24px;
+            }
+            .arabic-text-large {
+                font-size: 20px;
+                line-height: 1.7;
+            }
+        }
+        
+        /* ПЛАНШЕТЫ И ПК (ОГРАНИЧИВАЕМ, ЧТОБЫ НЕ РАСПОЛЗАЛОСЬ) */
+        @media (min-width: 769px) {
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
             .surah-page {
-                max-width: 700px;
+                max-width: 800px;
                 margin: 0 auto;
             }
             .surah-card {

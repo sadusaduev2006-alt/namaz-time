@@ -48,29 +48,32 @@
         window.getDoc = getDoc;
         window.sendEmailVerification = sendEmailVerification;
         
-        // Функции для отображения/скрытия контента
-        function showContentForLoggedIn() {
-            document.getElementById('mainContent').style.display = 'block';
-            document.getElementById('floatingQuranBtn').style.display = 'flex';
-            document.getElementById('menuToggle').style.display = 'flex';
-            document.getElementById('citySelect').disabled = false;
-            // Показываем вкладки Уведомления и Оформление
-            const notifTab = document.querySelector('.profile-tab[data-profile-tab="notifications"]');
-            const appearanceTab = document.querySelector('.profile-tab[data-profile-tab="appearance"]');
-            if (notifTab) notifTab.style.display = 'block';
-            if (appearanceTab) appearanceTab.style.display = 'block';
+        // Функция для перенаправления на вкладку Аккаунт
+        function redirectToAccountTab() {
+            const profileModal = document.getElementById('fullscreenProfile');
+            const accountTab = document.querySelector('.profile-tab[data-profile-tab="account"]');
+            const accountPane = document.getElementById('profile-tab-account');
+            const allTabs = document.querySelectorAll('.profile-tab');
+            const allPanes = document.querySelectorAll('.profile-pane');
+            
+            if (profileModal) profileModal.classList.add('show');
+            
+            if (accountTab && accountPane) {
+                allTabs.forEach(t => t.classList.remove('active'));
+                allPanes.forEach(p => p.classList.remove('active'));
+                accountTab.classList.add('active');
+                accountPane.classList.add('active');
+            }
         }
         
-        function showContentForLoggedOut() {
-            document.getElementById('mainContent').style.display = 'block'; // Время намаза видно всем
-            document.getElementById('floatingQuranBtn').style.display = 'none';
-            document.getElementById('menuToggle').style.display = 'none';
-            document.getElementById('citySelect').disabled = false; // Выбор города доступен всем
-            // Скрываем вкладки Уведомления и Оформление
-            const notifTab = document.querySelector('.profile-tab[data-profile-tab="notifications"]');
-            const appearanceTab = document.querySelector('.profile-tab[data-profile-tab="appearance"]');
-            if (notifTab) notifTab.style.display = 'none';
-            if (appearanceTab) appearanceTab.style.display = 'none';
+        // Проверка авторизации и перенаправление
+        function requireAuth(callback) {
+            const user = window.auth.currentUser;
+            if (user && user.emailVerified) {
+                if (callback) callback();
+            } else {
+                redirectToAccountTab();
+            }
         }
         
         document.addEventListener('DOMContentLoaded', () => {
@@ -87,7 +90,55 @@
             const userEmailSpan = document.getElementById('userEmail');
             const userSinceSpan = document.getElementById('userSince');
             
-            // Переключение между формами
+            // КНОПКА КОРАНА (перенаправляет на регистрацию)
+            const quranBtn = document.getElementById('floatingQuranBtn');
+            if (quranBtn) {
+                quranBtn.onclick = (e) => {
+                    const user = window.auth.currentUser;
+                    if (!user || !user.emailVerified) {
+                        e.preventDefault();
+                        redirectToAccountTab();
+                    }
+                };
+            }
+            
+            // КНОПКА МЕНЮ (три точки) - проверяем при клике
+            const menuToggle = document.getElementById('menuToggle');
+            if (menuToggle) {
+                menuToggle.onclick = (e) => {
+                    const user = window.auth.currentUser;
+                    if (!user || !user.emailVerified) {
+                        e.stopPropagation();
+                        redirectToAccountTab();
+                    }
+                };
+            }
+            
+            // ВКЛАДКИ ПРОФИЛЯ
+            const notifTab = document.querySelector('.profile-tab[data-profile-tab="notifications"]');
+            const appearanceTab = document.querySelector('.profile-tab[data-profile-tab="appearance"]');
+            
+            if (notifTab) {
+                notifTab.onclick = (e) => {
+                    const user = window.auth.currentUser;
+                    if (!user || !user.emailVerified) {
+                        e.preventDefault();
+                        redirectToAccountTab();
+                    }
+                };
+            }
+            
+            if (appearanceTab) {
+                appearanceTab.onclick = (e) => {
+                    const user = window.auth.currentUser;
+                    if (!user || !user.emailVerified) {
+                        e.preventDefault();
+                        redirectToAccountTab();
+                    }
+                };
+            }
+            
+            // Переключение между формами входа/регистрации
             if (showLoginTab && showRegisterTab) {
                 showLoginTab.onclick = () => {
                     showLoginTab.classList.add('active');
@@ -121,14 +172,12 @@
                 if (userNameSpan) userNameSpan.innerText = user.displayName || user.email.split('@')[0];
                 if (userEmailSpan) userEmailSpan.innerText = user.email;
                 if (userSinceSpan) userSinceSpan.innerText = `С нами с: ${new Date(user.metadata.creationTime).toLocaleDateString()}`;
-                showContentForLoggedIn();
                 if (window.updatePrayerTimes) window.updatePrayerTimes();
             }
             
             function updateUIAfterLogout() {
                 if (authForms) authForms.style.display = 'block';
                 if (userBlock) userBlock.style.display = 'none';
-                showContentForLoggedOut();
             }
             
             // РЕГИСТРАЦИЯ
@@ -222,9 +271,6 @@
                     updateUIAfterLogout();
                 }
             });
-            
-            // Инициализация (по умолчанию показываем для незарегистрированных)
-            showContentForLoggedOut();
         });
     </script>
 </head>
@@ -274,16 +320,13 @@
                 <h1>🕌 Время намаза</h1>
             </div>
 
-            <!-- ОСНОВНОЙ КОНТЕНТ (ВРЕМЯ НАМАЗА ВИДНО ВСЕМ) -->
-            <div id="mainContent">
-                <div class="prayer-grid">
-                    <div class="prayer-item"><div class="prayer-info"><i class="fas fa-cloud-moon"></i><span class="prayer-name">Фаджр</span></div><span class="prayer-time" id="fajr">--:--</span></div>
-                    <div class="prayer-item"><div class="prayer-info"><i class="fas fa-sun"></i><span class="prayer-name">Шурук</span></div><span class="prayer-time" id="sunrise">--:--</span></div>
-                    <div class="prayer-item"><div class="prayer-info"><i class="fas fa-sun"></i><span class="prayer-name">Зухр</span></div><span class="prayer-time" id="dhuhr">--:--</span></div>
-                    <div class="prayer-item"><div class="prayer-info"><i class="fas fa-clock"></i><span class="prayer-name">Аср</span></div><span class="prayer-time" id="asr">--:--</span></div>
-                    <div class="prayer-item"><div class="prayer-info"><i class="fas fa-moon"></i><span class="prayer-name">Магриб</span></div><span class="prayer-time" id="maghrib">--:--</span></div>
-                    <div class="prayer-item"><div class="prayer-info"><i class="fas fa-star-of-life"></i><span class="prayer-name">Иша</span></div><span class="prayer-time" id="isha">--:--</span></div>
-                </div>
+            <div class="prayer-grid">
+                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-cloud-moon"></i><span class="prayer-name">Фаджр</span></div><span class="prayer-time" id="fajr">--:--</span></div>
+                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-sun"></i><span class="prayer-name">Шурук</span></div><span class="prayer-time" id="sunrise">--:--</span></div>
+                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-sun"></i><span class="prayer-name">Зухр</span></div><span class="prayer-time" id="dhuhr">--:--</span></div>
+                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-clock"></i><span class="prayer-name">Аср</span></div><span class="prayer-time" id="asr">--:--</span></div>
+                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-moon"></i><span class="prayer-name">Магриб</span></div><span class="prayer-time" id="maghrib">--:--</span></div>
+                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-star-of-life"></i><span class="prayer-name">Иша</span></div><span class="prayer-time" id="isha">--:--</span></div>
             </div>
 
             <div class="footer-note">
@@ -292,13 +335,13 @@
         </div>
     </div>
 
-    <!-- ПЛАВАЮЩАЯ КНОПКА КОМПАСА (ВИДНА ВСЕМ) -->
+    <!-- ПЛАВАЮЩАЯ КНОПКА КОМПАСА -->
     <button id="floatingCompassBtn" class="floating-compass-btn">
         <i class="fas fa-compass"></i>
     </button>
 
-    <!-- ПЛАВАЮЩАЯ КНОПКА КОРАНА (СКРЫТА ДЛЯ НЕЗАРЕГИСТРИРОВАННЫХ) -->
-    <a href="quran.html" id="floatingQuranBtn" class="floating-quran-btn" style="display: none;">
+    <!-- ПЛАВАЮЩАЯ КНОПКА КОРАНА -->
+    <a href="quran.html" id="floatingQuranBtn" class="floating-quran-btn">
         <i class="fas fa-book-quran"></i> Коран
     </a>
 
@@ -311,8 +354,8 @@
         </div>
         <div class="profile-tabs">
             <button class="profile-tab active" data-profile-tab="account">👤 Аккаунт</button>
-            <button class="profile-tab" data-profile-tab="notifications" style="display: none;">🔔 Уведомления</button>
-            <button class="profile-tab" data-profile-tab="appearance" style="display: none;">🎨 Оформление</button>
+            <button class="profile-tab" data-profile-tab="notifications">🔔 Уведомления</button>
+            <button class="profile-tab" data-profile-tab="appearance">🎨 Оформление</button>
         </div>
         <div class="profile-content">
             <!-- АККАУНТ -->
@@ -352,7 +395,7 @@
                 </div>
             </div>
 
-            <!-- УВЕДОМЛЕНИЯ (СКРЫТЫ ДЛЯ НЕЗАРЕГИСТРИРОВАННЫХ) -->
+            <!-- УВЕДОМЛЕНИЯ -->
             <div id="profile-tab-notifications" class="profile-pane">
                 <div class="settings-group">
                     <div class="settings-item">
@@ -377,7 +420,7 @@
                 </div>
             </div>
 
-            <!-- ОФОРМЛЕНИЕ (СКРЫТО ДЛЯ НЕЗАРЕГИСТРИРОВАННЫХ) -->
+            <!-- ОФОРМЛЕНИЕ -->
             <div id="profile-tab-appearance" class="profile-pane">
                 <div class="settings-group">
                     <div class="settings-item">

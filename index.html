@@ -21,7 +21,7 @@
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         
         const firebaseConfig = {
@@ -46,8 +46,8 @@
         window.doc = doc;
         window.setDoc = setDoc;
         window.getDoc = getDoc;
+        window.sendEmailVerification = sendEmailVerification;
         
-        // Инициализация форм авторизации
         document.addEventListener('DOMContentLoaded', () => {
             const showLoginTab = document.getElementById('showLoginTab');
             const showRegisterTab = document.getElementById('showRegisterTab');
@@ -78,7 +78,6 @@
                 };
             }
             
-            // Сохранение пользователя в Firestore
             async function saveUserToFirestore(user, name) {
                 if (!window.db || !window.doc || !window.setDoc) return;
                 const userRef = window.doc(window.db, 'users', user.uid);
@@ -86,6 +85,7 @@
                     uid: user.uid,
                     email: user.email,
                     name: name || user.email.split('@')[0],
+                    emailVerified: user.emailVerified,
                     createdAt: new Date().toISOString()
                 }, { merge: true });
             }
@@ -126,9 +126,17 @@
                     
                     try {
                         const userCredential = await window.createUserWithEmailAndPassword(window.auth, email, password);
+                        
+                        // Отправляем письмо для подтверждения
+                        await window.sendEmailVerification(userCredential.user);
+                        
                         await saveUserToFirestore(userCredential.user, name);
-                        alert('Регистрация успешна!');
-                        updateUIAfterLogin(userCredential.user);
+                        
+                        alert('✅ Регистрация успешна!\n\nНа вашу почту отправлено письмо с подтверждением.\nПожалуйста, подтвердите email и войдите снова.');
+                        
+                        await window.signOut(window.auth);
+                        updateUIAfterLogout();
+                        
                     } catch (error) {
                         if (error.code === 'auth/email-already-in-use') {
                             alert('Этот email уже зарегистрирован');
@@ -152,11 +160,27 @@
                     
                     try {
                         const userCredential = await window.signInWithEmailAndPassword(window.auth, email, password);
-                        await saveUserToFirestore(userCredential.user, null);
+                        const user = userCredential.user;
+                        
+                        // Проверяем, подтверждён ли email
+                        if (!user.emailVerified) {
+                            alert('❌ Пожалуйста, подтвердите свой email.\nМы отправили письмо на ' + user.email + '\n\nПроверьте почту и нажмите на ссылку подтверждения.');
+                            await window.signOut(window.auth);
+                            updateUIAfterLogout();
+                            return;
+                        }
+                        
+                        await saveUserToFirestore(user, null);
                         alert('Добро пожаловать!');
-                        updateUIAfterLogin(userCredential.user);
+                        updateUIAfterLogin(user);
                     } catch (error) {
-                        alert('Неверный email или пароль');
+                        if (error.code === 'auth/user-not-found') {
+                            alert('Пользователь не найден. Зарегистрируйтесь.');
+                        } else if (error.code === 'auth/wrong-password') {
+                            alert('Неверный пароль');
+                        } else {
+                            alert('Ошибка: ' + error.message);
+                        }
                     }
                 };
             }
@@ -170,9 +194,8 @@
                 };
             }
             
-            // ОТСЛЕЖИВАНИЕ СОСТОЯНИЯ
             window.onAuthStateChanged(window.auth, (user) => {
-                if (user) {
+                if (user && user.emailVerified) {
                     updateUIAfterLogin(user);
                 } else {
                     updateUIAfterLogout();

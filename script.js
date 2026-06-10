@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
         notifTimeSelect.onchange = (e) => localStorage.setItem('notificationTime', e.target.value);
     }
     
-    // МЕНЮ (ТРИ ТОЧКИ)
+    // МЕНЮ
     const menuBtn = document.getElementById('menuToggle');
     const dropdown = document.getElementById('dropdownMenu');
     if (menuBtn && dropdown) {
@@ -126,20 +126,6 @@ document.addEventListener('DOMContentLoaded', () => {
         alert("📱 Намаз Дагестан\nВерсия 2.0\n📍 Точное время по расписанию мечети Махачкалы");
         dropdown.classList.remove('show');
     };
-    
-    // ВКЛАДКИ ПРОФИЛЯ
-    const tabs = document.querySelectorAll('.profile-tab');
-    const panes = document.querySelectorAll('.profile-pane');
-    tabs.forEach(tab => {
-        tab.onclick = () => {
-            const tabId = tab.dataset.profileTab;
-            tabs.forEach(t => t.classList.remove('active'));
-            panes.forEach(p => p.classList.remove('active'));
-            tab.classList.add('active');
-            const activePane = document.getElementById(`profile-tab-${tabId}`);
-            if (activePane) activePane.classList.add('active');
-        };
-    });
     
     // КОМПАС
     const compassBtn = document.getElementById('floatingCompassBtn');

@@ -76,6 +76,22 @@
         }
         
         document.addEventListener('DOMContentLoaded', () => {
+            // ========== ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ПРОФИЛЯ ==========
+            const profileTabs = document.querySelectorAll('.profile-tab');
+            const profilePanes = document.querySelectorAll('.profile-pane');
+            
+            profileTabs.forEach(tab => {
+                tab.onclick = (e) => {
+                    e.preventDefault();
+                    const tabId = tab.getAttribute('data-profile-tab');
+                    profileTabs.forEach(t => t.classList.remove('active'));
+                    profilePanes.forEach(p => p.classList.remove('active'));
+                    tab.classList.add('active');
+                    const activePane = document.getElementById(`profile-tab-${tabId}`);
+                    if (activePane) activePane.classList.add('active');
+                };
+            });
+            
             const showLoginTab = document.getElementById('showLoginTab');
             const showRegisterTab = document.getElementById('showRegisterTab');
             const loginForm = document.getElementById('loginForm');
@@ -139,29 +155,7 @@
                 });
             }
             
-            // ВКЛАДКИ ПРОФИЛЯ
-            const notifTab = document.querySelector('.profile-tab[data-profile-tab="notifications"]');
-            const appearanceTab = document.querySelector('.profile-tab[data-profile-tab="appearance"]');
-            if (notifTab) {
-                notifTab.onclick = (e) => {
-                    const user = window.auth.currentUser;
-                    if (!user || !user.emailVerified) {
-                        e.preventDefault();
-                        redirectToAccountTab();
-                    }
-                };
-            }
-            if (appearanceTab) {
-                appearanceTab.onclick = (e) => {
-                    const user = window.auth.currentUser;
-                    if (!user || !user.emailVerified) {
-                        e.preventDefault();
-                        redirectToAccountTab();
-                    }
-                };
-            }
-            
-            // Переключение между формами
+            // Переключение между формами входа/регистрации
             if (showLoginTab && showRegisterTab) {
                 showLoginTab.onclick = () => {
                     showLoginTab.classList.add('active');
@@ -199,7 +193,7 @@
                 if (resendEmailBlock) resendEmailBlock.style.display = 'none';
             }
             
-            // РЕГИСТРАЦИЯ (улучшенная)
+            // РЕГИСТРАЦИЯ
             if (registerBtn) {
                 registerBtn.onclick = async () => {
                     const name = document.getElementById('registerName').value;
@@ -238,7 +232,7 @@
                 };
             }
             
-            // ВХОД (с проверкой подтверждения)
+            // ВХОД
             if (loginBtn) {
                 loginBtn.onclick = async () => {
                     const email = document.getElementById('loginEmail').value;

@@ -92,7 +92,7 @@
                 };
             }
             
-            // КНОПКА МЕНЮ
+            // КНОПКА МЕНЮ (три точки)
             const menuToggle = document.getElementById('menuToggle');
             const dropdownMenu = document.getElementById('dropdownMenu');
             
@@ -359,24 +359,22 @@
             <button class="profile-tab" data-profile-tab="appearance">🎨 Оформление</button>
         </div>
         <div class="profile-content">
-            <!-- АККАУНТ -->
+            <!-- ========== АККАУНТ ========== -->
             <div id="profile-tab-account" class="profile-pane active">
                 <div class="account-avatar">
                     <i class="fas fa-user-circle"></i>
                 </div>
-                
+
                 <div id="authForms">
                     <div class="auth-tabs">
                         <button id="showLoginTab" class="auth-tab-btn active">🔐 Вход</button>
                         <button id="showRegisterTab" class="auth-tab-btn">📝 Регистрация</button>
                     </div>
-                    
                     <div id="loginForm" class="auth-form">
                         <input type="email" id="loginEmail" placeholder="Email" class="auth-input">
                         <input type="password" id="loginPassword" placeholder="Пароль" class="auth-input">
                         <button id="loginBtn" class="profile-auth-btn">Войти</button>
                     </div>
-                    
                     <div id="registerForm" class="auth-form" style="display: none;">
                         <input type="text" id="registerName" placeholder="Ваше имя" class="auth-input">
                         <input type="email" id="registerEmail" placeholder="Email" class="auth-input">
@@ -385,20 +383,18 @@
                         <button id="registerBtn" class="profile-auth-btn">Зарегистрироваться</button>
                     </div>
                 </div>
-                
+
                 <div id="userProfileBlock" style="display: none;">
                     <div class="profile-user-info">
                         <p><strong id="userName"></strong></p>
                         <p id="userEmail"></p>
                         <p id="userSince"></p>
                     </div>
-                    <div style="margin-top: 20px;">
-                        <button id="profileSignOutBtn" class="profile-logout-btn">🚪 Выйти</button>
-                    </div>
+                    <button id="profileSignOutBtn" class="profile-logout-btn">🚪 Выйти</button>
                 </div>
             </div>
 
-            <!-- УВЕДОМЛЕНИЯ -->
+            <!-- ========== УВЕДОМЛЕНИЯ ========== -->
             <div id="profile-tab-notifications" class="profile-pane">
                 <div class="settings-group">
                     <div class="settings-item">
@@ -414,7 +410,6 @@
                             <span class="slider"></span>
                         </label>
                     </div>
-                    
                     <div class="settings-item">
                         <div class="settings-info">
                             <i class="fas fa-clock"></i>
@@ -433,7 +428,7 @@
                 </div>
             </div>
 
-            <!-- ОФОРМЛЕНИЕ -->
+            <!-- ========== ОФОРМЛЕНИЕ ========== -->
             <div id="profile-tab-appearance" class="profile-pane">
                 <div class="settings-group">
                     <div class="settings-item">

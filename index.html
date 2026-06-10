@@ -2,485 +2,396 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>Намаз Дагестан</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3069/3069175.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Намаз Дагестан">
+    <meta name="theme-color" content="#1a1a1a">
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyCsegOJYxJ6xGfYzyfAYpgV071ecqxLwZE",
+            authDomain: "namaz-dagestan-app.firebaseapp.com",
+            projectId: "namaz-dagestan-app",
+            storageBucket: "namaz-dagestan-app.firebasestorage.app",
+            messagingSenderId: "25438159159",
+            appId: "1:25438159159:web:211bb662319c356ff8dab2"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        window.auth = auth;
+        window.db = db;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.signOut = signOut;
+        window.onAuthStateChanged = onAuthStateChanged;
+        window.doc = doc;
+        window.setDoc = setDoc;
+        window.getDoc = getDoc;
+        window.sendEmailVerification = sendEmailVerification;
+        
+        function redirectToAccountTab() {
+            const profileModal = document.getElementById('fullscreenProfile');
+            const accountTab = document.querySelector('.profile-tab[data-profile-tab="account"]');
+            const accountPane = document.getElementById('profile-tab-account');
+            const allTabs = document.querySelectorAll('.profile-tab');
+            const allPanes = document.querySelectorAll('.profile-pane');
+            if (profileModal) profileModal.classList.add('show');
+            if (accountTab && accountPane) {
+                allTabs.forEach(t => t.classList.remove('active'));
+                allPanes.forEach(p => p.classList.remove('active'));
+                accountTab.classList.add('active');
+                accountPane.classList.add('active');
+            }
         }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #1a1a1a;
-            color: #E0E0E0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .container {
-            max-width: 600px;
-            width: 100%;
-        }
-        .prayer-card {
-            background: #2C2C2C;
-            border-radius: 48px;
-            padding: 24px;
-        }
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .icon-btn {
-            background: #3D3D3D;
-            border: none;
-            width: 44px;
-            height: 44px;
-            border-radius: 44px;
-            cursor: pointer;
-            color: #D4A373;
-            font-size: 20px;
-        }
-        .location-badge {
-            background: #3D3D3D;
-            padding: 8px 16px;
-            border-radius: 40px;
-        }
-        .location-badge select {
-            background: transparent;
-            border: none;
-            color: #D4A373;
-            font-size: 14px;
-        }
-        h1 {
-            text-align: center;
-            font-size: 24px;
-            margin: 20px 0;
-            color: #D4A373;
-        }
-        .prayer-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px;
-            background: #383838;
-            border-radius: 28px;
-            margin-bottom: 10px;
-        }
-        .prayer-info {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-        .prayer-time {
-            font-weight: 700;
-            font-size: 18px;
-        }
-        .footer-note {
-            text-align: center;
-            font-size: 12px;
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 1px solid #3D3D3D;
-        }
-        .floating-compass-btn {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            width: 52px;
-            height: 52px;
-            border-radius: 52px;
-            background: #D4A373;
-            border: none;
-            color: white;
-            font-size: 22px;
-            cursor: pointer;
-        }
-        .floating-quran-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #D4A373;
-            color: white;
-            padding: 12px 18px;
-            border-radius: 40px;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        /* ПРОФИЛЬ */
-        .fullscreen-profile {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: #2C2C2C;
-            z-index: 1000;
-            display: none;
-            flex-direction: column;
-            padding: 20px;
-            overflow-y: auto;
-        }
-        .fullscreen-profile.show {
-            display: flex;
-        }
-        .profile-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 16px;
-            border-bottom: 1px solid #3D3D3D;
-            margin-bottom: 20px;
-        }
-        .close-profile {
-            background: none;
-            border: none;
-            font-size: 28px;
-            color: #D4A373;
-            cursor: pointer;
-        }
-        .profile-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #3D3D3D;
-            padding-bottom: 12px;
-        }
-        .profile-tab {
-            background: transparent;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-size: 15px;
-            color: #A0A0A0;
-            transition: all 0.2s;
-        }
-        .profile-tab.active {
-            background: #D4A373;
-            color: white;
-        }
-        .profile-pane {
-            display: none;
-        }
-        .profile-pane.active {
-            display: block;
-        }
-        /* АККАУНТ */
-        .account-avatar {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .account-avatar i {
-            font-size: 80px;
-            color: #D4A373;
-        }
-        .auth-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .auth-tab-btn {
-            flex: 1;
-            background: #3D3D3D;
-            border: none;
-            padding: 12px;
-            border-radius: 40px;
-            cursor: pointer;
-            color: #E0E0E0;
-            transition: all 0.2s;
-        }
-        .auth-tab-btn.active {
-            background: #D4A373;
-            color: white;
-        }
-        .auth-input {
-            width: 100%;
-            padding: 14px;
-            background: #3D3D3D;
-            border: none;
-            border-radius: 40px;
-            margin-bottom: 12px;
-            color: white;
-            font-size: 14px;
-        }
-        .profile-auth-btn {
-            width: 100%;
-            padding: 14px;
-            background: #D4A373;
-            border: none;
-            border-radius: 40px;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .profile-user-info {
-            background: #3D3D3D;
-            padding: 16px;
-            border-radius: 24px;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-        .profile-logout-btn {
-            background: #e74c3c;
-            width: 100%;
-            padding: 14px;
-            border-radius: 40px;
-            color: white;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            margin-top: 20px;
-        }
-        /* НАСТРОЙКИ */
-        .settings-item {
-            background: #3D3D3D;
-            padding: 16px;
-            border-radius: 24px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
-        }
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            border-radius: 24px;
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            border-radius: 50%;
-            transition: 0.2s;
-        }
-        input:checked + .slider {
-            background-color: #D4A373;
-        }
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-        .settings-select {
-            background: #2C2C2C;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 40px;
-            color: white;
-            cursor: pointer;
-        }
-    </style>
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const showLoginTab = document.getElementById('showLoginTab');
+            const showRegisterTab = document.getElementById('showRegisterTab');
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const loginBtn = document.getElementById('loginBtn');
+            const registerBtn = document.getElementById('registerBtn');
+            const signOutBtn = document.getElementById('profileSignOutBtn');
+            const authForms = document.getElementById('authForms');
+            const userBlock = document.getElementById('userProfileBlock');
+            const userNameSpan = document.getElementById('userName');
+            const userEmailSpan = document.getElementById('userEmail');
+            const userSinceSpan = document.getElementById('userSince');
+            
+            const quranBtn = document.getElementById('floatingQuranBtn');
+            if (quranBtn) {
+                quranBtn.onclick = (e) => {
+                    const user = window.auth.currentUser;
+                    if (!user || !user.emailVerified) {
+                        e.preventDefault();
+                        redirectToAccountTab();
+                    }
+                };
+            }
+            
+            const menuToggle = document.getElementById('menuToggle');
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            if (menuToggle && dropdownMenu) {
+                menuToggle.onclick = (e) => {
+                    e.stopPropagation();
+                    const user = window.auth.currentUser;
+                    if (!user || !user.emailVerified) {
+                        e.preventDefault();
+                        redirectToAccountTab();
+                    } else {
+                        dropdownMenu.classList.toggle('show');
+                    }
+                };
+                document.addEventListener('click', function(e) {
+                    if (!menuToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                        dropdownMenu.classList.remove('show');
+                    }
+                });
+            }
+            
+            const notifTab = document.querySelector('.profile-tab[data-profile-tab="notifications"]');
+            const appearanceTab = document.querySelector('.profile-tab[data-profile-tab="appearance"]');
+            if (notifTab) {
+                notifTab.onclick = (e) => {
+                    const user = window.auth.currentUser;
+                    if (!user || !user.emailVerified) {
+                        e.preventDefault();
+                        redirectToAccountTab();
+                    }
+                };
+            }
+            if (appearanceTab) {
+                appearanceTab.onclick = (e) => {
+                    const user = window.auth.currentUser;
+                    if (!user || !user.emailVerified) {
+                        e.preventDefault();
+                        redirectToAccountTab();
+                    }
+                };
+            }
+            
+            if (showLoginTab && showRegisterTab) {
+                showLoginTab.onclick = () => {
+                    showLoginTab.classList.add('active');
+                    showRegisterTab.classList.remove('active');
+                    if (loginForm) loginForm.style.display = 'flex';
+                    if (registerForm) registerForm.style.display = 'none';
+                };
+                showRegisterTab.onclick = () => {
+                    showRegisterTab.classList.add('active');
+                    showLoginTab.classList.remove('active');
+                    if (registerForm) registerForm.style.display = 'flex';
+                    if (loginForm) loginForm.style.display = 'none';
+                };
+            }
+            
+            async function saveUserToFirestore(user, name) {
+                if (!window.db || !window.doc || !window.setDoc) return;
+                const userRef = window.doc(window.db, 'users', user.uid);
+                await window.setDoc(userRef, {
+                    uid: user.uid,
+                    email: user.email,
+                    name: name || user.email.split('@')[0],
+                    emailVerified: user.emailVerified,
+                    createdAt: new Date().toISOString()
+                }, { merge: true });
+            }
+            
+            function updateUIAfterLogin(user) {
+                if (authForms) authForms.style.display = 'none';
+                if (userBlock) userBlock.style.display = 'block';
+                if (userNameSpan) userNameSpan.innerText = user.displayName || user.email.split('@')[0];
+                if (userEmailSpan) userEmailSpan.innerText = user.email;
+                if (userSinceSpan) userSinceSpan.innerText = `С нами с: ${new Date(user.metadata.creationTime).toLocaleDateString()}`;
+            }
+            
+            function updateUIAfterLogout() {
+                if (authForms) authForms.style.display = 'block';
+                if (userBlock) userBlock.style.display = 'none';
+            }
+            
+            if (registerBtn) {
+                registerBtn.onclick = async () => {
+                    const name = document.getElementById('registerName').value;
+                    const email = document.getElementById('registerEmail').value;
+                    const password = document.getElementById('registerPassword').value;
+                    const confirm = document.getElementById('registerConfirmPassword').value;
+                    
+                    if (!email || !password) {
+                        alert('Заполните все поля');
+                        return;
+                    }
+                    if (password !== confirm) {
+                        alert('Пароли не совпадают');
+                        return;
+                    }
+                    if (password.length < 6) {
+                        alert('Пароль должен быть не менее 6 символов');
+                        return;
+                    }
+                    
+                    try {
+                        const userCredential = await window.createUserWithEmailAndPassword(window.auth, email, password);
+                        await window.sendEmailVerification(userCredential.user);
+                        await saveUserToFirestore(userCredential.user, name);
+                        alert('✅ Регистрация успешна! На почту отправлено письмо с подтверждением.');
+                        await window.signOut(window.auth);
+                        updateUIAfterLogout();
+                    } catch (error) {
+                        console.error(error);
+                        if (error.code === 'auth/email-already-in-use') {
+                            alert('Этот email уже зарегистрирован');
+                        } else {
+                            alert('Ошибка: ' + error.message);
+                        }
+                    }
+                };
+            }
+            
+            if (loginBtn) {
+                loginBtn.onclick = async () => {
+                    const email = document.getElementById('loginEmail').value;
+                    const password = document.getElementById('loginPassword').value;
+                    
+                    if (!email || !password) {
+                        alert('Заполните email и пароль');
+                        return;
+                    }
+                    
+                    try {
+                        const userCredential = await window.signInWithEmailAndPassword(window.auth, email, password);
+                        const user = userCredential.user;
+                        
+                        if (!user.emailVerified) {
+                            alert('❌ Подтвердите email. Проверьте почту и нажмите на ссылку.');
+                            await window.signOut(window.auth);
+                            updateUIAfterLogout();
+                            return;
+                        }
+                        
+                        await saveUserToFirestore(user, null);
+                        alert('Добро пожаловать!');
+                        updateUIAfterLogin(user);
+                    } catch (error) {
+                        console.error(error);
+                        if (error.code === 'auth/user-not-found') {
+                            alert('Пользователь не найден. Зарегистрируйтесь.');
+                        } else if (error.code === 'auth/wrong-password') {
+                            alert('Неверный пароль');
+                        } else {
+                            alert('Ошибка: ' + error.message);
+                        }
+                    }
+                };
+            }
+            
+            if (signOutBtn) {
+                signOutBtn.onclick = async () => {
+                    await window.signOut(window.auth);
+                    updateUIAfterLogout();
+                    alert('Вы вышли из аккаунта');
+                };
+            }
+            
+            window.onAuthStateChanged(window.auth, (user) => {
+                if (user && user.emailVerified) {
+                    updateUIAfterLogin(user);
+                } else {
+                    updateUIAfterLogout();
+                }
+            });
+        });
+    </script>
 </head>
-<body>
+<body data-theme="dark">
     <div class="container">
         <div class="prayer-card">
-            <div class="header-top">
-                <button id="profileBtn" class="icon-btn"><i class="fas fa-user-circle"></i></button>
-                <div class="location-badge">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <select id="citySelect"><option>Махачкала</option></select>
+            <div class="header">
+                <div class="header-top">
+                    <div class="left-buttons">
+                        <button id="profileBtn" class="icon-btn"><i class="fas fa-user-circle"></i></button>
+                    </div>
+                    <div class="center-controls">
+                        <div class="location-badge">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <select id="citySelect"><option>Махачкала</option></select>
+                        </div>
+                    </div>
+                    <div class="right-buttons">
+                        <div class="dropdown">
+                            <button id="menuToggle" class="icon-btn"><i class="fas fa-ellipsis-h"></i></button>
+                            <div id="dropdownMenu" class="dropdown-content">
+                                <a href="surah-fatiha.html"><i class="fas fa-star-and-crescent"></i> Сура Аль-Фатиха</a>
+                                <a href="asmaul-husna.html"><i class="fas fa-star-of-life"></i> 99 имён Аллаха</a>
+                                <a href="pillars.html"><i class="fas fa-kaaba"></i> 5 столпов Ислама</a>
+                                <a href="morning-adhkar.html"><i class="fas fa-sun"></i> Утренние азкары</a>
+                                <a href="#" id="aboutMenuItem"><i class="fas fa-info-circle"></i> О приложении</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <button id="menuToggle" class="icon-btn"><i class="fas fa-ellipsis-h"></i></button>
+                <h1>🕌 Время намаза</h1>
             </div>
-            <h1>🕌 Время намаза</h1>
+
             <div class="prayer-grid">
-                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-cloud-moon"></i><span>Фаджр</span></div><span class="prayer-time" id="fajr">--:--</span></div>
-                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-sun"></i><span>Шурук</span></div><span class="prayer-time" id="sunrise">--:--</span></div>
-                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-sun"></i><span>Зухр</span></div><span class="prayer-time" id="dhuhr">--:--</span></div>
-                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-clock"></i><span>Аср</span></div><span class="prayer-time" id="asr">--:--</span></div>
-                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-moon"></i><span>Магриб</span></div><span class="prayer-time" id="maghrib">--:--</span></div>
-                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-star-of-life"></i><span>Иша</span></div><span class="prayer-time" id="isha">--:--</span></div>
+                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-cloud-moon"></i><span class="prayer-name">Фаджр</span></div><span class="prayer-time" id="fajr">--:--</span></div>
+                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-sun"></i><span class="prayer-name">Шурук</span></div><span class="prayer-time" id="sunrise">--:--</span></div>
+                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-sun"></i><span class="prayer-name">Зухр</span></div><span class="prayer-time" id="dhuhr">--:--</span></div>
+                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-clock"></i><span class="prayer-name">Аср</span></div><span class="prayer-time" id="asr">--:--</span></div>
+                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-moon"></i><span class="prayer-name">Магриб</span></div><span class="prayer-time" id="maghrib">--:--</span></div>
+                <div class="prayer-item"><div class="prayer-info"><i class="fas fa-star-of-life"></i><span class="prayer-name">Иша</span></div><span class="prayer-time" id="isha">--:--</span></div>
             </div>
-            <div class="footer-note"><i class="far fa-clock"></i> Обновлено: <span id="updateTime">--:--</span></div>
+
+            <div class="footer-note">
+                <p><i class="far fa-clock"></i> Обновлено: <span id="updateTime">сегодня</span></p>
+            </div>
         </div>
     </div>
 
     <button id="floatingCompassBtn" class="floating-compass-btn"><i class="fas fa-compass"></i></button>
-    <a href="quran.html" id="floatingQuranBtn" class="floating-quran-btn">📖 Коран</a>
+    <a href="quran.html" id="floatingQuranBtn" class="floating-quran-btn"><i class="fas fa-book-quran"></i> Коран</a>
 
-    <!-- ПРОФИЛЬ -->
     <div id="fullscreenProfile" class="fullscreen-profile">
-        <div class="profile-header">
-            <h2>Настройки</h2>
+        <div class="profile-full-header">
             <button id="closeProfile" class="close-profile">&times;</button>
+            <h2>Настройки</h2>
+            <div style="width:44px"></div>
         </div>
         <div class="profile-tabs">
-            <button class="profile-tab active" data-tab="account">👤 Аккаунт</button>
-            <button class="profile-tab" data-tab="notifications">🔔 Уведомления</button>
-            <button class="profile-tab" data-tab="appearance">🎨 Оформление</button>
+            <button class="profile-tab active" data-profile-tab="account">👤 Аккаунт</button>
+            <button class="profile-tab" data-profile-tab="notifications">🔔 Уведомления</button>
+            <button class="profile-tab" data-profile-tab="appearance">🎨 Оформление</button>
         </div>
-
-        <!-- АККАУНТ -->
-        <div id="tab-account" class="profile-pane active">
-            <div class="account-avatar"><i class="fas fa-user-circle"></i></div>
-            <div id="authForms">
-                <div class="auth-tabs">
-                    <button id="showLoginTab" class="auth-tab-btn active">Вход</button>
-                    <button id="showRegisterTab" class="auth-tab-btn">Регистрация</button>
+        <div class="profile-content">
+            <div id="profile-tab-account" class="profile-pane active">
+                <div class="account-avatar"><i class="fas fa-user-circle"></i></div>
+                <div id="authForms">
+                    <div class="auth-tabs">
+                        <button id="showLoginTab" class="auth-tab-btn active">🔐 Вход</button>
+                        <button id="showRegisterTab" class="auth-tab-btn">📝 Регистрация</button>
+                    </div>
+                    <div id="loginForm" class="auth-form">
+                        <input type="email" id="loginEmail" placeholder="Email" class="auth-input">
+                        <input type="password" id="loginPassword" placeholder="Пароль" class="auth-input">
+                        <button id="loginBtn" class="profile-auth-btn">Войти</button>
+                    </div>
+                    <div id="registerForm" class="auth-form" style="display:none">
+                        <input type="text" id="registerName" placeholder="Ваше имя" class="auth-input">
+                        <input type="email" id="registerEmail" placeholder="Email" class="auth-input">
+                        <input type="password" id="registerPassword" placeholder="Пароль" class="auth-input">
+                        <input type="password" id="registerConfirmPassword" placeholder="Подтвердите пароль" class="auth-input">
+                        <button id="registerBtn" class="profile-auth-btn">Зарегистрироваться</button>
+                    </div>
                 </div>
-                <div id="loginForm">
-                    <input type="email" id="loginEmail" placeholder="Email" class="auth-input">
-                    <input type="password" id="loginPassword" placeholder="Пароль" class="auth-input">
-                    <button id="loginBtn" class="profile-auth-btn">Войти</button>
-                </div>
-                <div id="registerForm" style="display:none">
-                    <input type="text" id="registerName" placeholder="Имя" class="auth-input">
-                    <input type="email" id="registerEmail" placeholder="Email" class="auth-input">
-                    <input type="password" id="registerPassword" placeholder="Пароль" class="auth-input">
-                    <input type="password" id="registerConfirmPassword" placeholder="Повторите пароль" class="auth-input">
-                    <button id="registerBtn" class="profile-auth-btn">Зарегистрироваться</button>
+                <div id="userProfileBlock" style="display:none">
+                    <div class="profile-user-info">
+                        <p><strong id="userName"></strong></p>
+                        <p id="userEmail"></p>
+                        <p id="userSince"></p>
+                    </div>
+                    <div style="margin-top:20px"><button id="profileSignOutBtn" class="profile-logout-btn">🚪 Выйти</button></div>
                 </div>
             </div>
-            <div id="userProfileBlock" style="display:none">
-                <div class="profile-user-info">
-                    <p><strong id="userName"></strong></p>
-                    <p id="userEmail"></p>
+            <div id="profile-tab-notifications" class="profile-pane">
+                <div class="settings-group">
+                    <div class="settings-item">
+                        <div class="settings-info"><i class="fas fa-bell"></i><div><h4>Уведомления о намазах</h4><p>Получать напоминания</p></div></div>
+                        <label class="switch"><input type="checkbox" id="notificationsToggle"><span class="slider"></span></label>
+                    </div>
+                    <div class="settings-item">
+                        <div class="settings-info"><i class="fas fa-clock"></i><div><h4>Напоминать за</h4></div></div>
+                        <select id="notificationTimeSelect" class="settings-select">
+                            <option value="5">5 минут</option><option value="10">10 минут</option><option value="15">15 минут</option><option value="30">30 минут</option>
+                        </select>
+                    </div>
                 </div>
-                <button id="profileSignOutBtn" class="profile-logout-btn">Выйти</button>
             </div>
-        </div>
-
-        <!-- УВЕДОМЛЕНИЯ -->
-        <div id="tab-notifications" class="profile-pane">
-            <div class="settings-item">
-                <span>🔔 Уведомления о намазах</span>
-                <label class="switch"><input type="checkbox" id="notificationsToggle"><span class="slider"></span></label>
-            </div>
-            <div class="settings-item">
-                <span>⏰ Напоминать за</span>
-                <select id="notificationTimeSelect" class="settings-select">
-                    <option value="5">5 минут</option>
-                    <option value="10">10 минут</option>
-                    <option value="15">15 минут</option>
-                    <option value="30">30 минут</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- ОФОРМЛЕНИЕ -->
-        <div id="tab-appearance" class="profile-pane">
-            <div class="settings-item">
-                <span>🌙 Тёмная тема</span>
-                <label class="switch"><input type="checkbox" id="profileDarkModeToggle" checked><span class="slider"></span></label>
+            <div id="profile-tab-appearance" class="profile-pane">
+                <div class="settings-group">
+                    <div class="settings-item">
+                        <div class="settings-info"><i class="fas fa-moon"></i><div><h4>Тёмная тема</h4><p>Включить тёмное оформление</p></div></div>
+                        <label class="switch"><input type="checkbox" id="profileDarkModeToggle" checked><span class="slider"></span></label>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <script>
-        // ========== ВРЕМЯ НАМАЗА ==========
-        const times = { fajr: "02:07", sunrise: "04:14", dhuhr: "11:51", asr: "15:51", maghrib: "19:24", isha: "21:06" };
-        document.getElementById('fajr').innerText = times.fajr;
-        document.getElementById('sunrise').innerText = times.sunrise;
-        document.getElementById('dhuhr').innerText = times.dhuhr;
-        document.getElementById('asr').innerText = times.asr;
-        document.getElementById('maghrib').innerText = times.maghrib;
-        document.getElementById('isha').innerText = times.isha;
-        document.getElementById('updateTime').innerText = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    <div id="fullscreenCompass" class="fullscreen-compass">
+        <div class="compass-full-header">
+            <button id="closeFullscreenCompass" class="close-fullscreen">&times;</button>
+            <h3>🧭 Направление на Киблу</h3>
+            <div style="width:44px"></div>
+        </div>
+        <div class="compass-full-body">
+            <div class="compass-full">
+                <div class="needle-full" id="needleFull"><div class="needle-top-full"></div><div class="needle-bottom-full"></div></div>
+                <div class="compass-mark-full">N</div>
+                <div class="kaaba-icon-full"><i class="fas fa-kaaba"></i></div>
+            </div>
+            <div class="qibla-degree-full" id="qiblaDegreeFull">--°</div>
+            <div id="compassHintFull" class="compass-hint-full">📍 Нажмите кнопку ниже</div>
+            <button id="startCompassFull" class="start-compass-btn">🚀 ЗАПУСТИТЬ КОМПАС</button>
+        </div>
+    </div>
 
-        // ========== ПРОФИЛЬ ==========
-        const profileBtn = document.getElementById('profileBtn');
-        const profileModal = document.getElementById('fullscreenProfile');
-        const closeProfile = document.getElementById('closeProfile');
-        profileBtn.onclick = () => profileModal.classList.add('show');
-        closeProfile.onclick = () => profileModal.classList.remove('show');
-
-        // ========== ВКЛАДКИ ПРОФИЛЯ ==========
-        const tabs = document.querySelectorAll('.profile-tab');
-        const panes = document.querySelectorAll('.profile-pane');
-        
-        tabs.forEach(tab => {
-            tab.onclick = () => {
-                const tabId = tab.getAttribute('data-tab');
-                tabs.forEach(t => t.classList.remove('active'));
-                panes.forEach(p => p.classList.remove('active'));
-                tab.classList.add('active');
-                document.getElementById(`tab-${tabId}`).classList.add('active');
-            };
-        });
-
-        // ========== ПЕРЕКЛЮЧЕНИЕ ВХОД/РЕГИСТРАЦИЯ ==========
-        const showLogin = document.getElementById('showLoginTab');
-        const showRegister = document.getElementById('showRegisterTab');
-        const loginDiv = document.getElementById('loginForm');
-        const registerDiv = document.getElementById('registerForm');
-        
-        showLogin.onclick = () => {
-            showLogin.classList.add('active');
-            showRegister.classList.remove('active');
-            loginDiv.style.display = 'block';
-            registerDiv.style.display = 'none';
-        };
-        showRegister.onclick = () => {
-            showRegister.classList.add('active');
-            showLogin.classList.remove('active');
-            registerDiv.style.display = 'block';
-            loginDiv.style.display = 'none';
-        };
-
-        // ========== ТЁМНАЯ ТЕМА ==========
-        const darkToggle = document.getElementById('profileDarkModeToggle');
-        darkToggle.onchange = (e) => {
-            document.body.style.background = e.target.checked ? '#1a1a1a' : '#F4EFE6';
-            document.body.style.color = e.target.checked ? '#E0E0E0' : '#2C2A29';
-        };
-
-        // ========== ДЕМО-ВХОД ==========
-        document.getElementById('loginBtn').onclick = () => {
-            const email = document.getElementById('loginEmail').value;
-            if (!email) {
-                alert('Введите email');
-                return;
-            }
-            document.getElementById('authForms').style.display = 'none';
-            document.getElementById('userProfileBlock').style.display = 'block';
-            document.getElementById('userName').innerText = email.split('@')[0];
-            document.getElementById('userEmail').innerText = email;
-            alert('Добро пожаловать! (демо-режим)');
-        };
-        
-        document.getElementById('registerBtn').onclick = () => {
-            const email = document.getElementById('registerEmail').value;
-            if (!email) {
-                alert('Введите email');
-                return;
-            }
-            document.getElementById('authForms').style.display = 'none';
-            document.getElementById('userProfileBlock').style.display = 'block';
-            document.getElementById('userName').innerText = document.getElementById('registerName').value || email.split('@')[0];
-            document.getElementById('userEmail').innerText = email;
-            alert('Регистрация выполнена! (демо-режим)');
-        };
-        
-        document.getElementById('profileSignOutBtn').onclick = () => {
-            document.getElementById('authForms').style.display = 'block';
-            document.getElementById('userProfileBlock').style.display = 'none';
-            alert('Вы вышли из аккаунта');
-        };
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>

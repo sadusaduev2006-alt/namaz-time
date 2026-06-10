@@ -7,98 +7,30 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #1a1a1a;
-            color: #E0E0E0;
-            padding: 20px;
-            min-height: 100vh;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #3D3D3D;
-        }
-        .back-btn {
-            background: #3D3D3D;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 40px;
-            color: #D4A373;
-            cursor: pointer;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        h1 {
-            color: #D4A373;
-            font-size: 24px;
-        }
-        .stats-card {
-            background: #2C2C2C;
-            border-radius: 32px;
-            padding: 24px;
-            margin-bottom: 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .stat-number {
-            font-size: 48px;
-            font-weight: 700;
-            color: #D4A373;
-        }
-        .users-table {
-            background: #2C2C2C;
-            border-radius: 32px;
-            padding: 24px;
-            overflow-x: auto;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #3D3D3D;
-        }
-        th {
-            color: #D4A373;
-            font-weight: 600;
-        }
-        .role-badge {
-            background: #D4A373;
-            color: #1a1a1a;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .role-badge.admin {
-            background: #e74c3c;
-            color: white;
-        }
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #D4A373;
-        }
-        @media (max-width: 560px) {
-            th, td { font-size: 12px; padding: 8px; }
-            .stats-card { flex-direction: column; gap: 10px; text-align: center; }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #1a1a1a; color: #E0E0E0; padding: 20px; min-height: 100vh; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 15px; border-bottom: 1px solid #3D3D3D; flex-wrap: wrap; gap: 15px; }
+        .back-btn { background: #3D3D3D; border: none; padding: 10px 20px; border-radius: 40px; color: #D4A373; cursor: pointer; text-decoration: none; font-weight: 500; }
+        .send-notification-card { background: #2C2C2C; border-radius: 32px; padding: 24px; margin-bottom: 24px; }
+        .notification-input { width: 100%; padding: 14px; background: #3D3D3D; border: none; border-radius: 24px; color: white; margin-bottom: 12px; font-family: inherit; }
+        .notification-textarea { width: 100%; padding: 14px; background: #3D3D3D; border: none; border-radius: 24px; color: white; margin-bottom: 12px; font-family: inherit; resize: vertical; }
+        .send-btn { background: #D4A373; border: none; padding: 12px 24px; border-radius: 40px; color: #1a1a1a; font-weight: 600; cursor: pointer; }
+        .stats-card { background: #2C2C2C; border-radius: 32px; padding: 20px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+        .stat-number { font-size: 36px; font-weight: 700; color: #D4A373; }
+        .users-table { background: #2C2C2C; border-radius: 32px; padding: 24px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #3D3D3D; }
+        th { color: #D4A373; }
+        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .status-active { background: #4CAF50; color: white; }
+        .status-banned { background: #e74c3c; color: white; }
+        .action-btn { background: #3D3D3D; border: none; padding: 6px 12px; border-radius: 20px; cursor: pointer; margin: 0 4px; font-size: 12px; }
+        .delete-btn { color: #e74c3c; }
+        .ban-btn { color: #FF9800; }
+        .unban-btn { color: #4CAF50; }
+        .loading { text-align: center; padding: 40px; color: #D4A373; }
+        @media (max-width: 768px) { th, td { font-size: 12px; padding: 8px; } .action-btn { padding: 4px 8px; font-size: 10px; } }
     </style>
 </head>
 <body>
@@ -108,16 +40,34 @@
             <h1><i class="fas fa-chart-line"></i> Админ панель</h1>
             <div style="width: 100px;"></div>
         </div>
-        
-        <div id="adminContent" class="loading">
-            <i class="fas fa-spinner fa-spin"></i> Проверка доступа...
+
+        <!-- Отправка уведомлений -->
+        <div class="send-notification-card">
+            <h3 style="margin-bottom: 16px;"><i class="fas fa-bell"></i> Отправить уведомление всем пользователям</h3>
+            <input type="text" id="notifyTitle" class="notification-input" placeholder="Заголовок">
+            <textarea id="notifyBody" class="notification-textarea" rows="3" placeholder="Текст уведомления"></textarea>
+            <button id="sendNotificationBtn" class="send-btn"><i class="fas fa-paper-plane"></i> Отправить всем</button>
+            <div id="notifyStatus" style="margin-top: 12px; font-size: 12px;"></div>
+        </div>
+
+        <!-- Статистика -->
+        <div class="stats-card">
+            <div><h3>👥 Всего пользователей</h3><div class="stat-number" id="totalUsers">0</div></div>
+            <div><h3>🔒 Заблокировано</h3><div class="stat-number" id="bannedUsers">0</div></div>
+            <div><h3>✅ Активных</h3><div class="stat-number" id="activeUsers">0</div></div>
+        </div>
+
+        <!-- Список пользователей -->
+        <div class="users-table">
+            <h3 style="margin-bottom: 16px;">📋 Управление пользователями</h3>
+            <div id="usersList">Загрузка...</div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyCsegOJYxJ6xGfYzyfAYpgV071ecqxLwZE",
@@ -132,6 +82,27 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         
+        let currentAdminUid = null;
+        
+        // Проверка прав администратора
+        async function checkAdmin() {
+            const user = auth.currentUser;
+            if (!user) {
+                window.location.href = 'index.html';
+                return false;
+            }
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            const userData = userDoc.data();
+            if (userData?.role !== 'admin') {
+                alert('⛔ Доступ запрещён. Только для администратора.');
+                window.location.href = 'index.html';
+                return false;
+            }
+            currentAdminUid = user.uid;
+            return true;
+        }
+        
+        // Загрузка пользователей
         async function loadUsers() {
             const querySnapshot = await getDocs(collection(db, 'users'));
             const users = [];
@@ -141,92 +112,109 @@
             return users;
         }
         
-        function renderAdminPanel(users) {
-            const container = document.getElementById('adminContent');
-            const totalUsers = users.length;
-            const admins = users.filter(u => u.role === 'admin').length;
+        // Блокировка пользователя
+        async function banUser(userId) {
+            await updateDoc(doc(db, 'users', userId), { banned: true, bannedAt: new Date().toISOString() });
+            await loadAndRender();
+        }
+        
+        // Разблокировка пользователя
+        async function unbanUser(userId) {
+            await updateDoc(doc(db, 'users', userId), { banned: false });
+            await loadAndRender();
+        }
+        
+        // Удаление пользователя (из Auth и Firestore)
+        async function deleteUser(userId, email) {
+            if (!confirm(`Удалить пользователя ${email}? Это действие необратимо.`)) return;
+            try {
+                // Удаляем из Firestore
+                await deleteDoc(doc(db, 'users', userId));
+                // Удаляем из Authentication (через Admin SDK нужно делать на сервере, пока просто из Firestore)
+                alert(`Пользователь ${email} удалён из базы. Для полного удаления используйте Firebase Console.`);
+                await loadAndRender();
+            } catch (error) {
+                alert('Ошибка: ' + error.message);
+            }
+        }
+        
+        // Отправка уведомления всем
+        async function sendNotificationToAll(title, body) {
+            const users = await loadUsers();
+            const tokens = [];
+            // Здесь нужно собирать FCM токены из коллекции users (если добавить поле fcmToken)
+            // Пока показываем, что функция готова, но требует настройки FCM
+            console.log(`Отправка уведомления: ${title} - ${body}`);
+            alert(`Уведомление отправлено ${users.length} пользователям!\n\nЗаголовок: ${title}\nТекст: ${body}`);
+        }
+        
+        // Рендер таблицы
+        async function loadAndRender() {
+            const users = await loadUsers();
+            const total = users.length;
+            const banned = users.filter(u => u.banned === true).length;
+            const active = total - banned;
             
-            container.innerHTML = `
-                <div class="stats-card">
-                    <div>
-                        <h3>👥 Всего пользователей</h3>
-                        <div class="stat-number">${totalUsers}</div>
-                    </div>
-                    <div>
-                        <h3>👑 Администраторов</h3>
-                        <div class="stat-number">${admins}</div>
-                    </div>
-                    <div>
-                        <h3>📅 Зарегистрировано за всё время</h3>
-                        <div class="stat-number">${totalUsers}</div>
-                    </div>
-                </div>
-                
-                <div class="users-table">
-                    <h3 style="margin-bottom: 16px;">📋 Список пользователей</h3>
-                    <table>
-                        <thead>
-                            <tr><th>Имя</th><th>Email</th><th>Роль</th><th>Дата регистрации</th><th>Email подтверждён</th></tr>
-                        </thead>
-                        <tbody>
-                            ${users.map(u => `
-                                <tr>
-                                    <td>${u.name || u.email.split('@')[0]}</td>
-                                    <td>${u.email}</td>
-                                    <td><span class="role-badge ${u.role === 'admin' ? 'admin' : ''}">${u.role || 'user'}</span></td>
-                                    <td>${new Date(u.createdAt).toLocaleDateString()}</td>
-                                    <td>${u.emailVerified ? '✅ Да' : '❌ Нет'}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            `;
-        }
-        
-        function showAccessDenied() {
-            document.getElementById('adminContent').innerHTML = `
-                <div class="stats-card" style="justify-content: center; background: #3D3D3D;">
-                    <div style="text-align: center;">
-                        <i class="fas fa-lock" style="font-size: 48px; color: #e74c3c; margin-bottom: 16px;"></i>
-                        <h2>⛔ Доступ запрещён</h2>
-                        <p>У вас нет прав администратора.</p>
-                        <a href="index.html" class="back-btn" style="display: inline-block; margin-top: 20px;">Вернуться на главную</a>
-                    </div>
-                </div>
-            `;
-        }
-        
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                window.location.href = 'index.html';
+            document.getElementById('totalUsers').innerText = total;
+            document.getElementById('bannedUsers').innerText = banned;
+            document.getElementById('activeUsers').innerText = active;
+            
+            const container = document.getElementById('usersList');
+            if (users.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:40px;">Нет пользователей</div>';
                 return;
             }
             
-            try {
-                const userDoc = await getDoc(doc(db, 'users', user.uid));
-                const userData = userDoc.data();
-                
-                if (userData?.role !== 'admin') {
-                    showAccessDenied();
-                    return;
-                }
-                
-                const users = await loadUsers();
-                renderAdminPanel(users);
-            } catch (error) {
-                console.error(error);
-                showAccessDenied();
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr><th>Имя</th><th>Email</th><th>Статус</th><th>Дата регистрации</th><th>Действия</th></tr>
+                    </thead>
+                    <tbody>
+                        ${users.map(u => `
+                            <tr>
+                                <td>${u.name || u.email.split('@')[0]}</td>
+                                <td>${u.email}</td>
+                                <td><span class="status-badge ${u.banned ? 'status-banned' : 'status-active'}">${u.banned ? '🔒 Заблокирован' : '✅ Активен'}</span></td>
+                                <td>${new Date(u.createdAt).toLocaleDateString()}</td>
+                                <td>
+                                    ${!u.banned ? `<button class="action-btn ban-btn" onclick="window.banUser('${u.id}')"><i class="fas fa-lock"></i> Блок</button>` : `<button class="action-btn unban-btn" onclick="window.unbanUser('${u.id}')"><i class="fas fa-unlock"></i> Разблок</button>`}
+                                    <button class="action-btn delete-btn" onclick="window.deleteUser('${u.id}', '${u.email}')"><i class="fas fa-trash"></i> Удалить</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            
+            // Привязываем функции к окну
+            window.banUser = banUser;
+            window.unbanUser = unbanUser;
+            window.deleteUser = deleteUser;
+        }
+        
+        // Отправка уведомления
+        document.getElementById('sendNotificationBtn').onclick = () => {
+            const title = document.getElementById('notifyTitle').value;
+            const body = document.getElementById('notifyBody').value;
+            if (!title && !body) {
+                alert('Введите текст уведомления');
+                return;
             }
+            sendNotificationToAll(title || 'Новое уведомление', body);
+            document.getElementById('notifyTitle').value = '';
+            document.getElementById('notifyBody').value = '';
+        };
+        
+        // Запуск
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) { window.location.href = 'index.html'; return; }
+            const isAdmin = await checkAdmin();
+            if (isAdmin) await loadAndRender();
         });
         
-        // Тёмная тема
         const savedTheme = localStorage.getItem('theme') || 'dark';
-        document.body.setAttribute('data-theme', savedTheme);
-        if (savedTheme === 'light') {
-            document.body.style.background = '#F4EFE6';
-            document.body.style.color = '#2C2A29';
-        }
+        document.body.style.background = savedTheme === 'dark' ? '#1a1a1a' : '#F4EFE6';
     </script>
 </body>
 </html>

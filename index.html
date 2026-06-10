@@ -70,13 +70,14 @@
                 name: name || user.email.split('@')[0],
                 role: role,
                 emailVerified: user.emailVerified,
+                banned: false,
                 createdAt: new Date().toISOString(),
                 lastLogin: new Date().toISOString()
             }, { merge: true });
         }
         
         document.addEventListener('DOMContentLoaded', () => {
-            // ========== ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ПРОФИЛЯ ==========
+            // Переключение вкладок профиля
             const profileTabs = document.querySelectorAll('.profile-tab');
             const profilePanes = document.querySelectorAll('.profile-pane');
             
@@ -107,7 +108,6 @@
             const resendEmailBlock = document.getElementById('resendEmailBlock');
             const resendEmailBtn = document.getElementById('resendEmailBtn');
             
-            // Кнопка повторной отправки письма
             if (resendEmailBtn) {
                 resendEmailBtn.onclick = async () => {
                     const user = window.auth.currentUser;
@@ -155,7 +155,7 @@
                 });
             }
             
-            // Переключение между формами входа/регистрации
+            // Переключение между формами
             if (showLoginTab && showRegisterTab) {
                 showLoginTab.onclick = () => {
                     showLoginTab.classList.add('active');
@@ -232,7 +232,7 @@
                 };
             }
             
-            // ВХОД
+            // ВХОД (с проверкой блокировки)
             if (loginBtn) {
                 loginBtn.onclick = async () => {
                     const email = document.getElementById('loginEmail').value;
@@ -246,6 +246,17 @@
                     try {
                         const userCredential = await window.signInWithEmailAndPassword(window.auth, email, password);
                         const user = userCredential.user;
+                        
+                        // Проверяем, не заблокирован ли пользователь
+                        const userDoc = await window.getDoc(window.doc(window.db, 'users', user.uid));
+                        const userData = userDoc.data();
+                        
+                        if (userData?.banned === true) {
+                            alert('⛔ Ваш аккаунт заблокирован администратором.');
+                            await window.signOut(window.auth);
+                            updateUIAfterLogout();
+                            return;
+                        }
                         
                         if (!user.emailVerified) {
                             alert('❌ Пожалуйста, подтвердите свой email.\nПроверьте почту и нажмите на ссылку.\nЕсли письмо не пришло — нажмите "Отправить письмо повторно".');

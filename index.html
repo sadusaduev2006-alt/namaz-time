@@ -49,7 +49,7 @@
         window.getDoc = getDoc;
         window.sendEmailVerification = sendEmailVerification;
         
-        // Функция запроса разрешения на уведомления и получения токена
+        // Функция запроса разрешения на уведомления
         async function requestNotificationPermission() {
             try {
                 const permission = await Notification.requestPermission();
@@ -58,8 +58,13 @@
                     return null;
                 }
                 
+                // Регистрируем Service Worker вручную с правильным путём
+                const registration = await navigator.serviceWorker.register('/namaz-time/firebase-messaging-sw.js');
+                console.log('Service Worker зарегистрирован:', registration);
+                
                 const token = await getToken(messaging, {
-                    vapidKey: 'BDK47wR0lmFtcl_tC0qO386__3UidPuj3azHIRhgjmo0AXgJUFQoiUdO64wh82S0GjAgJrYVEzc3dWjLcMFwx6A'
+                    vapidKey: 'BDK47wR0lmFtcl_tC0qO386__3UidPuj3azHIRhgjmo0AXgJUFQoiUdO64wh82S0GjAgJrYVEzc3dWjLcMFwx6A',
+                    serviceWorkerRegistration: registration
                 });
                 
                 console.log('FCM Token:', token);

@@ -46,16 +46,13 @@
         window.getDoc = getDoc;
         window.sendEmailVerification = sendEmailVerification;
         
-        // Функция для перенаправления на вкладку Аккаунт
         function redirectToAccountTab() {
             const profileModal = document.getElementById('fullscreenProfile');
             const accountTab = document.querySelector('.profile-tab[data-profile-tab="account"]');
             const accountPane = document.getElementById('profile-tab-account');
             const allTabs = document.querySelectorAll('.profile-tab');
             const allPanes = document.querySelectorAll('.profile-pane');
-            
             if (profileModal) profileModal.classList.add('show');
-            
             if (accountTab && accountPane) {
                 allTabs.forEach(t => t.classList.remove('active'));
                 allPanes.forEach(p => p.classList.remove('active'));
@@ -93,7 +90,6 @@
             // КНОПКА МЕНЮ
             const menuToggle = document.getElementById('menuToggle');
             const dropdownMenu = document.getElementById('dropdownMenu');
-            
             if (menuToggle && dropdownMenu) {
                 menuToggle.onclick = (e) => {
                     e.stopPropagation();
@@ -105,7 +101,6 @@
                         dropdownMenu.classList.toggle('show');
                     }
                 };
-                
                 document.addEventListener('click', function(e) {
                     if (!menuToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
                         dropdownMenu.classList.remove('show');
@@ -116,7 +111,6 @@
             // ВКЛАДКИ ПРОФИЛЯ
             const notifTab = document.querySelector('.profile-tab[data-profile-tab="notifications"]');
             const appearanceTab = document.querySelector('.profile-tab[data-profile-tab="appearance"]');
-            
             if (notifTab) {
                 notifTab.onclick = (e) => {
                     const user = window.auth.currentUser;
@@ -126,7 +120,6 @@
                     }
                 };
             }
-            
             if (appearanceTab) {
                 appearanceTab.onclick = (e) => {
                     const user = window.auth.currentUser;
@@ -204,14 +197,15 @@
                         const userCredential = await window.createUserWithEmailAndPassword(window.auth, email, password);
                         await window.sendEmailVerification(userCredential.user);
                         await saveUserToFirestore(userCredential.user, name);
-                        alert('✅ Регистрация успешна!\n\nНа вашу почту отправлено письмо с подтверждением.\nПодтвердите email и войдите.');
+                        alert('✅ Регистрация успешна! На почту отправлено письмо с подтверждением.');
                         await window.signOut(window.auth);
                         updateUIAfterLogout();
                     } catch (error) {
+                        console.error("Ошибка регистрации:", error);
                         if (error.code === 'auth/email-already-in-use') {
                             alert('Этот email уже зарегистрирован');
-                        } else if (error.code === 'auth/invalid-credential') {
-                            alert('Ошибка аутентификации. Проверьте настройки Firebase.');
+                        } else if (error.code === 'auth/invalid-email') {
+                            alert('Неверный формат email');
                         } else {
                             alert('Ошибка: ' + error.message);
                         }
@@ -235,7 +229,7 @@
                         const user = userCredential.user;
                         
                         if (!user.emailVerified) {
-                            alert('❌ Пожалуйста, подтвердите свой email.\nПроверьте почту и нажмите на ссылку подтверждения.');
+                            alert('❌ Подтвердите email. Проверьте почту и нажмите на ссылку.');
                             await window.signOut(window.auth);
                             updateUIAfterLogout();
                             return;
@@ -245,10 +239,13 @@
                         alert('Добро пожаловать!');
                         updateUIAfterLogin(user);
                     } catch (error) {
+                        console.error("Ошибка входа:", error);
                         if (error.code === 'auth/user-not-found') {
                             alert('Пользователь не найден. Зарегистрируйтесь.');
                         } else if (error.code === 'auth/wrong-password') {
                             alert('Неверный пароль');
+                        } else if (error.code === 'auth/invalid-credential') {
+                            alert('Неверный email или пароль. Проверьте данные.');
                         } else {
                             alert('Ошибка: ' + error.message);
                         }
@@ -281,39 +278,23 @@
             <div class="header">
                 <div class="header-top">
                     <div class="left-buttons">
-                        <button id="profileBtn" class="icon-btn">
-                            <i class="fas fa-user-circle"></i>
-                        </button>
+                        <button id="profileBtn" class="icon-btn"><i class="fas fa-user-circle"></i></button>
                     </div>
                     <div class="center-controls">
                         <div class="location-badge">
                             <i class="fas fa-map-marker-alt"></i>
-                            <select id="citySelect">
-                                <option value="Махачкала">Махачкала</option>
-                            </select>
+                            <select id="citySelect"><option>Махачкала</option></select>
                         </div>
                     </div>
                     <div class="right-buttons">
                         <div class="dropdown">
-                            <button id="menuToggle" class="icon-btn">
-                                <i class="fas fa-ellipsis-h"></i>
-                            </button>
+                            <button id="menuToggle" class="icon-btn"><i class="fas fa-ellipsis-h"></i></button>
                             <div id="dropdownMenu" class="dropdown-content">
-                                <a href="surah-fatiha.html">
-                                    <i class="fas fa-star-and-crescent"></i> Сура Аль-Фатиха
-                                </a>
-                                <a href="asmaul-husna.html">
-                                    <i class="fas fa-star-of-life"></i> 99 имён Аллаха
-                                </a>
-                                <a href="pillars.html">
-                                    <i class="fas fa-kaaba"></i> 5 столпов Ислама
-                                </a>
-                                <a href="morning-adhkar.html">
-                                    <i class="fas fa-sun"></i> Утренние азкары
-                                </a>
-                                <a href="#" id="aboutMenuItem">
-                                    <i class="fas fa-info-circle"></i> О приложении
-                                </a>
+                                <a href="surah-fatiha.html"><i class="fas fa-star-and-crescent"></i> Сура Аль-Фатиха</a>
+                                <a href="asmaul-husna.html"><i class="fas fa-star-of-life"></i> 99 имён Аллаха</a>
+                                <a href="pillars.html"><i class="fas fa-kaaba"></i> 5 столпов Ислама</a>
+                                <a href="morning-adhkar.html"><i class="fas fa-sun"></i> Утренние азкары</a>
+                                <a href="#" id="aboutMenuItem"><i class="fas fa-info-circle"></i> О приложении</a>
                             </div>
                         </div>
                     </div>
@@ -336,20 +317,15 @@
         </div>
     </div>
 
-    <!-- ПЛАВАЮЩИЕ КНОПКИ -->
-    <button id="floatingCompassBtn" class="floating-compass-btn">
-        <i class="fas fa-compass"></i>
-    </button>
-    <a href="quran.html" id="floatingQuranBtn" class="floating-quran-btn">
-        <i class="fas fa-book-quran"></i> Коран
-    </a>
+    <button id="floatingCompassBtn" class="floating-compass-btn"><i class="fas fa-compass"></i></button>
+    <a href="quran.html" id="floatingQuranBtn" class="floating-quran-btn"><i class="fas fa-book-quran"></i> Коран</a>
 
     <!-- ПРОФИЛЬ -->
     <div id="fullscreenProfile" class="fullscreen-profile">
         <div class="profile-full-header">
             <button id="closeProfile" class="close-profile">&times;</button>
             <h2>Настройки</h2>
-            <div style="width: 44px;"></div>
+            <div style="width:44px"></div>
         </div>
         <div class="profile-tabs">
             <button class="profile-tab active" data-profile-tab="account">👤 Аккаунт</button>
@@ -357,25 +333,19 @@
             <button class="profile-tab" data-profile-tab="appearance">🎨 Оформление</button>
         </div>
         <div class="profile-content">
-            <!-- АККАУНТ -->
             <div id="profile-tab-account" class="profile-pane active">
-                <div class="account-avatar">
-                    <i class="fas fa-user-circle"></i>
-                </div>
-                
+                <div class="account-avatar"><i class="fas fa-user-circle"></i></div>
                 <div id="authForms">
                     <div class="auth-tabs">
                         <button id="showLoginTab" class="auth-tab-btn active">🔐 Вход</button>
                         <button id="showRegisterTab" class="auth-tab-btn">📝 Регистрация</button>
                     </div>
-                    
                     <div id="loginForm" class="auth-form">
                         <input type="email" id="loginEmail" placeholder="Email" class="auth-input">
                         <input type="password" id="loginPassword" placeholder="Пароль" class="auth-input">
                         <button id="loginBtn" class="profile-auth-btn">Войти</button>
                     </div>
-                    
-                    <div id="registerForm" class="auth-form" style="display: none;">
+                    <div id="registerForm" class="auth-form" style="display:none">
                         <input type="text" id="registerName" placeholder="Ваше имя" class="auth-input">
                         <input type="email" id="registerEmail" placeholder="Email" class="auth-input">
                         <input type="password" id="registerPassword" placeholder="Пароль" class="auth-input">
@@ -383,88 +353,49 @@
                         <button id="registerBtn" class="profile-auth-btn">Зарегистрироваться</button>
                     </div>
                 </div>
-                
-                <div id="userProfileBlock" style="display: none;">
+                <div id="userProfileBlock" style="display:none">
                     <div class="profile-user-info">
                         <p><strong id="userName"></strong></p>
                         <p id="userEmail"></p>
                         <p id="userSince"></p>
                     </div>
-                    <div style="margin-top: 20px;">
-                        <button id="profileSignOutBtn" class="profile-logout-btn">🚪 Выйти</button>
-                    </div>
+                    <div style="margin-top:20px"><button id="profileSignOutBtn" class="profile-logout-btn">🚪 Выйти</button></div>
                 </div>
             </div>
-
-            <!-- УВЕДОМЛЕНИЯ -->
             <div id="profile-tab-notifications" class="profile-pane">
                 <div class="settings-group">
                     <div class="settings-item">
-                        <div class="settings-info">
-                            <i class="fas fa-bell"></i>
-                            <div>
-                                <h4>Уведомления о намазах</h4>
-                                <p>Получать напоминания о времени намаза</p>
-                            </div>
-                        </div>
-                        <label class="switch">
-                            <input type="checkbox" id="notificationsToggle">
-                            <span class="slider"></span>
-                        </label>
+                        <div class="settings-info"><i class="fas fa-bell"></i><div><h4>Уведомления о намазах</h4><p>Получать напоминания</p></div></div>
+                        <label class="switch"><input type="checkbox" id="notificationsToggle"><span class="slider"></span></label>
                     </div>
-                    
                     <div class="settings-item">
-                        <div class="settings-info">
-                            <i class="fas fa-clock"></i>
-                            <div>
-                                <h4>Напоминать за</h4>
-                                <p>За сколько минут до намаза приходит уведомление</p>
-                            </div>
-                        </div>
+                        <div class="settings-info"><i class="fas fa-clock"></i><div><h4>Напоминать за</h4></div></div>
                         <select id="notificationTimeSelect" class="settings-select">
-                            <option value="5">5 минут</option>
-                            <option value="10">10 минут</option>
-                            <option value="15">15 минут</option>
-                            <option value="30">30 минут</option>
+                            <option value="5">5 минут</option><option value="10">10 минут</option><option value="15">15 минут</option><option value="30">30 минут</option>
                         </select>
                     </div>
                 </div>
             </div>
-
-            <!-- ОФОРМЛЕНИЕ -->
             <div id="profile-tab-appearance" class="profile-pane">
                 <div class="settings-group">
                     <div class="settings-item">
-                        <div class="settings-info">
-                            <i class="fas fa-moon"></i>
-                            <div>
-                                <h4>Тёмная тема</h4>
-                                <p>Включить тёмное оформление</p>
-                            </div>
-                        </div>
-                        <label class="switch">
-                            <input type="checkbox" id="profileDarkModeToggle" checked>
-                            <span class="slider"></span>
-                        </label>
+                        <div class="settings-info"><i class="fas fa-moon"></i><div><h4>Тёмная тема</h4><p>Включить тёмное оформление</p></div></div>
+                        <label class="switch"><input type="checkbox" id="profileDarkModeToggle" checked><span class="slider"></span></label>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- КОМПАС -->
     <div id="fullscreenCompass" class="fullscreen-compass">
         <div class="compass-full-header">
             <button id="closeFullscreenCompass" class="close-fullscreen">&times;</button>
             <h3>🧭 Направление на Киблу</h3>
-            <div style="width: 44px;"></div>
+            <div style="width:44px"></div>
         </div>
         <div class="compass-full-body">
             <div class="compass-full">
-                <div class="needle-full" id="needleFull">
-                    <div class="needle-top-full"></div>
-                    <div class="needle-bottom-full"></div>
-                </div>
+                <div class="needle-full" id="needleFull"><div class="needle-top-full"></div><div class="needle-bottom-full"></div></div>
                 <div class="compass-mark-full">N</div>
                 <div class="kaaba-icon-full"><i class="fas fa-kaaba"></i></div>
             </div>

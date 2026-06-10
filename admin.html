@@ -41,7 +41,6 @@
             <div style="width: 100px;"></div>
         </div>
 
-        <!-- Отправка уведомлений -->
         <div class="send-notification-card">
             <h3 style="margin-bottom: 16px;"><i class="fas fa-bell"></i> Отправить уведомление всем пользователям</h3>
             <input type="text" id="notifyTitle" class="notification-input" placeholder="Заголовок">
@@ -50,14 +49,12 @@
             <div id="notifyStatus" style="margin-top: 12px; font-size: 12px;"></div>
         </div>
 
-        <!-- Статистика -->
         <div class="stats-card">
             <div><h3>👥 Всего пользователей</h3><div class="stat-number" id="totalUsers">0</div></div>
             <div><h3>🔒 Заблокировано</h3><div class="stat-number" id="bannedUsers">0</div></div>
             <div><h3>✅ Активных</h3><div class="stat-number" id="activeUsers">0</div></div>
         </div>
 
-        <!-- Список пользователей -->
         <div class="users-table">
             <h3 style="margin-bottom: 16px;">📋 Управление пользователями</h3>
             <div id="usersList">Загрузка...</div>
@@ -82,10 +79,8 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         
-        let currentAdminUid = null;
-        
-        // SERVER KEY из Firebase Console (твой ключ)
-        const SERVER_KEY = 'BFyvW4Nm0ifuKtBgFxby7q_mZmyvlecwiU1Uz4xptDQEz0dffgIjphdvkBXtkEKLGW37M16BFAmABeeq9Fnqb2Y';
+        // SERVER KEY из Firebase Console (замени на свой!)
+        const SERVER_KEY = 'AAAA...'; // ВСТАВЬ СВОЙ SERVER KEY (начинается с AAAA)
         
         async function checkAdmin() {
             const user = auth.currentUser;
@@ -100,7 +95,6 @@
                 window.location.href = 'index.html';
                 return false;
             }
-            currentAdminUid = user.uid;
             return true;
         }
         
@@ -113,7 +107,6 @@
             return users;
         }
         
-        // Отправка уведомления всем через FCM
         async function sendNotificationToAll(title, body) {
             const users = await loadUsers();
             const tokens = [];

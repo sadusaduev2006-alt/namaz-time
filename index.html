@@ -61,6 +61,20 @@
             }
         }
         
+        async function saveUserToFirestore(user, name, role = 'user') {
+            if (!window.db || !window.doc || !window.setDoc) return;
+            const userRef = window.doc(window.db, 'users', user.uid);
+            await window.setDoc(userRef, {
+                uid: user.uid,
+                email: user.email,
+                name: name || user.email.split('@')[0],
+                role: role,
+                emailVerified: user.emailVerified,
+                createdAt: new Date().toISOString(),
+                lastLogin: new Date().toISOString()
+            }, { merge: true });
+        }
+        
         document.addEventListener('DOMContentLoaded', () => {
             const showLoginTab = document.getElementById('showLoginTab');
             const showRegisterTab = document.getElementById('showRegisterTab');
@@ -74,7 +88,25 @@
             const userNameSpan = document.getElementById('userName');
             const userEmailSpan = document.getElementById('userEmail');
             const userSinceSpan = document.getElementById('userSince');
+            const resendEmailBlock = document.getElementById('resendEmailBlock');
+            const resendEmailBtn = document.getElementById('resendEmailBtn');
             
+            // Кнопка повторной отправки письма
+            if (resendEmailBtn) {
+                resendEmailBtn.onclick = async () => {
+                    const user = window.auth.currentUser;
+                    if (user && !user.emailVerified) {
+                        try {
+                            await window.sendEmailVerification(user);
+                            alert('✅ Письмо с подтверждением отправлено повторно! Проверьте почту.');
+                        } catch (error) {
+                            alert('Ошибка: ' + error.message);
+                        }
+                    }
+                };
+            }
+            
+            // КНОПКА КОРАНА
             const quranBtn = document.getElementById('floatingQuranBtn');
             if (quranBtn) {
                 quranBtn.onclick = (e) => {
@@ -86,6 +118,7 @@
                 };
             }
             
+            // КНОПКА МЕНЮ
             const menuToggle = document.getElementById('menuToggle');
             const dropdownMenu = document.getElementById('dropdownMenu');
             if (menuToggle && dropdownMenu) {
@@ -106,6 +139,7 @@
                 });
             }
             
+            // ВКЛАДКИ ПРОФИЛЯ
             const notifTab = document.querySelector('.profile-tab[data-profile-tab="notifications"]');
             const appearanceTab = document.querySelector('.profile-tab[data-profile-tab="appearance"]');
             if (notifTab) {
@@ -127,6 +161,7 @@
                 };
             }
             
+            // Переключение между формами
             if (showLoginTab && showRegisterTab) {
                 showLoginTab.onclick = () => {
                     showLoginTab.classList.add('active');
@@ -142,31 +177,29 @@
                 };
             }
             
-            async function saveUserToFirestore(user, name) {
-                if (!window.db || !window.doc || !window.setDoc) return;
-                const userRef = window.doc(window.db, 'users', user.uid);
-                await window.setDoc(userRef, {
-                    uid: user.uid,
-                    email: user.email,
-                    name: name || user.email.split('@')[0],
-                    emailVerified: user.emailVerified,
-                    createdAt: new Date().toISOString()
-                }, { merge: true });
-            }
-            
             function updateUIAfterLogin(user) {
                 if (authForms) authForms.style.display = 'none';
                 if (userBlock) userBlock.style.display = 'block';
                 if (userNameSpan) userNameSpan.innerText = user.displayName || user.email.split('@')[0];
                 if (userEmailSpan) userEmailSpan.innerText = user.email;
                 if (userSinceSpan) userSinceSpan.innerText = `С нами с: ${new Date(user.metadata.creationTime).toLocaleDateString()}`;
+                
+                if (!user.emailVerified && resendEmailBlock) {
+                    resendEmailBlock.style.display = 'block';
+                } else if (resendEmailBlock) {
+                    resendEmailBlock.style.display = 'none';
+                }
+                
+                if (window.updatePrayerTimes) window.updatePrayerTimes();
             }
             
             function updateUIAfterLogout() {
                 if (authForms) authForms.style.display = 'block';
                 if (userBlock) userBlock.style.display = 'none';
+                if (resendEmailBlock) resendEmailBlock.style.display = 'none';
             }
             
+            // РЕГИСТРАЦИЯ (улучшенная)
             if (registerBtn) {
                 registerBtn.onclick = async () => {
                     const name = document.getElementById('registerName').value;
@@ -189,13 +222,13 @@
                     
                     try {
                         const userCredential = await window.createUserWithEmailAndPassword(window.auth, email, password);
-                        await window.sendEmailVerification(userCredential.user);
-                        await saveUserToFirestore(userCredential.user, name);
-                        alert('✅ Регистрация успешна! На почту отправлено письмо с подтверждением.');
+                        const user = userCredential.user;
+                        await window.sendEmailVerification(user);
+                        await saveUserToFirestore(user, name, 'user');
+                        alert('✅ Регистрация успешна!\n\nНа вашу почту отправлено письмо с подтверждением.\nПодтвердите email и войдите.');
                         await window.signOut(window.auth);
                         updateUIAfterLogout();
                     } catch (error) {
-                        console.error(error);
                         if (error.code === 'auth/email-already-in-use') {
                             alert('Этот email уже зарегистрирован');
                         } else {
@@ -205,6 +238,7 @@
                 };
             }
             
+            // ВХОД (с проверкой подтверждения)
             if (loginBtn) {
                 loginBtn.onclick = async () => {
                     const email = document.getElementById('loginEmail').value;
@@ -220,17 +254,17 @@
                         const user = userCredential.user;
                         
                         if (!user.emailVerified) {
-                            alert('❌ Подтвердите email. Проверьте почту и нажмите на ссылку.');
+                            alert('❌ Пожалуйста, подтвердите свой email.\nПроверьте почту и нажмите на ссылку.\nЕсли письмо не пришло — нажмите "Отправить письмо повторно".');
+                            if (resendEmailBlock) resendEmailBlock.style.display = 'block';
                             await window.signOut(window.auth);
                             updateUIAfterLogout();
                             return;
                         }
                         
-                        await saveUserToFirestore(user, null);
+                        await saveUserToFirestore(user, null, 'user');
                         alert('Добро пожаловать!');
                         updateUIAfterLogin(user);
                     } catch (error) {
-                        console.error(error);
                         if (error.code === 'auth/user-not-found') {
                             alert('Пользователь не найден. Зарегистрируйтесь.');
                         } else if (error.code === 'auth/wrong-password') {
@@ -242,6 +276,7 @@
                 };
             }
             
+            // ВЫХОД
             if (signOutBtn) {
                 signOutBtn.onclick = async () => {
                     await window.signOut(window.auth);
@@ -282,6 +317,7 @@
                                 <a href="asmaul-husna.html"><i class="fas fa-star-of-life"></i> 99 имён Аллаха</a>
                                 <a href="pillars.html"><i class="fas fa-kaaba"></i> 5 столпов Ислама</a>
                                 <a href="morning-adhkar.html"><i class="fas fa-sun"></i> Утренние азкары</a>
+                                <a href="admin.html"><i class="fas fa-chart-line"></i> Админ панель</a>
                                 <a href="#" id="aboutMenuItem"><i class="fas fa-info-circle"></i> О приложении</a>
                             </div>
                         </div>
@@ -308,6 +344,7 @@
     <button id="floatingCompassBtn" class="floating-compass-btn"><i class="fas fa-compass"></i></button>
     <a href="quran.html" id="floatingQuranBtn" class="floating-quran-btn"><i class="fas fa-book-quran"></i> Коран</a>
 
+    <!-- ПРОФИЛЬ -->
     <div id="fullscreenProfile" class="fullscreen-profile">
         <div class="profile-full-header">
             <button id="closeProfile" class="close-profile">&times;</button>
@@ -320,6 +357,7 @@
             <button class="profile-tab" data-profile-tab="appearance">🎨 Оформление</button>
         </div>
         <div class="profile-content">
+            <!-- АККАУНТ -->
             <div id="profile-tab-account" class="profile-pane active">
                 <div class="account-avatar"><i class="fas fa-user-circle"></i></div>
                 <div id="authForms">
@@ -346,9 +384,15 @@
                         <p id="userEmail"></p>
                         <p id="userSince"></p>
                     </div>
+                    <div id="resendEmailBlock" style="display: none; margin-top: 15px;">
+                        <button id="resendEmailBtn" class="profile-auth-btn" style="background: #FF9800;">📧 Отправить письмо повторно</button>
+                        <p style="font-size: 12px; margin-top: 8px; color: #FF9800;">Не пришло письмо? Нажмите, чтобы отправить снова</p>
+                    </div>
                     <div style="margin-top:20px"><button id="profileSignOutBtn" class="profile-logout-btn">🚪 Выйти</button></div>
                 </div>
             </div>
+
+            <!-- УВЕДОМЛЕНИЯ -->
             <div id="profile-tab-notifications" class="profile-pane">
                 <div class="settings-group">
                     <div class="settings-item">
@@ -363,6 +407,8 @@
                     </div>
                 </div>
             </div>
+
+            <!-- ОФОРМЛЕНИЕ -->
             <div id="profile-tab-appearance" class="profile-pane">
                 <div class="settings-group">
                     <div class="settings-item">

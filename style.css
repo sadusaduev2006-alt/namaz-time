@@ -13,6 +13,10 @@
     --accent: #D4A373;
     --accent-light: #3D3D3D;
     --prayer-bg: #383838;
+    --prayer-hover: #404040;
+    --border-color: rgba(200, 180, 140, 0.2);
+    --active-bg: linear-gradient(135deg, #1B3B1B 0%, #2D4A2D 100%);
+    --active-border: #4CAF50;
     --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
 
@@ -25,11 +29,15 @@ body[data-theme="light"] {
     --accent: #B67B4A;
     --accent-light: #F7EFE4;
     --prayer-bg: #FCF9F5;
+    --prayer-hover: #F7EFE4;
+    --border-color: rgba(210, 180, 140, 0.15);
+    --active-bg: linear-gradient(135deg, #E8F5E9 0%, #F1F8E9 100%);
+    --active-border: #81C784;
     --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
 }
 
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
     color: var(--text-primary);
     min-height: 100vh;
@@ -37,12 +45,19 @@ body {
     align-items: center;
     justify-content: center;
     padding: 20px;
+    transition: background 0.3s ease;
 }
 
 .container {
-    max-width: 650px;
+    max-width: 680px;
     width: 100%;
     margin: 0 auto;
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .prayer-card {
@@ -50,20 +65,24 @@ body {
     border-radius: 56px;
     padding: 24px 28px 32px;
     box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* ===== ШАПКА (КНОПКИ НЕ СЪЕЗЖАЮТ) ===== */
+/* ШАПКА */
 .header-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 24px;
-    gap: 15px;
+    gap: 8px;
 }
+
 .left-buttons, .right-buttons {
-    flex-shrink: 0;
-    width: 44px;
+    display: flex;
+    gap: 8px;
 }
+
 .icon-btn {
     background: var(--accent-light);
     border: none;
@@ -78,14 +97,17 @@ body {
     align-items: center;
     justify-content: center;
 }
+
 .icon-btn:active {
     transform: scale(0.95);
 }
+
 .center-controls {
     flex: 1;
     display: flex;
     justify-content: center;
 }
+
 .location-badge {
     background: var(--accent-light);
     padding: 8px 16px;
@@ -94,13 +116,17 @@ body {
     align-items: center;
     gap: 8px;
 }
+
 .location-badge select {
     background: transparent;
     border: none;
     font-size: 14px;
-    color: var(--accent);
     font-weight: 500;
+    color: var(--accent);
+    font-family: inherit;
+    cursor: pointer;
 }
+
 h1 {
     font-size: 28px;
     text-align: center;
@@ -111,13 +137,14 @@ h1 {
     -webkit-text-fill-color: transparent;
 }
 
-/* ===== НАМАЗЫ ===== */
+/* НАМАЗЫ */
 .prayer-grid {
     display: flex;
     flex-direction: column;
     gap: 12px;
     margin-bottom: 20px;
 }
+
 .prayer-item {
     display: flex;
     justify-content: space-between;
@@ -125,24 +152,59 @@ h1 {
     padding: 16px 22px;
     background: var(--prayer-bg);
     border-radius: 28px;
+    transition: all 0.25s ease;
+    border: 1px solid transparent;
 }
+
+.prayer-item:hover {
+    background: var(--prayer-hover);
+    transform: scale(1.01);
+}
+
 .prayer-info {
     display: flex;
     align-items: center;
     gap: 14px;
 }
+
+.prayer-info i {
+    font-size: 20px;
+    color: var(--accent);
+    width: 28px;
+}
+
 .prayer-name {
     font-size: 17px;
     font-weight: 500;
     color: var(--text-secondary);
 }
+
 .prayer-time {
-    font-size: 20px;
+    font-size: 21px;
     font-weight: 700;
+    color: var(--text-primary);
     background: var(--card-bg);
-    padding: 5px 15px;
+    padding: 6px 16px;
     border-radius: 40px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
+
+.prayer-item.active {
+    background: var(--active-bg);
+    border: 1px solid var(--active-border);
+    animation: pulse-glow 1s infinite;
+}
+
+.prayer-item.active .prayer-time {
+    background: var(--active-border);
+    color: white;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(76, 175, 80, 0); }
+}
+
 .footer-note {
     text-align: center;
     font-size: 12px;
@@ -151,7 +213,7 @@ h1 {
     border-top: 1px solid var(--accent-light);
 }
 
-/* ===== ПЛАВАЮЩИЕ КНОПКИ ===== */
+/* ПЛАВАЮЩИЕ КНОПКИ */
 .floating-compass-btn {
     position: fixed;
     bottom: 24px;
@@ -170,6 +232,7 @@ h1 {
     align-items: center;
     justify-content: center;
 }
+
 .floating-quran-btn {
     position: fixed;
     bottom: 24px;
@@ -186,20 +249,22 @@ h1 {
     z-index: 100;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
+
 .floating-quran-btn:active, .floating-compass-btn:active {
     transform: scale(0.95);
 }
 
-/* ===== МЕНЮ ===== */
+/* ВЫПАДАЮЩЕЕ МЕНЮ */
 .dropdown {
     position: relative;
 }
+
 .dropdown-content {
     position: absolute;
     top: 55px;
     right: 0;
     background: var(--card-bg);
-    min-width: 180px;
+    min-width: 200px;
     border-radius: 20px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     z-index: 1000;
@@ -207,26 +272,29 @@ h1 {
     visibility: hidden;
     transform: translateY(-10px);
     transition: all 0.2s;
-    border: 1px solid var(--accent-light);
+    border: 1px solid var(--border-color);
 }
+
 .dropdown-content.show {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
 }
+
 .dropdown-content a {
     display: block;
     padding: 14px 18px;
     text-decoration: none;
     color: var(--text-primary);
     font-size: 14px;
-    border-bottom: 1px solid var(--accent-light);
+    border-bottom: 1px solid var(--border-color);
 }
+
 .dropdown-content a:last-child {
     border-bottom: none;
 }
 
-/* ===== МОДАЛЬНЫЕ ОКНА ===== */
+/* ПОЛНОЭКРАННЫЙ ПРОФИЛЬ */
 .fullscreen-profile, .fullscreen-compass {
     position: fixed;
     top: 0;
@@ -240,17 +308,20 @@ h1 {
     padding: 20px;
     overflow-y: auto;
 }
+
 .fullscreen-profile.show, .fullscreen-compass.show {
     display: flex;
 }
+
 .profile-full-header, .compass-full-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding-bottom: 16px;
-    border-bottom: 1px solid var(--accent-light);
+    border-bottom: 1px solid var(--border-color);
     margin-bottom: 20px;
 }
+
 .close-profile, .close-fullscreen {
     background: none;
     border: none;
@@ -259,12 +330,14 @@ h1 {
     color: var(--text-secondary);
     width: 44px;
 }
+
 .profile-tabs {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
     flex-wrap: wrap;
 }
+
 .profile-tab {
     background: var(--accent-light);
     border: none;
@@ -273,195 +346,17 @@ h1 {
     cursor: pointer;
     font-weight: 500;
 }
+
 .profile-tab.active {
     background: var(--accent);
     color: white;
 }
-.settings-group {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-.settings-item {
-    background: var(--accent-light);
-    padding: 15px;
-    border-radius: 28px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-.switch {
-    position: relative;
-    display: inline-block;
-    width: 50px;
-    height: 24px;
-    flex-shrink: 0;
-}
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    border-radius: 24px;
-}
-.slider:before {
-    position: absolute;
-    content: "";
-    height: 18px;
-    width: 18px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    border-radius: 50%;
-    transition: 0.2s;
-}
-input:checked + .slider {
-    background-color: var(--accent);
-}
-input:checked + .slider:before {
-    transform: translateX(26px);
-}
-.test-sound-btn {
-    background: var(--accent);
-    border: none;
-    padding: 14px;
-    border-radius: 40px;
-    color: white;
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: 10px;
-}
 
-/* ===== КОМПАС ===== */
-.compass-full-body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+.profile-content {
     flex: 1;
-    gap: 20px;
-}
-.compass-full {
-    width: 250px;
-    height: 250px;
-    border-radius: 250px;
-    background: var(--accent-light);
-    position: relative;
-    margin: 20px auto;
-    border: 3px solid var(--accent);
-}
-.needle-full {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 4px;
-    height: 210px;
-    transform-origin: center center;
-    transform: translate(-50%, -50%) rotate(0deg);
-    transition: 0.1s linear;
-}
-.needle-top-full {
-    position: absolute;
-    bottom: 50%;
-    left: 0;
-    width: 4px;
-    height: 105px;
-    background: #e74c3c;
-    border-radius: 4px 4px 0 0;
-}
-.needle-bottom-full {
-    position: absolute;
-    top: 50%;
-    left: 0;
-    width: 4px;
-    height: 105px;
-    background: #7f8c8d;
-    border-radius: 0 0 4px 4px;
-}
-.compass-mark-full {
-    position: absolute;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-weight: bold;
-    font-size: 16px;
-    color: var(--accent);
-}
-.kaaba-icon-full {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 40px;
-    color: var(--accent);
-    opacity: 0.8;
-}
-.qibla-degree-full {
-    font-size: 20px;
-    font-weight: 600;
-    text-align: center;
-    color: var(--accent);
-    background: var(--accent-light);
-    padding: 8px 16px;
-    border-radius: 40px;
-}
-.compass-hint-full {
-    font-size: 14px;
-    text-align: center;
-    color: var(--text-secondary);
-    background: var(--accent-light);
-    padding: 8px 16px;
-    border-radius: 40px;
-}
-.start-compass-btn {
-    background: var(--accent);
-    border: none;
-    padding: 14px 28px;
-    border-radius: 48px;
-    color: white;
-    font-weight: 700;
-    font-size: 16px;
-    cursor: pointer;
-    width: 80%;
-    max-width: 280px;
-    margin-top: 20px;
 }
 
-@media (max-width: 560px) {
-    .prayer-card {
-        padding: 20px;
-    }
-    .prayer-time {
-        font-size: 17px;
-        padding: 4px 12px;
-    }
-    .prayer-name {
-        font-size: 15px;
-    }
-    .left-buttons, .right-buttons {
-        width: 40px;
-    }
-    .icon-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 18px;
-    }
-    .start-compass-btn {
-        font-size: 14px;
-        padding: 12px 20px;
-    }
-}
-/* ===== ФОРМЫ АВТОРИЗАЦИИ ===== */
+/* ФОРМЫ АВТОРИЗАЦИИ */
 .auth-tabs {
     display: flex;
     gap: 10px;
@@ -523,6 +418,7 @@ input:checked + .slider:before {
     transform: scale(0.97);
 }
 
+/* Кнопка выхода */
 .profile-logout-btn {
     background: #e74c3c;
     color: white;
@@ -533,5 +429,293 @@ input:checked + .slider:before {
     font-size: 16px;
     cursor: pointer;
     width: 100%;
-    margin-top: 10px;
+    margin-top: 20px;
+}
+
+/* Информация о пользователе */
+.profile-user-info {
+    background: var(--accent-light);
+    padding: 16px;
+    border-radius: 24px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+/* Настройки */
+.settings-group {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.settings-item {
+    background: var(--accent-light);
+    padding: 16px;
+    border-radius: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.settings-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 1;
+}
+
+.settings-info i {
+    font-size: 24px;
+    color: var(--accent);
+    width: 40px;
+}
+
+.settings-info h4 {
+    font-size: 16px;
+    margin-bottom: 4px;
+    color: var(--text-primary);
+}
+
+.settings-info p {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.settings-select {
+    background: var(--card-bg);
+    border: none;
+    padding: 10px 16px;
+    border-radius: 40px;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+/* Переключатель */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    border-radius: 50%;
+    transition: 0.2s;
+}
+
+input:checked + .slider {
+    background-color: var(--accent);
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+/* КОМПАС */
+.compass-full-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    gap: 20px;
+}
+
+.compass-full {
+    width: 250px;
+    height: 250px;
+    border-radius: 250px;
+    background: var(--accent-light);
+    position: relative;
+    margin: 20px auto;
+    border: 3px solid var(--accent);
+}
+
+.needle-full {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 4px;
+    height: 210px;
+    transform-origin: center center;
+    transform: translate(-50%, -50%) rotate(0deg);
+    transition: 0.1s linear;
+}
+
+.needle-top-full {
+    position: absolute;
+    bottom: 50%;
+    left: 0;
+    width: 4px;
+    height: 105px;
+    background: #e74c3c;
+    border-radius: 4px 4px 0 0;
+}
+
+.needle-bottom-full {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 4px;
+    height: 105px;
+    background: #7f8c8d;
+    border-radius: 0 0 4px 4px;
+}
+
+.compass-mark-full {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: bold;
+    font-size: 16px;
+    color: var(--accent);
+}
+
+.kaaba-icon-full {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 40px;
+    color: var(--accent);
+    opacity: 0.8;
+}
+
+.qibla-degree-full {
+    font-size: 20px;
+    font-weight: 600;
+    text-align: center;
+    color: var(--accent);
+    background: var(--accent-light);
+    padding: 8px 16px;
+    border-radius: 40px;
+}
+
+.compass-hint-full {
+    font-size: 14px;
+    text-align: center;
+    color: var(--text-secondary);
+    background: var(--accent-light);
+    padding: 8px 16px;
+    border-radius: 40px;
+}
+
+.start-compass-btn {
+    background: var(--accent);
+    border: none;
+    padding: 14px 28px;
+    border-radius: 48px;
+    color: white;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    width: 80%;
+    max-width: 280px;
+    margin-top: 20px;
+}
+
+/* АДАПТАЦИЯ ДЛЯ ТЕЛЕФОНОВ */
+@media (max-width: 560px) {
+    .prayer-card {
+        padding: 20px;
+        border-radius: 40px;
+    }
+    .prayer-time {
+        font-size: 17px;
+        padding: 4px 12px;
+    }
+    .prayer-name {
+        font-size: 15px;
+    }
+    .prayer-info i {
+        font-size: 18px;
+        width: 24px;
+    }
+    .left-buttons, .right-buttons {
+        min-width: 40px;
+    }
+    .icon-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+    .floating-compass-btn {
+        width: 48px;
+        height: 48px;
+        font-size: 20px;
+        bottom: 20px;
+        left: 20px;
+    }
+    .floating-quran-btn {
+        padding: 10px 16px;
+        font-size: 14px;
+        bottom: 20px;
+        right: 20px;
+    }
+    .compass-full {
+        width: 220px;
+        height: 220px;
+    }
+    .needle-full {
+        height: 190px;
+    }
+    .needle-top-full, .needle-bottom-full {
+        height: 95px;
+    }
+}
+
+@media (min-width: 1025px) {
+    .container {
+        max-width: 650px;
+    }
+    .floating-compass-btn {
+        width: 60px;
+        height: 60px;
+        font-size: 26px;
+    }
+    .floating-quran-btn {
+        padding: 14px 24px;
+        font-size: 18px;
+        gap: 10px;
+    }
+    .compass-full {
+        width: 320px;
+        height: 320px;
+    }
+    .needle-full {
+        height: 280px;
+    }
+    .needle-top-full, .needle-bottom-full {
+        height: 140px;
+    }
 }

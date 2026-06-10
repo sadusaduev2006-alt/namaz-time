@@ -21,6 +21,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyCsegOJYxJ6xGfYzyfAYpgV071ecqxLwZE",
@@ -34,9 +35,11 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const messaging = getMessaging(app);
         
         window.auth = auth;
         window.db = db;
+        window.messaging = messaging;
         window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
         window.signInWithEmailAndPassword = signInWithEmailAndPassword;
         window.signOut = signOut;
@@ -45,6 +48,49 @@
         window.setDoc = setDoc;
         window.getDoc = getDoc;
         window.sendEmailVerification = sendEmailVerification;
+        
+        // Функция запроса разрешения на уведомления и получения токена
+        async function requestNotificationPermission() {
+            try {
+                const permission = await Notification.requestPermission();
+                if (permission !== 'granted') {
+                    console.log('Разрешение на уведомления не получено');
+                    return null;
+                }
+                
+                // VAPID ключ из Firebase Console
+                const token = await getToken(messaging, {
+                    vapidKey: 'BDK47wR0lmFtcl_tC0qO386__3UidPuj3azHIRhgjmo0AXgJUFQoiUdO64wh82S0GjAgJrYVEzc3dWjLcMFwx6A'
+                });
+                
+                console.log('FCM Token:', token);
+                
+                const user = auth.currentUser;
+                if (user && token) {
+                    const userRef = doc(db, 'users', user.uid);
+                    await setDoc(userRef, {
+                        fcmToken: token,
+                        tokenUpdated: new Date().toISOString()
+                    }, { merge: true });
+                    console.log('Токен сохранён в Firestore');
+                }
+                return token;
+            } catch (error) {
+                console.error('Ошибка получения токена:', error);
+                return null;
+            }
+        }
+        
+        // Обработка уведомлений, когда сайт открыт
+        onMessage(messaging, (payload) => {
+            console.log('Уведомление получено:', payload);
+            if (Notification.permission === 'granted') {
+                new Notification(payload.notification.title, {
+                    body: payload.notification.body,
+                    icon: 'https://cdn-icons-png.flaticon.com/512/3069/3069175.png'
+                });
+            }
+        });
         
         function redirectToAccountTab() {
             const profileModal = document.getElementById('fullscreenProfile');
@@ -185,6 +231,11 @@
                 }
                 
                 if (window.updatePrayerTimes) window.updatePrayerTimes();
+                
+                // Запрашиваем разрешение на уведомления после входа
+                setTimeout(() => {
+                    requestNotificationPermission();
+                }, 1000);
             }
             
             function updateUIAfterLogout() {
@@ -247,7 +298,6 @@
                         const userCredential = await window.signInWithEmailAndPassword(window.auth, email, password);
                         const user = userCredential.user;
                         
-                        // Проверяем, не заблокирован ли пользователь
                         const userDoc = await window.getDoc(window.doc(window.db, 'users', user.uid));
                         const userData = userDoc.data();
                         
